@@ -74,8 +74,18 @@ it('shows no data, not zero, when a filter matches nothing', function (): void {
     expect($s->overall->value)->toBeNull()
         ->and($s->overall->display)->toBe('—')
         ->and($s->facilitiesVisited)->toBe(0)
-        ->and($s->lgasCovered)->toBe(0);
+        ->and($s->lgasCovered)->toBe(0)
+        ->and($s->strongGap)->toBeNull();
 });
+
+it('says how far the displayed average is below Strong, from the displayed value (D-89)', function (array $query, string $gap): void {
+    expect(app(StateSummaryAggregator::class)->summary(filter($query))->strongGap)->toBe($gap);
+})->with([
+    'latest round, 78.7' => [[], '11.3'],
+    // 86.666667 shows as 86.7, and the gap is taken from what shows: 90 − 86.7 = 3.3.
+    'one facility, 86.7' => [['lga' => 'AAA', 'owner' => 'public', 'level' => 'secondary'], '3.3'],
+    'earlier closed round, 10.0' => [['year' => 2026, 'quarter' => 1], '80.0'],
+]);
 
 // ---- Dimensions
 

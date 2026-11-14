@@ -15,41 +15,42 @@ export type RuleSummaryProps = {
 };
 
 /**
- * Every validation rule (the 14 and RULE_ERROR) with its severity, name, why it exists and how
- * many records it holds open (D-57). Each is a toggle button that filters the table by it; the
- * severity is a word and a shape, never only a colour.
+ * The validation rules of the tab in view (hard or soft, the 14 and RULE_ERROR) with how many
+ * records each holds open (D-57), as one compact list (D-89): name, code, why in short, and the
+ * count. Each is a toggle button that filters the table by it; the chosen one shows its reason in
+ * full. The panel names the severity once, in words, instead of a tag on every rule.
  */
 export default function RuleSummary({ rules, active, onChoose }: RuleSummaryProps) {
     const t = useTranslate();
+    const severity = rules[0]?.severity === 'soft' ? 'soft' : 'hard';
 
     return (
         <Panel labelledBy="issues-rules-title">
-            <PanelHeader id="issues-rules-title" title={t('admin.issues.summary.title')} description={t('admin.issues.summary.description')} />
-            <ul className="grid gap-2 px-5 pb-5 rail:grid-cols-2">
+            <PanelHeader id="issues-rules-title" title={t(`admin.issues.summary.title_${severity}`)} description={t(`admin.issues.summary.description_${severity}`)} />
+            <ul className="mt-3 grid divide-y divide-rule border-t border-rule 2xl:grid-cols-1 md:grid-cols-2 md:divide-y-0 2xl:divide-y">
                 {rules.map((rule) => {
                     const pressed = active === rule.code;
                     // ink-2 on the pressed wash is 4.3:1, under AA: full ink when pressed.
                     const secondary = pressed ? 'text-ink' : 'text-ink-2';
 
                     return (
-                        <li key={rule.code}>
+                        <li key={rule.code} className="md:border-b md:border-rule 2xl:border-b-0">
                             <button
                                 type="button"
                                 aria-pressed={pressed}
                                 onClick={() => onChoose(pressed ? null : rule.code)}
-                                className={`flex w-full flex-col gap-1 rounded-md border px-3 py-2.5 text-left text-sm ${
-                                    pressed ? 'border-deep bg-wash forced-colors:border-[Highlight]' : 'border-rule bg-panel hover:bg-paper'
+                                className={`flex w-full items-start gap-3 px-5 py-3 text-left text-sm transition-colors duration-150 ${
+                                    pressed ? 'bg-wash shadow-[inset_3px_0_0_var(--color-deep)] forced-colors:outline-2 forced-colors:outline-[Highlight]' : 'hover:bg-paper'
                                 }`}
                             >
-                                <span className="flex flex-wrap items-center gap-2">
-                                    <SeverityTag severity={rule.severity} label={t(`admin.issues.summary.${rule.severity}`)} />
-                                    <span className="font-medium">{rule.name}</span>
-                                    <code className={`text-2xs ${secondary}`}>{rule.code}</code>
-                                    <span className={`ml-auto rounded-full px-2 py-px text-xs tabular-nums ${rule.open > 0 ? 'bg-bad-bg text-bad' : 'bg-paper text-ink-2'}`}>
-                                        {t('admin.issues.summary.open', { count: formatCount(rule.open) })}
-                                    </span>
+                                <span className="min-w-0 flex-1">
+                                    <span className={`block ${pressed ? 'font-semibold' : 'font-medium'}`}>{rule.name}</span>
+                                    <code className={`block text-2xs ${secondary}`}>{rule.code}</code>
+                                    <span className={`mt-1 text-xs ${secondary} ${pressed ? 'block' : 'line-clamp-2'}`}>{rule.why}</span>
                                 </span>
-                                <span className={`text-xs ${secondary}`}>{rule.why}</span>
+                                <span className={`shrink-0 rounded-full px-2 py-px text-xs whitespace-nowrap tabular-nums ${rule.open > 0 ? 'bg-bad-bg font-medium text-bad' : 'text-ink-2'}`}>
+                                    {t('admin.issues.summary.open', { count: formatCount(rule.open) })}
+                                </span>
                             </button>
                         </li>
                     );

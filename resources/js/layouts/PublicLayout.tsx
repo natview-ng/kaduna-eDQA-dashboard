@@ -53,12 +53,15 @@ function PublicShell({ children }: PublicLayoutProps) {
             </a>
             <PublicHeader />
             {props.auth.user !== null && <AdminPreviewBar />}
-            <TopBar title={title} subtitle={subtitle} titleRef={titleRef} headerRef={headerRef}>
+            <TopBar
+                title={title}
+                subtitle={subtitle}
+                titleRef={titleRef}
+                headerRef={headerRef}
+                nav={page !== null && props.filters !== undefined ? <DashboardTabs current={page} filters={props.filters} lgaCount={props.summary?.lgas ?? 0} /> : undefined}
+            >
                 {page !== null && props.filters !== undefined && props.filterOptions !== undefined && (
-                    <>
-                        <FilterBar filters={props.filters} options={props.filterOptions} path={path} />
-                        <DashboardTabs current={page} filters={props.filters} lgaCount={props.summary?.lgas ?? 0} />
-                    </>
+                    <FilterBar filters={props.filters} options={props.filterOptions} path={path} />
                 )}
             </TopBar>
             <main id="main" tabIndex={-1} className="mx-auto w-full max-w-[1320px] flex-1 px-4 pt-6 pb-16 rail:px-7">

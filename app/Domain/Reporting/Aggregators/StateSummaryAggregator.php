@@ -11,6 +11,8 @@ use App\Domain\Reporting\Support\FacilityScoresSql;
 use App\Domain\Reporting\Support\RoundSelection;
 use App\Domain\Reporting\Support\Scores;
 use App\Domain\Reporting\Support\Weighting;
+use App\Domain\Scoring\Bands;
+use App\Domain\Scoring\DTOs\ScoreValue;
 use App\Domain\Scoring\Presentation;
 use Illuminate\Support\Facades\DB;
 
@@ -47,15 +49,34 @@ final class StateSummaryAggregator
                 FROM facility_scores
                 SQL, [...$bindings, $rules->bands['strong'] ?? 101, $rules->bands['review'] ?? -1]);
 
+            $overall = Scores::of($row?->overall, $rules);
+            $strongAt = $rules?->bands['strong'];
+
             return new StateSummary(
-                overall: Scores::of($row?->overall, $rules),
+                overall: $overall,
                 facilitiesVisited: Scores::int($row?->facilities),
                 lgasCovered: Scores::int($row?->lgas),
                 facilitiesStrong: Scores::int($row?->strong),
                 facilitiesWeak: Scores::int($row?->weak),
-                strongAt: $rules?->bands['strong'],
+                strongAt: $strongAt,
                 weakBelow: $rules?->bands['review'],
+                strongGap: self::strongGap($overall->value, $strongAt),
             );
         });
+    }
+
+    /**
+     * How far the average shows below Strong (D-89), from the displayed value, so the sentence
+     * adds up on screen (86.1 + 3.9 = 90), the same way the counts compare it (Q-26). Both sides
+     * have one decimal, so the difference is rounded only to drop float noise.
+     */
+    private static function strongGap(?float $overall, ?float $strongAt): ?string
+    {
+        if ($overall === null || $strongAt === null) {
+            return null;
+        }
+        $gap = round($strongAt - Presentation::round($overall, Bands::DISPLAY_DP), Bands::DISPLAY_DP);
+
+        return $gap > 0 ? ScoreValue::format($gap, Bands::DISPLAY_DP) : null;
     }
 }

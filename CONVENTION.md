@@ -183,7 +183,7 @@ Backed string enums in `App\Domain\*\Enums`: `Dimension`, `Severity`, `RoundStat
 
 ## 6. Design system
 
-Taken from the prototype (`kaduna-edqa-prototype-v4.html`). Tokens are defined once in
+Taken from the prototype (`kaduna-edqa-prototype-v4.html`), then the clean redesign (ARCHITECTURE.md D-89). Tokens are defined once in
 `resources/css/app.css`; components use Tailwind utilities referencing them — never hex values
 inline.
 
@@ -192,32 +192,35 @@ Define in `resources/css/app.css` with Tailwind 4 `@theme`:
 
 ```css
 @theme {
-  --color-paper: #F1F3EF;   --color-panel: #FFFFFF;
+  --color-paper: #F6F7F5;   --color-panel: #FFFFFF;   --color-subtle: #F0F2EF; /* table header bands, inset tiles */
   --color-ink: #17302B;     --color-ink-2: #5A6F68;  --color-ink-3: #8B9C96; /* decorative only — never text */
-  --color-rule: #DCE2DC;
+  --color-rule: #E1E6E1;
   --color-deep: #0D4B44;    --color-deep-2: #12645B; --color-wash: #DCE9E5;
   --color-rail: #0B3D37;
   --color-ok: #2D7753;      --color-ok-bg: #E4F0E7;   /* darkened from prototype #2F7D57 for 4.5:1 */
   --color-warn: #8A6408;    --color-warn-bg: #F6EDD8; /* darkened from prototype #A2760A for 4.5:1 */
   --color-warn-fill: #A2760A;                        /* bars, lines, borders only */
   --color-bad: #9E3B2F;     --color-bad-bg: #F6E2DE;
+  --color-fine: #34566A;    --color-fine-bg: #E7EEF2; /* Acceptable (D-89), 6.7:1 on fine-bg */
   --color-pub: #0D4B44;     --color-pub-bg: #DCE9E5;
   --color-priv: #8A5A12;    --color-priv-bg: #F5E9D4;
 
   --font-sans: "IBM Plex Sans", "Segoe UI", Roboto, system-ui, sans-serif;
-  --font-display: "Archivo", "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-display: var(--font-sans); /* one family (D-89) */
 
-  --shadow-panel: 0 1px 2px rgba(23,48,43,.06), 0 8px 24px -16px rgba(23,48,43,.28);
-  --radius-panel: 10px;
+  --shadow-panel: none;     /* panels are ruled, not floating */
+  --radius-panel: 12px;
 }
 ```
 
-- Fonts **self-hosted** via `@fontsource/archivo` (500/600/700) and `@fontsource/ibm-plex-sans`
-  (400/500/600), `font-display: swap`. No Google Fonts CDN (CSP + 3G).
+- Fonts **self-hosted** via `@fontsource/ibm-plex-sans` (400/500/600), `font-display: swap`; one
+  family for text and headings (D-89; Archivo was dropped). No Google Fonts CDN (CSP + 3G).
 - Base: body 15px / 1.5, `-webkit-font-smoothing: antialiased`, numbers `tabular-nums`.
-- Headings use `font-display`, letter-spacing `-0.012em`.
+- Headings use `font-display` (the same family), letter-spacing `-0.01em`.
+- Buttons and controls are 36px (`min-h-9`). Dashboard filters are `.field`s: the visible label sits
+  inside the border before its select, and the field shows the focus ring.
 - Focus: `outline: 2px solid deep-2; outline-offset: 2px` — never removed (`ACCESSIBILITY.md` §5).
-- Secondary text uses `ink-2` (5.37:1 on white, 4.81:1 on paper). `ink-3` is for dividers and
+- Secondary text uses `ink-2` (5.37:1 on white, 5.0:1 on paper, 4.77:1 on subtle; never on `wash`, 4.3:1). `ink-3` is for dividers and
   decorative marks only.
 - Respect `prefers-reduced-motion`.
 
@@ -231,15 +234,15 @@ Define in `resources/css/app.css` with Tailwind 4 `@theme`:
 | Overall | `#81988F` (prototype `#B7C4BF` fails 3:1 non-text contrast) |
 | Target / Strong line | `#A2760A` (`warn-fill`) dashed |
 
-### Heat shading (month cells)
+### Month cells
 
-`t = clamp((v − 55) / 45, 0, 1)` → `hsl(146, 28+26t %, 96−30t %)`. **Text is always `ink`** — the
-prototype switches to white text above `t > 0.62`, which drops to ~1.5:1 contrast. See `ACCESSIBILITY.md` §4.
-Put in `lib/heat.ts`; always show the number in the cell.
+Each cell takes its **band's tint** (`ok-bg`, `fine-bg`, `warn-bg`, `bad-bg`), the same colours as
+`ScoreTag` (D-89; the prototype's value heat scale is gone). **Text is always `ink`**. `lib/heat.ts` maps
+the server's band to a class; it reads no value. Always show the number in the cell.
 
 ### Band colours
 
-Strong/Acceptable → ok, Review → warn, Needs action → bad. Always render the **label** text
+Strong → ok, Acceptable → fine (slate, D-89), Review → warn, Needs action → bad. Always render the **label** text
 (`ScoreTag` shows value; Status column shows label). Colour never carries meaning alone.
 
 

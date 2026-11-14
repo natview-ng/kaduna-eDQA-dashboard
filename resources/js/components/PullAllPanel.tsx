@@ -39,25 +39,25 @@ export default function PullAllPanel({ names, onStarted }: PullAllPanelProps) {
     };
 
     return (
+        // D-89: one row, the explanation on the left and the page's main action on the right.
         <Panel labelledBy="sources-pull-all-title">
-            <PanelHeader id="sources-pull-all-title" title={t('admin.sources.pull_all.title')} description={t('admin.sources.pull_all.description')} />
-            <div className="flex flex-col gap-3 px-5 pb-5 text-sm">
-                <div>
-                    <button
-                        type="button"
-                        onClick={() => void start()}
-                        disabled={action.pending}
-                        className="btn btn-primary min-h-11"
-                    >
+            <PanelHeader
+                id="sources-pull-all-title"
+                title={t('admin.sources.pull_all.title')}
+                description={t('admin.sources.pull_all.description')}
+                actions={
+                    <button type="button" onClick={() => void start()} disabled={action.pending} className="btn btn-primary self-center">
                         {action.pending ? t('admin.sources.pull_all.starting') : t('admin.sources.pull_all.button')}
                     </button>
-                </div>
+                }
+            />
+            <div className="flex flex-col gap-2 px-5 pt-1 pb-4 text-sm">
                 {action.error !== null && (
                     <p role="alert" className="notice notice-bad text-bad">
                         {action.error}
                     </p>
                 )}
-                <p role="status" className="text-sm">
+                <p role="status" className="text-sm empty:hidden">
                     {started}
                 </p>
             </div>

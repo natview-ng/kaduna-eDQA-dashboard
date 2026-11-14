@@ -125,16 +125,17 @@ export default function FilterBar({ filters, options, path }: FilterBarProps) {
         }
         timer.current = setTimeout(() => visit(next), DEBOUNCE_MS);
     };
-    const select = 'control w-full min-h-9 sm:w-auto sm:min-w-[128px]';
-    const label = 'text-2xs font-medium text-ink-2';
+    // D-89: each filter is a compact field, its visible label inside the border; a set one is tinted.
+    const field = (key: FilterKey | 'duration', extra = '') =>
+        `field w-full sm:w-auto ${(key === 'duration' ? durationOf(values) : values[key]) !== '' ? 'field-set' : ''} ${extra}`;
 
     return (
-        <form role="search" aria-label={t('dashboard.filters.label')} className="grid grid-cols-2 gap-x-2.5 gap-y-2.5 pb-4 sm:flex sm:flex-wrap sm:items-end sm:gap-3" onSubmit={(event) => event.preventDefault()}>
-            <div className="flex min-w-0 flex-col gap-1">
-                <label htmlFor={`${id}-year`} className={label}>
+        <form role="search" aria-label={t('dashboard.filters.label')} className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-end" onSubmit={(event) => event.preventDefault()}>
+            <div className={field('year')}>
+                <label htmlFor={`${id}-year`}>
                     {t('dashboard.filters.year')}
                 </label>
-                <select id={`${id}-year`} ref={yearSelect} className={select} value={values.year} onChange={(event) => change('year', event.target.value)}>
+                <select id={`${id}-year`} ref={yearSelect} value={values.year} onChange={(event) => change('year', event.target.value)}>
                     <option value="">{t('dashboard.filters.all_years')}</option>
                     {years.map((year) => (
                         <option key={year} value={String(year)}>
@@ -143,13 +144,13 @@ export default function FilterBar({ filters, options, path }: FilterBarProps) {
                     ))}
                 </select>
             </div>
-            <div className="flex min-w-0 flex-col gap-1">
-                <label htmlFor={`${id}-duration`} className={label}>
+            <div className={field('duration')}>
+                <label htmlFor={`${id}-duration`}>
                     {t('dashboard.filters.duration')}
                 </label>
                 <select
                     id={`${id}-duration`}
-                    className={select}
+                   
                     value={durationOf(values)}
                     onChange={(event) => changeDuration(event.target.value)}
                 >
@@ -180,11 +181,11 @@ export default function FilterBar({ filters, options, path }: FilterBarProps) {
                     )}
                 </select>
             </div>
-            <div className="flex min-w-0 flex-col gap-1">
-                <label htmlFor={`${id}-lga`} className={label}>
+            <div className={field('lga')}>
+                <label htmlFor={`${id}-lga`}>
                     {t('dashboard.filters.lga')}
                 </label>
-                <select id={`${id}-lga`} className={select} value={values.lga} onChange={(event) => change('lga', event.target.value)}>
+                <select id={`${id}-lga`} value={values.lga} onChange={(event) => change('lga', event.target.value)}>
                     <option value="">{t('dashboard.filters.all_lgas')}</option>
                     {options.lgas.map((lga) => (
                         <option key={lga.code} value={lga.code}>
@@ -193,11 +194,11 @@ export default function FilterBar({ filters, options, path }: FilterBarProps) {
                     ))}
                 </select>
             </div>
-            <div className="flex min-w-0 flex-col gap-1">
-                <label htmlFor={`${id}-level`} className={label}>
+            <div className={field('level')}>
+                <label htmlFor={`${id}-level`}>
                     {t('dashboard.filters.level')}
                 </label>
-                <select id={`${id}-level`} className={select} value={values.level} onChange={(event) => change('level', event.target.value)}>
+                <select id={`${id}-level`} value={values.level} onChange={(event) => change('level', event.target.value)}>
                     <option value="">{t('dashboard.filters.all_levels')}</option>
                     {options.levels.map((level) => (
                         <option key={level.value} value={level.value}>
@@ -206,11 +207,11 @@ export default function FilterBar({ filters, options, path }: FilterBarProps) {
                     ))}
                 </select>
             </div>
-            <div className="col-span-2 flex min-w-0 flex-col gap-1 sm:col-span-1">
-                <label htmlFor={`${id}-owner`} className={label}>
+            <div className={field('owner', 'col-span-2 sm:col-span-1')}>
+                <label htmlFor={`${id}-owner`}>
                     {t('dashboard.filters.owner')}
                 </label>
-                <select id={`${id}-owner`} className={select} value={values.owner} onChange={(event) => change('owner', event.target.value)}>
+                <select id={`${id}-owner`} value={values.owner} onChange={(event) => change('owner', event.target.value)}>
                     <option value="">{t('dashboard.filters.all_owners')}</option>
                     {options.owners.map((owner) => (
                         <option key={owner.value} value={owner.value}>
@@ -225,7 +226,7 @@ export default function FilterBar({ filters, options, path }: FilterBarProps) {
                     preserveScroll
                     preserveState
                     replace
-                    className="btn btn-quiet btn-sm self-end"
+                    className="btn btn-quiet btn-sm self-center"
                     onSuccess={() => {
                         // The link goes away with the filters: put focus somewhere useful.
                         yearSelect.current?.focus();

@@ -1,3 +1,4 @@
+import StatusLabel from '@/components/StatusLabel';
 import { formatCount } from '@/lib/format';
 import { useTranslate } from '@/lib/i18n';
 import type { GroupScores, OwnerSplit as OwnerSplitScores } from '@/types/dashboard';
@@ -42,17 +43,19 @@ function Side({ owner, title, scores, headingLevel }: SideProps) {
                 <span className="text-xs text-ink-2">{t('dashboard.home.visited', { count: formatCount(scores.facilities) })}</span>
             </div>
             <dl className="mt-2 flex flex-col-reverse">
-                <dt className="text-2xs text-ink-2">{t('dashboard.home.overall_caption')}</dt>
-                <dd className={`m-0 mt-1 font-display text-2xl leading-none font-bold tracking-[-0.03em] tabular-nums ${colour}`}>
-                    {scores.overall.headline}
-                    <span className="ml-2 align-middle font-sans text-xs font-medium text-ink-2">{scores.overall.bandLabel}</span>
+                <dt className="text-xs text-ink-2">{t('dashboard.home.overall_caption')}</dt>
+                <dd className="m-0 mt-1 flex items-center gap-2.5">
+                    <span className="text-2xl leading-none font-semibold tracking-[-0.03em] text-ink tabular-nums">{scores.overall.display}</span>
+                    <StatusLabel band={scores.overall.band} label={scores.overall.bandLabel} />
                 </dd>
             </dl>
-            <dl className="mt-4 grid grid-cols-3 gap-px overflow-hidden rounded-md border border-rule bg-rule">
+            {/* D-89: a side of one facility is that facility's score, not a group's; say so. */}
+            {scores.facilities === 1 && <p className="mt-2 text-xs text-ink-2">{t('dashboard.home.single_owner_facility')}</p>}
+            <dl className="mt-4 grid grid-cols-3 gap-2">
                 {DIMENSIONS.map((dimension) => (
-                    <div key={dimension} className="flex flex-col-reverse bg-panel px-3 py-2.5">
-                        <dt className="text-2xs text-ink-2">{t(`enums.dimension.${dimension}`)}</dt>
-                        <dd className="m-0 font-display text-lg font-semibold tabular-nums">{scores[dimension].headline}</dd>
+                    <div key={dimension} className="flex flex-col-reverse rounded-md bg-subtle px-3 py-2.5">
+                        <dt className="text-xs text-ink-2">{t(`enums.dimension.${dimension}`)}</dt>
+                        <dd className="m-0 text-md font-semibold text-ink tabular-nums">{scores[dimension].display}</dd>
                     </div>
                 ))}
             </dl>

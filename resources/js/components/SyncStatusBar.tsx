@@ -7,14 +7,16 @@ export type SyncStatusBarProps = {
     status: ShellStatus;
 };
 
+// D-89: the bar itself stays neutral; each source carries its state in its mark colour, its
+// shape and its words, so a failure is still said and seen without painting the whole line red.
 const TONE: Record<SyncState, string> = {
-    not_configured: 'border-rule bg-paper text-ink-2',
-    disabled: 'border-rule bg-paper text-ink-2',
-    not_connected: 'border-rule bg-paper text-ink-2',
-    healthy: 'border-ok-bg bg-ok-bg text-ok',
-    stale: 'border-warn-bg bg-warn-bg text-warn',
-    failed: 'border-bad-bg bg-bad-bg text-bad',
-    auth_failed: 'border-bad-bg bg-bad-bg text-bad',
+    not_configured: 'text-ink-3',
+    disabled: 'text-ink-3',
+    not_connected: 'text-ink-3',
+    healthy: 'text-ok',
+    stale: 'text-warn-fill',
+    failed: 'text-bad',
+    auth_failed: 'text-bad',
 };
 
 // A shape per state as well as a colour and the words (CLAUDE.md hard rule 11); decorative.
@@ -23,25 +25,24 @@ const MARK: Record<SyncState, string> = { not_configured: '○', disabled: '○'
 /**
  * The sources' sync line above the top bar (ARCHITECTURE.md §9.1): every source by name, worst
  * state first (the server orders them), each said in words with its own mark (ACCESSIBILITY.md
- * §6), then the counts. The bar takes the worst source's tone. Not configured, switched off and
- * waiting for the first pull are neutral: nothing has failed.
+ * §6), then the counts. Not configured, switched off and waiting for the first pull are neutral:
+ * nothing has failed.
  */
 export default function SyncStatusBar({ status }: SyncStatusBarProps) {
     const t = useTranslate();
     const months = useTranslationList('common.months_short');
     const at = (value: string | null) => (value === null || months.length !== 12 ? '' : formatDateTime(value, months));
-    const worst = status.sources[0]?.state ?? 'not_configured';
     const counts = t('admin.sync.counts', { assessments: formatCount(status.assessments), quarantined: formatCount(status.quarantined) });
 
     return (
-        <div role="status" aria-label={t('admin.sync.label')} className={`flex flex-wrap items-center gap-x-5 gap-y-1 border-b px-4 py-1.5 text-xs rail:px-7 ${TONE[worst]}`}>
+        <div role="status" aria-label={t('admin.sync.label')} className="flex flex-wrap items-center gap-x-6 gap-y-1 border-b border-rule bg-panel px-4 py-2 text-xs text-ink-2 rail:px-7">
             {status.sources.length === 0 ? (
                 <span>{t('admin.sync.none')}</span>
             ) : (
                 status.sources.map((source) => (
                     <span key={source.key} className="inline-flex items-center gap-2">
-                        <StateMark mark={MARK[source.state]} className="size-2" />
-                        <span>{sentence(t, source, at)}</span>
+                        <StateMark mark={MARK[source.state]} className={`size-2 ${TONE[source.state]}`} />
+                        <span className={source.state === 'failed' || source.state === 'auth_failed' ? 'text-ink' : undefined}>{sentence(t, source, at)}</span>
                     </span>
                 ))
             )}

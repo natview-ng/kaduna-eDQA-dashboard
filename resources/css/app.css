@@ -10,24 +10,24 @@
 @import '@fontsource/ibm-plex-sans/400.css';
 @import '@fontsource/ibm-plex-sans/500.css';
 @import '@fontsource/ibm-plex-sans/600.css';
-@import '@fontsource/archivo/500.css';
-@import '@fontsource/archivo/600.css';
-@import '@fontsource/archivo/700.css';
 
 @source '../js';
 @source '../views';
 
 /*
- * Design tokens (CONVENTION.md §6), taken from the prototype with contrast fixes.
+ * Design tokens (CONVENTION.md §6), taken from the prototype with contrast fixes, then the clean
+ * redesign (D-89): a lighter canvas, hairline rules, one font, its own colour for Acceptable.
  * Components use Tailwind utilities that reference these, never hex values inline.
  */
 @theme {
-    --color-paper: #f1f3ef;
+    --color-paper: #f6f7f5;
     --color-panel: #ffffff;
     --color-ink: #17302b;
     --color-ink-2: #5a6f68;
     --color-ink-3: #8b9c96; /* decorative only, never text */
-    --color-rule: #dce2dc;
+    /* A quiet fill inside a panel: table header bands, inset tiles, a segmented control's track. */
+    --color-subtle: #f0f2ef;
+    --color-rule: #e1e6e1;
     /* Strong rule: section dividers and the line under a page's title. */
     --color-rule-strong: #c3cdc6;
     /* Borders of inputs, selects and secondary buttons: 3.3:1 on white (WCAG 1.4.11). */
@@ -53,6 +53,9 @@
     --color-warn-fill: #a2760a; /* bars, lines, borders only */
     --color-bad: #9e3b2f;
     --color-bad-bg: #f6e2de;
+    /* Acceptable (D-89): slate, so it no longer shares Strong's green. 6.7:1 on its own fill. */
+    --color-fine: #34566a;
+    --color-fine-bg: #e7eef2;
     --color-pub: #0d4b44;
     --color-pub-bg: #dce9e5;
     --color-priv: #8a5a12;
@@ -66,7 +69,8 @@
     --color-series-overall: #81988f;
 
     --font-sans: 'IBM Plex Sans', 'Segoe UI', Roboto, system-ui, sans-serif;
-    --font-display: 'Archivo', 'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif;
+    /* One family (D-89): headings are IBM Plex Sans too; Archivo is gone (three fewer font files). */
+    --font-display: var(--font-sans);
 
     /*
      * Type scale (rem of the 15px root): one step per role, never a pixel size in a component.
@@ -98,7 +102,7 @@
      */
     --shadow-panel: none;
     --shadow-overlay: 0 1px 3px rgba(13, 40, 36, 0.12), 0 24px 48px -16px rgba(13, 40, 36, 0.32);
-    --radius-panel: 6px;
+    --radius-panel: 12px;
 
     --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -148,7 +152,7 @@
     h2,
     h3 {
         @apply font-display font-semibold;
-        letter-spacing: -0.012em;
+        letter-spacing: -0.01em;
         text-wrap: balance;
     }
 
@@ -187,7 +191,7 @@
  */
 @layer components {
     .btn {
-        @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md border px-4 text-sm font-medium whitespace-nowrap select-none;
+        @apply inline-flex min-h-9 items-center justify-center gap-2 rounded-md border px-4 text-sm font-medium whitespace-nowrap select-none;
         transition:
             background-color 150ms var(--ease-out),
             border-color 150ms var(--ease-out),
@@ -239,7 +243,7 @@
     }
 
     .control {
-        @apply min-h-10 rounded-md border border-control bg-panel px-3 text-sm text-ink;
+        @apply min-h-9 rounded-md border border-control bg-panel px-3 text-sm text-ink;
         transition: border-color 150ms var(--ease-out);
     }
     .control:hover:not(:disabled) {
@@ -255,6 +259,36 @@
         @apply pr-8;
     }
 
+    /*
+     * A compact filter (D-89): the visible <label> sits inside the border before its select, so a
+     * row of filters reads "Year All · LGA All". The select itself has no border; the field shows
+     * the focus ring instead, so focus is never lost. A field with a value set is tinted.
+     */
+    .field {
+        @apply inline-flex min-h-9 items-center gap-1.5 rounded-md border border-control bg-panel pl-3 text-sm text-ink;
+        transition: border-color 150ms var(--ease-out);
+    }
+    .field:hover {
+        @apply border-ink-2;
+    }
+    .field:has(select:focus-visible) {
+        outline: 2px solid var(--color-deep-2);
+        outline-offset: 2px;
+    }
+    .field-set {
+        @apply border-deep bg-wash;
+    }
+    /* ink-2 on wash is 4.3:1, under AA: a set field's label is full ink. */
+    .field-set > label {
+        @apply text-ink;
+    }
+    .field > label {
+        @apply shrink-0 whitespace-nowrap text-ink-2;
+    }
+    .field > select {
+        @apply min-h-9 min-w-0 flex-1 cursor-pointer border-0 bg-transparent pr-2 font-medium text-ink;
+        outline: none;
+    }
     /* A message inside the page: never a toast, never colour alone (the text says it). */
     .notice {
         @apply rounded-md border px-3.5 py-2.5 text-sm text-ink;

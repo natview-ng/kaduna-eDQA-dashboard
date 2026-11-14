@@ -86,7 +86,7 @@ export default function FacilityTable({ state, caption, onSort, onOpen }: Facili
                 const facility = row.original;
 
                 return (
-                    <tr key={row.id} className="border-b border-paper last:border-b-0">
+                    <tr key={row.id} className="border-b border-rule last:border-b-0">
                         {row.getVisibleCells().map((cell) => {
                             switch (cell.column.id) {
                                 case 'facility':
@@ -96,19 +96,17 @@ export default function FacilityTable({ state, caption, onSort, onOpen }: Facili
                                                 type="button"
                                                 aria-haspopup="dialog"
                                                 onClick={() => onOpen(facility)}
-                                                className="inline-block py-1 text-left font-medium text-deep underline decoration-rule underline-offset-2 hover:decoration-deep"
+                                                className="inline-block py-0.5 text-left font-medium text-ink underline decoration-rule-strong underline-offset-3 hover:decoration-deep"
                                             >
                                                 {facility.name}
                                             </button>
-                                            <span className="block text-2xs text-ink-2">{facility.code}</span>
+                                            <span className="block text-xs text-ink-2">{facility.code}</span>
                                         </th>
                                     );
                                 case 'owner':
                                     return (
                                         <td key={cell.id} className="px-3 py-2">
-                                            <span className={`rounded-full px-2 py-0.5 text-2xs ${facility.ownership === 'public' ? 'bg-pub-bg text-pub' : 'bg-priv-bg text-priv'}`}>
-                                                {t(`enums.ownership.${facility.ownership}`)}
-                                            </span>
+                                            {t(`enums.ownership.${facility.ownership}`)}
                                         </td>
                                     );
                                 case 'assessed':

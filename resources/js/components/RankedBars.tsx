@@ -30,10 +30,10 @@ export type RankedBarsProps = {
     empty: string;
 };
 
-// Strong and Acceptable share ok, as in ScoreTag: the band label tells them apart.
+// The band colours of ScoreTag (D-89); the band label is always written as well.
 const TONE: Record<Band, string> = {
     strong: 'fill-ok',
-    acceptable: 'fill-ok',
+    acceptable: 'fill-fine',
     review: 'fill-warn-fill',
     needs_action: 'fill-bad',
 };

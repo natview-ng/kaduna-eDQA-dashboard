@@ -14,7 +14,7 @@ const issues: Issues | null = process.env.E2E_ISSUES ? (JSON.parse(process.env.E
 
 async function ready(page: Page): Promise<void> {
     await expect(page.getByRole('heading', { level: 1, name: 'Data issues' })).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole('region', { name: 'Rules', exact: true })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Hard rules', exact: true })).toBeVisible();
 }
 
 /** Press Tab from where focus is now until the target has it: no mouse. */
@@ -65,7 +65,7 @@ test.describe('Data issues page', () => {
         await page.goto('/admin/data-issues');
         await ready(page);
 
-        await expect(page.getByRole('region', { name: 'Rules', exact: true }).getByRole('button')).toHaveCount(11); // 10 hard rules and RULE_ERROR
+        await expect(page.getByRole('region', { name: 'Hard rules', exact: true }).getByRole('button')).toHaveCount(11); // 10 hard rules and RULE_ERROR
         await expect(page.getByLabel('Status', { exact: true })).toHaveValue('open');
 
         const lga = page.getByRole('button', { name: /Unknown LGA/ });
@@ -84,7 +84,7 @@ test.describe('Data issues page', () => {
         await ready(page);
         await expect(page.getByRole('button', { name: 'Flagged (soft rules)' })).toHaveAttribute('aria-pressed', 'true');
         await expect(page.getByLabel('Status', { exact: true })).toHaveCount(0);
-        await expect(page.getByRole('region', { name: 'Rules', exact: true }).getByRole('button')).toHaveCount(4);
+        await expect(page.getByRole('region', { name: 'Soft rules', exact: true }).getByRole('button')).toHaveCount(4);
         expect(errors).toEqual([]);
     });
 

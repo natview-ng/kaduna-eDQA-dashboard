@@ -11,7 +11,7 @@ export type StatusLabelProps = {
 // in words. The mark is decorative: the label is what is read.
 const STYLE: Record<Band, { tone: string; mark: string }> = {
     strong: { tone: 'bg-ok-bg text-ok', mark: '●' },
-    acceptable: { tone: 'bg-ok-bg text-ok', mark: '◐' },
+    acceptable: { tone: 'bg-fine-bg text-fine', mark: '◐' },
     review: { tone: 'bg-warn-bg text-warn', mark: '▲' },
     needs_action: { tone: 'bg-bad-bg text-bad', mark: '■' },
 };

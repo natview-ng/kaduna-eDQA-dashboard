@@ -27,12 +27,12 @@ export default function MonthGroupChart({ rows, label }: MonthGroupChartProps) {
     return (
         <div role="img" aria-label={label} className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} margin={{ top: 8, right: 4, bottom: 4, left: 0 }} barCategoryGap="18%" barGap={1} accessibilityLayer={false}>
-                    <CartesianGrid stroke="var(--color-paper)" vertical={false} />
+                <BarChart data={data} margin={{ top: 8, right: 4, bottom: 4, left: 0 }} barCategoryGap="32%" barGap={3} accessibilityLayer={false}>
+                    <CartesianGrid stroke="var(--color-rule)" strokeDasharray="2 4" vertical={false} />
                     <XAxis dataKey="label" interval={0} tick={{ fontSize: 11.5, fill: 'var(--color-ink-2)' }} tickLine={false} axisLine={{ stroke: 'var(--color-rule)' }} />
                     <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tick={{ fontSize: 11.5, fill: 'var(--color-ink-2)' }} tickLine={false} axisLine={false} width={32} />
                     {SERIES.map((series) => (
-                        <Bar key={series} dataKey={series} fill={SERIES_COLOUR[series]} radius={[2, 2, 0, 0]} isAnimationActive={false} />
+                        <Bar key={series} dataKey={series} fill={SERIES_COLOUR[series]} radius={[3, 3, 0, 0]} isAnimationActive={false} />
                     ))}
                 </BarChart>
             </ResponsiveContainer>

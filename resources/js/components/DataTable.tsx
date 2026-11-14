@@ -41,7 +41,7 @@ export default function DataTable({ caption, captionHidden = false, columns, sor
 
     return (
         <div role="region" aria-label={t('common.ui.scroll_region', { label: caption })} tabIndex={0} className="overflow-x-auto">
-            <table className="w-full border-collapse text-sm [&_td:first-child]:pl-5 [&_td:last-child]:pr-5 [&_th:first-child]:pl-5 [&_th:last-child]:pr-5 [&_tbody_tr]:transition-colors [&_tbody_tr]:duration-150 [&_tbody_tr:hover]:bg-paper/50">
+            <table className="w-full border-collapse text-sm [&_td:first-child]:pl-5 [&_td:last-child]:pr-5 [&_th:first-child]:pl-5 [&_th:last-child]:pr-5 [&_tbody_td]:py-2.5 [&_tbody_th]:py-2.5 [&_tbody_tr]:transition-colors [&_tbody_tr]:duration-150 [&_tbody_tr:hover]:bg-paper/70">
                 <caption className={captionHidden ? 'sr-only' : 'px-5 pt-3 pb-1 text-left text-xs text-ink-2'}>
                     {caption}
                 </caption>
@@ -90,7 +90,7 @@ function HeaderCell({ column, sort, onSort }: HeaderCellProps) {
         <th
             scope="col"
             aria-sort={ariaSort}
-            className={`border-y border-rule bg-paper/60 px-3 py-2 align-bottom text-2xs leading-snug font-semibold text-ink-2 ${end ? 'text-right' : 'text-left'}`}
+            className={`border-b border-rule bg-subtle px-3 py-2.5 align-bottom text-xs leading-snug font-medium text-ink-2 ${end ? 'text-right' : 'text-left'}`}
         >
             {sortable ? (
                 <button

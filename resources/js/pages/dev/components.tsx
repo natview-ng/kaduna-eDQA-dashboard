@@ -53,7 +53,7 @@ const TREND: { round: string; overall: Sample }[] = [
     { round: 'Q2 2026', overall: { value: 86.0, display: '86.0', band: 'acceptable' } },
 ];
 
-const TOKENS = ['paper', 'panel', 'ink', 'ink-2', 'ink-3', 'rule', 'deep', 'deep-2', 'wash', 'rail', 'ok', 'ok-bg', 'warn', 'warn-bg', 'warn-fill', 'bad', 'bad-bg', 'pub', 'pub-bg', 'priv', 'priv-bg', 'series-availability', 'series-consistency', 'series-validity', 'series-overall'];
+const TOKENS = ['paper', 'panel', 'subtle', 'ink', 'ink-2', 'ink-3', 'rule', 'deep', 'deep-2', 'wash', 'rail', 'ok', 'ok-bg', 'warn', 'warn-bg', 'warn-fill', 'bad', 'bad-bg', 'fine', 'fine-bg', 'pub', 'pub-bg', 'priv', 'priv-bg', 'series-availability', 'series-consistency', 'series-validity', 'series-overall'];
 
 function isSample(sample: Sample | undefined): sample is Sample {
     return sample !== undefined;

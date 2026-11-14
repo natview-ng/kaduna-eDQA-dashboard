@@ -24,6 +24,20 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Clean redesign (D-89).** Every page, same content; the dark rail and header are kept.
+  - Lighter background, hairline borders, rounder panels, 36px buttons and controls, one font
+    (IBM Plex Sans) for text and headings.
+  - **Acceptable has its own colour** (slate), no longer Strong's green, wherever a band shows.
+  - **Month cells take their band's colour**, so a 69.8 now reads as Needs action, not pale green.
+  - Public pages: the page tabs come first; the filters are compact fields beside the title.
+  - Home: the average shows its decimal and **how far it is below Strong** ("3.9 points short of
+    Strong (90)"), with a meter to the Strong mark; counts say "of 23" and "of 6"; the weakest
+    dimension is a callout; a public or private side of one facility says to read it with care.
+  - Data issues: the records come first; the rules are one compact list per tab, beside the
+    records on a wide screen; the filters are compact fields.
+  - Data sources: Pull all is one row; in the pull history, zeros are muted and a long error
+    opens from one line.
+  - The admin status line is neutral; each source's mark keeps its state's colour and shape.
 - The footer now reads "Support: LAFIYA" (was HSDF), on the public site and in the admin rail.
 - **Mock data commands:** `edqa:source-mock:generate odk` now takes `--quarters`,
   `--older-quarters` and `--older-version` (backfill spans), which used to need
@@ -42,6 +56,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Removed
 
+- **The Archivo font** (`@fontsource/archivo`, D-89): headings use IBM Plex Sans, three fewer
+  font files to download.
 - **Email verification** (D-86): Fortify's feature, its page and its three routes. Accounts are
   created verified, and no route ever required it.
 - **ODK-only commands** (D-87): `edqa:odk:check` (use `edqa:source:check odk`),

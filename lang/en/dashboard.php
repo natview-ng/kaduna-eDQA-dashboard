@@ -74,6 +74,13 @@ return [
         'lgas' => 'Local governments',
         'strong' => 'Facilities scoring :threshold+',
         'weak' => 'Facilities under :threshold',
+        // D-89: the hero's context lines. strong_gap's :gap is the server's (how far the average shows below Strong).
+        'strong_gap' => ':gap points short of Strong (:threshold).',
+        'strong_reached' => 'At or above Strong (:threshold).',
+        'meter_strong' => 'Strong :threshold',
+        'lgas_of' => 'of 23',
+        'of_visited' => 'of :count',
+        'single_owner_facility' => 'One facility: read this score with care.',
         'dimensions_title' => 'The three dimensions',
         'dimensions_intro' => 'Each facility is scored out of 100 on all three, across the three months of the quarter. Overall is their mean.',
         'dimensions_intro_month' => 'Each facility is scored out of 100 on all three, for :month only. Overall is their mean.',

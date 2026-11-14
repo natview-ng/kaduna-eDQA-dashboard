@@ -705,7 +705,7 @@ the app is broken:
   validated data — never user-supplied URLs or HTML. The app must never pass external URLs to
   Browsershot.
 - `shm_size: 256m` on `worker-exports`; Chromium crashes with the 64 MB default.
-- Fonts (`fonts-liberation`, `fonts-noto-core`, and the app's self-hosted Archivo / IBM Plex)
+- Fonts (`fonts-liberation`, `fonts-noto-core`, and the app's self-hosted IBM Plex Sans; Archivo was dropped, D-89)
   must be present in the image so PDFs match the dashboard.
 - Smoke test after each deploy: `docker compose exec worker-exports php artisan edqa:pdf-smoke`
   (app-repo command that renders a one-page PDF to `/tmp`).

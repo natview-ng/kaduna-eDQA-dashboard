@@ -302,8 +302,11 @@ return [
             'deleted' => 'Deleted at source (:count)',
         ],
         'summary' => [
-            'title' => 'Rules',
-            'description' => 'Every validation rule, with how many records it holds now. Choose one to show only those.',
+            // D-89: one list per tab, the severity said once in its title.
+            'title_hard' => 'Hard rules',
+            'description_hard' => 'A failure quarantines the submission: it reaches no figure. Choose a rule to show only its records.',
+            'title_soft' => 'Soft rules',
+            'description_soft' => 'A hit flags an accepted assessment for review; it still counts. Choose a rule to show only its records.',
             'open' => ':count open',
             'hard' => 'Hard: quarantines',
             'soft' => 'Soft: flags',

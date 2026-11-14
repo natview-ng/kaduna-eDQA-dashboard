@@ -75,17 +75,16 @@ export default function PullHistoryPanel({ history, filters, sources }: PullHist
         { key: 'outcome', header: t('admin.sources.history.outcome') },
     ];
 
-    const select = 'control min-h-11';
 
     return (
         <Panel labelledBy="sources-history-title">
             <PanelHeader id="sources-history-title" title={t('admin.sources.history.title')} />
-            <div className="flex flex-wrap gap-3 px-5 pb-3">
-                <div className="flex flex-col gap-1">
-                    <label htmlFor={ids.source} className="text-xs text-ink-2">
+            <div className="flex flex-wrap gap-2 px-5 pt-1 pb-4">
+                <div className="field">
+                    <label htmlFor={ids.source}>
                         {t('admin.sources.history.filter_source')}
                     </label>
-                    <select id={ids.source} className={select} value={filters.source ?? ''} onChange={(event) => visit({ source: event.target.value || null, page: 1 })}>
+                    <select id={ids.source} value={filters.source ?? ''} onChange={(event) => visit({ source: event.target.value || null, page: 1 })}>
                         <option value="">{t('admin.sources.history.all_sources')}</option>
                         {sources.map((source) => (
                             <option key={source.key} value={source.key}>
@@ -94,11 +93,11 @@ export default function PullHistoryPanel({ history, filters, sources }: PullHist
                         ))}
                     </select>
                 </div>
-                <div className="flex flex-col gap-1">
-                    <label htmlFor={ids.trigger} className="text-xs text-ink-2">
+                <div className="field">
+                    <label htmlFor={ids.trigger}>
                         {t('admin.sources.history.filter_trigger')}
                     </label>
-                    <select id={ids.trigger} className={select} value={filters.trigger ?? ''} onChange={(event) => visit({ trigger: event.target.value || null, page: 1 })}>
+                    <select id={ids.trigger} value={filters.trigger ?? ''} onChange={(event) => visit({ trigger: event.target.value || null, page: 1 })}>
                         <option value="">{t('admin.sources.history.all_triggers')}</option>
                         {TRIGGERS.map((trigger) => (
                             <option key={trigger} value={trigger}>
@@ -107,11 +106,11 @@ export default function PullHistoryPanel({ history, filters, sources }: PullHist
                         ))}
                     </select>
                 </div>
-                <div className="flex flex-col gap-1">
-                    <label htmlFor={ids.outcome} className="text-xs text-ink-2">
+                <div className="field">
+                    <label htmlFor={ids.outcome}>
                         {t('admin.sources.history.filter_outcome')}
                     </label>
-                    <select id={ids.outcome} className={select} value={filters.outcome ?? ''} onChange={(event) => visit({ outcome: event.target.value || null, page: 1 })}>
+                    <select id={ids.outcome} value={filters.outcome ?? ''} onChange={(event) => visit({ outcome: event.target.value || null, page: 1 })}>
                         <option value="">{t('admin.sources.history.all_outcomes')}</option>
                         {OUTCOMES.map((outcome) => (
                             <option key={outcome} value={outcome}>
@@ -144,12 +143,12 @@ export default function PullHistoryPanel({ history, filters, sources }: PullHist
                         </td>
                         <td className="px-3 py-2 whitespace-nowrap">{t(`enums.pull_trigger.${row.trigger}`)}</td>
                         <td className="px-3 py-2">{row.triggered_by ?? t('admin.sources.history.system')}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{formatCount(row.fetched)}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{formatCount(row.accepted)}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{formatCount(row.flagged)}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{formatCount(row.quarantined)}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{formatCount(row.duplicates)}</td>
-                        <td className="px-3 py-2 text-right tabular-nums">{formatCount(row.cross_source_duplicates)}</td>
+                        <td className={`px-3 py-2 text-right tabular-nums ${row.fetched === 0 ? 'text-ink-2' : ''}`}>{formatCount(row.fetched)}</td>
+                        <td className={`px-3 py-2 text-right tabular-nums ${row.accepted === 0 ? 'text-ink-2' : ''}`}>{formatCount(row.accepted)}</td>
+                        <td className={`px-3 py-2 text-right tabular-nums ${row.flagged === 0 ? 'text-ink-2' : ''}`}>{formatCount(row.flagged)}</td>
+                        <td className={`px-3 py-2 text-right tabular-nums ${row.quarantined === 0 ? 'text-ink-2' : ''}`}>{formatCount(row.quarantined)}</td>
+                        <td className={`px-3 py-2 text-right tabular-nums ${row.duplicates === 0 ? 'text-ink-2' : ''}`}>{formatCount(row.duplicates)}</td>
+                        <td className={`px-3 py-2 text-right tabular-nums ${row.cross_source_duplicates === 0 ? 'text-ink-2' : ''}`}>{formatCount(row.cross_source_duplicates)}</td>
                         <td className="px-3 py-2 text-right whitespace-nowrap tabular-nums">
                             {row.duration === null
                                 ? '–'
@@ -176,7 +175,12 @@ function Outcome({ outcome, label, error }: { outcome: PullOutcomeValue; label: 
                 <StateMark mark={style.mark} className="size-2" />
                 {label}
             </span>
-            {error !== null && <span className="max-w-72 text-xs break-words text-ink-2">{error}</span>}
+            {/* D-89: the error on one line, so a failed row is no taller than the others; it opens to the full text. */}
+            {error !== null && (
+                <details className="group max-w-64 text-xs text-ink-2">
+                    <summary className="block cursor-pointer truncate rounded-sm group-open:whitespace-normal group-open:break-words hover:text-ink">{error}</summary>
+                </details>
+            )}
         </span>
     );
 }

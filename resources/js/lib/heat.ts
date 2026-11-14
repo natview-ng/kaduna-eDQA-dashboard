@@ -1,27 +1,18 @@
-import type { CSSProperties } from 'react';
+import type { Band } from '@/types/score';
 
 /**
- * Heat shading for month cells (CONVENTION.md §6), the prototype's formula:
- * t = clamp((v − 55) / 45, 0, 1) → hsl(146, 28 + 26t %, 96 − 30t %).
- *
- * The one place the client reads a score's value, and only to pick a colour: the cell always
- * shows the server's ScoreValue.display. Text stays ink on every shade (the prototype's white
- * text on dark cells falls to about 1.5:1).
+ * Month-cell shading (CONVENTION.md §6, D-89): the band's own tint, the same four colours as
+ * ScoreTag, so a 69.8 reads as Needs action everywhere instead of as a pale green. The band comes
+ * from the server; nothing is computed here. Text stays ink on every tint, and the cell always
+ * shows the server's ScoreValue.display.
  */
-export type HeatTone = { saturation: number; lightness: number };
+const TINT: Record<Band, string> = {
+    strong: 'bg-ok-bg',
+    acceptable: 'bg-fine-bg',
+    review: 'bg-warn-bg',
+    needs_action: 'bg-bad-bg',
+};
 
-export function heatTone(value: number): HeatTone {
-    const t = Math.min(1, Math.max(0, (value - 55) / 45));
-
-    return { saturation: Math.round(28 + t * 26), lightness: Math.round(96 - t * 30) };
-}
-
-export function heatStyle(value: number | null): CSSProperties {
-    if (value === null) {
-        return {};
-    }
-
-    const { saturation, lightness } = heatTone(value);
-
-    return { backgroundColor: `hsl(146 ${saturation}% ${lightness}%)`, color: 'var(--color-ink)' };
+export function heatClass(band: Band | null): string {
+    return band === null ? '' : TINT[band];
 }

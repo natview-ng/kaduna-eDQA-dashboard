@@ -85,7 +85,7 @@ describe('SyncStatusBar', () => {
         expect(await axeCheck(container)).toHaveNoViolations();
     });
 
-    it("names every source in the order given (worst first), and takes the worst one's tone", () => {
+    it('names every source in the order given (worst first); the bar stays neutral and each mark takes its state (D-89)', () => {
         renderUi(
             <SyncStatusBar status={shell(source({ key: 'kobo', name: 'KoboToolbox', state: 'auth_failed', lastFailedAt: '2026-10-15T08:05:00Z' }), source({ state: 'healthy' }))} />,
             translations,
@@ -95,7 +95,10 @@ describe('SyncStatusBar', () => {
         const text = bar.textContent ?? '';
         expect(text.indexOf('KoboToolbox refused')).toBeGreaterThanOrEqual(0);
         expect(text.indexOf('KoboToolbox refused')).toBeLessThan(text.indexOf('ODK Central: last pull 4 min ago'));
-        expect(bar.className).toMatch(/text-bad/);
+        expect(bar.className).not.toMatch(/bg-bad/);
+        const marks = [...bar.querySelectorAll('svg')].map((mark) => mark.getAttribute('class') ?? '');
+        expect(marks[0]).toMatch(/text-bad/);
+        expect(marks[1]).toMatch(/text-ok/);
     });
 
     it.each(['not_configured', 'disabled', 'not_connected'] as const)('shows %s in the neutral style, not as a failure or a warning', (state) => {

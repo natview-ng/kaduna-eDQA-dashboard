@@ -25,6 +25,7 @@ final class StateSummaryResource extends PublicResource
             'facilitiesWeak' => $this->resource->facilitiesWeak,
             'strongAt' => $this->resource->strongAt,
             'weakBelow' => $this->resource->weakBelow,
+            'strongGap' => $this->resource->strongGap,
         ];
     }
 }

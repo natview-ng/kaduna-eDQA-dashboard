@@ -12,7 +12,15 @@ const translations = {
     ...testTranslations,
     admin: {
         issues: {
-            summary: { title: 'Rules', description: 'Every rule.', open: ':count open', hard: 'Hard: quarantines', soft: 'Soft: flags' },
+            summary: {
+                title_hard: 'Hard rules',
+                description_hard: 'A failure quarantines the submission.',
+                title_soft: 'Soft rules',
+                description_soft: 'A hit flags an accepted assessment.',
+                open: ':count open',
+                hard: 'Hard: quarantines',
+                soft: 'Soft: flags',
+            },
             correct: {
                 title: 'Correct :instance',
                 intro: 'Only these fields can be corrected.',
@@ -176,7 +184,7 @@ describe('DataIssueDrawer', () => {
 });
 
 describe('RuleSummary', () => {
-    it('is a set of toggle buttons that filter by a rule, with severity in words', async () => {
+    it('is a set of toggle buttons that filter by a rule, the severity said once in words (D-89)', async () => {
         const onChoose = vi.fn();
         const rules = [
             { code: 'LGA_UNKNOWN', severity: 'hard' as const, name: 'Unknown LGA', why: 'Every figure is by LGA.', open: 2 },
@@ -185,9 +193,11 @@ describe('RuleSummary', () => {
         const { container } = renderUi(<RuleSummary rules={rules} active="ROUND_WINDOW" onChoose={onChoose} />, translations);
         const user = userEvent.setup();
 
+        expect(screen.getByRole('region', { name: 'Hard rules' })).toBeTruthy();
+        expect(screen.getByText('A failure quarantines the submission.')).toBeTruthy();
         const lga = screen.getByRole('button', { name: /Unknown LGA/ });
         expect(lga.getAttribute('aria-pressed')).toBe('false');
-        expect(lga.textContent).toContain('Hard: quarantines');
+        expect(lga.textContent).toContain('LGA_UNKNOWN');
         expect(lga.textContent).toContain('2 open');
         await user.click(lga);
         expect(onChoose).toHaveBeenCalledWith('LGA_UNKNOWN');

@@ -25,11 +25,13 @@ export type SegmentedControlProps<T extends string> = {
  */
 export default function SegmentedControl<T extends string>({ label, options, value, onChange, disabled = false, describedBy }: SegmentedControlProps<T>) {
     return (
-        <div role="group" aria-label={label} aria-describedby={describedBy} className="inline-flex max-w-full flex-wrap gap-0.5 overflow-hidden rounded-md bg-paper p-0.5 ring-1 ring-rule ring-inset">
+        <div role="group" aria-label={label} aria-describedby={describedBy} className="inline-flex max-w-full flex-wrap gap-0.5 rounded-md bg-subtle p-1">
             {options.map((option) => {
                 const pressed = option.value === value;
+                // D-89: the pressed segment is white on the quiet track, with a ring that still
+                // shows it pressed without colour (the ring and the weight, as well as aria-pressed).
                 const tone = pressed
-                    ? 'bg-panel font-semibold text-deep shadow-[0_1px_2px_rgba(13,40,36,0.12)] ring-1 ring-control ring-inset forced-colors:forced-color-adjust-none forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]'
+                    ? 'bg-panel font-semibold text-ink shadow-[0_1px_2px_rgba(13,40,36,0.08)] ring-1 ring-control ring-inset forced-colors:forced-color-adjust-none forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]'
                     : disabled
                       ? 'text-ink-2'
                       : 'text-ink-2 hover:bg-panel/70 hover:text-ink';
@@ -45,7 +47,7 @@ export default function SegmentedControl<T extends string>({ label, options, val
                                 onChange(option.value);
                             }
                         }}
-                        className={`grow rounded-[4px] px-3 py-1.5 text-sm transition-colors duration-150 ${tone} ${disabled ? 'cursor-not-allowed' : ''}`}
+                        className={`grow rounded-sm px-3 py-1.5 text-sm transition-colors duration-150 ${tone} ${disabled ? 'cursor-not-allowed' : ''}`}
                     >
                         {option.label}
                     </button>

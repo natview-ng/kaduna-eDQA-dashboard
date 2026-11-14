@@ -14,6 +14,8 @@ export type StateSummary = {
     facilitiesWeak: number;
     /** The rule version's Strong threshold; null when no version is published. */
     strongAt: number | null;
+    /** How far the average shows below Strong, as text ("3.9"); null when there is none (D-89). */
+    strongGap?: string | null;
     /** The rule version's Review threshold: "under" it is weak. */
     weakBelow: number | null;
 };

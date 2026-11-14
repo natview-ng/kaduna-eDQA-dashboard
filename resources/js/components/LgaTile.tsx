@@ -14,7 +14,7 @@ export type LgaTileProps = {
 // the tile's accessible name and the value is written on it.
 const TONE: Record<Band, { text: string; fill: string; mark: string }> = {
     strong: { text: 'text-ok', fill: 'bg-ok', mark: '●' },
-    acceptable: { text: 'text-ok', fill: 'bg-ok', mark: '◐' },
+    acceptable: { text: 'text-fine', fill: 'bg-fine', mark: '◐' },
     review: { text: 'text-warn', fill: 'bg-warn-fill', mark: '▲' },
     needs_action: { text: 'text-bad', fill: 'bg-bad', mark: '■' },
 };

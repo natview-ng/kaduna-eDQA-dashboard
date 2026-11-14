@@ -17,6 +17,11 @@ const translations = {
             lgas: 'Local governments',
             strong: 'Facilities scoring :threshold+',
             weak: 'Facilities under :threshold',
+            strong_gap: ':gap points short of Strong (:threshold).',
+            strong_reached: 'At or above Strong (:threshold).',
+            meter_strong: 'Strong :threshold',
+            lgas_of: 'of 23',
+            of_visited: 'of :count',
             dimensions_title: 'The three dimensions',
             dimensions_intro: 'Each facility is scored out of 100.',
             dimension_help: { availability: 'Was it there?', consistency: 'Does it agree?', validity: 'Is it valid?', overall: 'The mean of the three' },
@@ -61,8 +66,23 @@ describe('HomeHero', () => {
         expect(terms.slice(1).map((term) => term.textContent)).toEqual([
             'Facilities visited', 'Local governments', 'Facilities scoring 85+', 'Facilities under 65',
         ]);
-        expect(screen.getAllByRole('definition').slice(1).map((d) => d.textContent)).toEqual(['439', '23', '175', '21']);
+        // Each count with its context (D-89): of the 23 LGAs, of the facilities visited.
+        expect(screen.getAllByRole('definition').slice(1).map((d) => d.textContent)).toEqual(['439', '23of 23', '175of 439', '21of 439']);
         expect(await axeCheck(container)).toHaveNoViolations();
+    });
+
+    it('says how far the average is below Strong, with the gap the server sent (D-89)', () => {
+        renderUi(<HomeHero hero={hero({ strongGap: '4.0' })} dimensions={dimensions} />, translations);
+
+        expect(screen.getByText('4.0 points short of Strong (90).')).toBeTruthy();
+        expect(screen.queryByText(/At or above Strong/)).toBeNull();
+    });
+
+    it('says Strong is reached when the server sends no gap and the band is Strong', () => {
+        renderUi(<HomeHero hero={hero({ overall: value('92.4', 'strong', 'Strong'), strongGap: null })} dimensions={dimensions} />, translations);
+
+        expect(screen.getByText('At or above Strong (90).')).toBeTruthy();
+        expect(screen.queryByText(/points short/)).toBeNull();
     });
 
     it('lists the three dimensions and the overall with their bands in words, the mark explained, and the weakest named', () => {

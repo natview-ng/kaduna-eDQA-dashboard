@@ -10,7 +10,6 @@ import { describe, expect, it } from "vitest";
 const ROOT = join(process.cwd(), "resources/js");
 
 const ALLOWED: Record<string, string> = {
-    "lib/heat.ts": "turns a score into a shade (hsl), never into text",
     "components/HistorySparkline.tsx":
         "SVG path coordinates, never shown as text",
     "lib/i18n.tsx": "folds replacements into a translated string",

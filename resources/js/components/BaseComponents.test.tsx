@@ -89,12 +89,11 @@ describe('HeatCell', () => {
         </table>
     );
 
-    it('shows the number the server sent on its shade, in ink', async () => {
-        const { container } = renderUi(table(<HeatCell score={score({ value: 100, display: '100.0' })} />));
+    it("shows the number the server sent on its band's tint (D-89)", async () => {
+        const { container } = renderUi(table(<HeatCell score={score({ value: 100, display: '100.0', band: 'strong' })} />));
 
         const cell = screen.getByRole('cell', { name: '100.0' });
-        expect(cell.style.backgroundColor).not.toBe('');
-        expect(cell.style.color).toBe('var(--color-ink)');
+        expect(cell.className).toContain('bg-ok-bg');
         expect(await axeCheck(container)).toHaveNoViolations();
     });
 

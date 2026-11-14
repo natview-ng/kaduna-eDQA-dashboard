@@ -126,7 +126,7 @@ it('serves the aggregates for the filters, closed rounds only, through the white
 
     expect(array_keys($response->json('data')))->toBe(['filters', 'summary', 'dimensions', 'owners', 'lgas'])
         ->and($response->json('data.summary.facilitiesVisited'))->toBe(1)
-        ->and(array_keys($response->json('data.summary')))->toBe(['overall', 'facilitiesVisited', 'lgasCovered', 'facilitiesStrong', 'facilitiesWeak', 'strongAt', 'weakBelow'])
+        ->and(array_keys($response->json('data.summary')))->toBe(['overall', 'facilitiesVisited', 'lgasCovered', 'facilitiesStrong', 'facilitiesWeak', 'strongAt', 'weakBelow', 'strongGap'])
         ->and(array_keys($response->json('data.lgas.0')))->toBe(['lgaId', 'code', 'name', 'facilities', 'availability', 'consistency', 'validity', 'm1', 'm2', 'm3', 'overall']);
     expectNothingPrivate((string) $response->getContent());
 });
@@ -159,7 +159,7 @@ it('keeps the public API read-only and rate limited', function (string $path): v
 it('sends a guest page props through the public whitelist', function (): void {
     $this->get('/')->assertOk()->assertInertia(fn (Assert $page) => $page
         ->where('hero.facilitiesVisited', 1)
-        ->has('hero', 7)
+        ->has('hero', 8)
         ->has('dimensions', 5)
         ->loadDeferredProps(fn (Assert $reload) => $reload->has('owners.public', 5)));
     expectNothingPrivate((string) $this->get('/facilities')->getContent());

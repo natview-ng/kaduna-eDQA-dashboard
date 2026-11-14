@@ -29,7 +29,7 @@ export default function TrendChart({ points, selected, strongAt, strongLabel, la
         <div role="img" aria-label={label} className="h-[220px] w-full">
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data} margin={{ top: 22, right: 64, bottom: 4, left: -8 }} accessibilityLayer={false}>
-                    <CartesianGrid stroke="var(--color-paper)" vertical={false} />
+                    <CartesianGrid stroke="var(--color-rule)" strokeDasharray="2 4" vertical={false} />
                     <XAxis dataKey="label" padding={{ left: 22, right: 22 }} tick={{ fontSize: 11.5, fill: 'var(--color-ink-2)' }} tickLine={false} axisLine={{ stroke: 'var(--color-rule)' }} />
                     <YAxis domain={[50, 100]} allowDataOverflow ticks={[50, 60, 70, 80, 90, 100]} tick={{ fontSize: 11.5, fill: 'var(--color-ink-2)' }} tickLine={false} axisLine={false} width={40} />
                     {strongAt !== null && (

@@ -158,8 +158,8 @@ export default function AdminDataIssues({ issueFilters: filters, rules, records,
                 onChange={(tab) => visit({ tab, rule: null, state: 'open', page: 1 })}
             />
 
-            {filters.tab !== 'deleted' && <RuleSummary rules={rules.filter((rule) => rule.severity === filters.tab)} active={filters.rule} onChoose={(rule) => visit({ rule, page: 1 })} />}
-
+            {/* D-89: the records first; the rules beside them on a wide screen, below otherwise. */}
+            <div className="grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_360px]">
             <Panel labelledBy="issues-records-title">
                 <PanelHeader
                     id="issues-records-title"
@@ -212,6 +212,9 @@ export default function AdminDataIssues({ issueFilters: filters, rules, records,
                     <FlaggedTable records={records as Paginated<FlaggedRow>} onOverride={override} onPage={onPage} />
                 )}
             </Panel>
+
+            {filters.tab !== 'deleted' && <RuleSummary rules={rules.filter((rule) => rule.severity === filters.tab)} active={filters.rule} onChoose={(rule) => visit({ rule, page: 1 })} />}
+            </div>
 
             <ConfirmWithReasonDialog
                 open={pending !== null}
