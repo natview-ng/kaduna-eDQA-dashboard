@@ -122,15 +122,16 @@ it('moves a window with the same checks, ignoring the round itself, audited old 
     $q2 = Round::factory()->create(['year' => 2027, 'quarter' => 2]);
     Round::factory()->create(['year' => 2027, 'quarter' => 3]);
 
-    $result = app(UpdateRoundWindow::class)->execute($q2, day('2027-04-10'), day('2027-06-30'), $this->admin);
+    $result = app(UpdateRoundWindow::class)->execute($q2, day('2027-04-10'), day('2027-06-30'), $this->admin, 'Late visits from two LGAs.');
     expect($result->round->window_start->toDateString())->toBe('2027-04-10');
 
     $entry = auditEntry($q2, 'window_updated');
     expect($entry['old'])->toEqual(['window_start' => '2027-04-01', 'window_end' => '2027-06-30'])
         ->and($entry['attributes'])->toEqual(['window_start' => '2027-04-10', 'window_end' => '2027-06-30'])
-        ->and($entry['causer_id'])->toBe($this->admin->id);
+        ->and($entry['causer_id'])->toBe($this->admin->id)
+        ->and($entry['reason'])->toBe('Late visits from two LGAs.');
 
-    expect(fn () => app(UpdateRoundWindow::class)->execute($q2, day('2027-04-10'), day('2027-07-05'), $this->admin))
+    expect(fn () => app(UpdateRoundWindow::class)->execute($q2, day('2027-04-10'), day('2027-07-05'), $this->admin, 'Late visits from two LGAs.'))
         ->toThrow(RoundActionRefused::class, __('rounds.errors.window_overlap', ['round' => 'Q3 2027']));
 });
 
@@ -139,16 +140,16 @@ it('refuses a window that would leave accepted visits outside it, but not withdr
     Rows::assessment(['round_id' => $q2->id, 'started_at' => '2027-04-05 09:00:00', 'ended_at' => '2027-04-05 10:00:00']);
     Rows::assessment(['round_id' => $q2->id, 'status' => 'withdrawn', 'started_at' => '2027-06-29 09:00:00', 'ended_at' => '2027-06-29 10:00:00']);
 
-    expect(fn () => app(UpdateRoundWindow::class)->execute($q2, day('2027-04-06'), day('2027-06-30'), $this->admin))
+    expect(fn () => app(UpdateRoundWindow::class)->execute($q2, day('2027-04-06'), day('2027-06-30'), $this->admin, 'Late visits from two LGAs.'))
         ->toThrow(RoundActionRefused::class, __('rounds.errors.assessments_outside_window', ['count' => 1]));
-    expect(app(UpdateRoundWindow::class)->execute($q2, day('2027-04-05'), day('2027-06-20'), $this->admin)->round->window_end->toDateString())
+    expect(app(UpdateRoundWindow::class)->execute($q2, day('2027-04-05'), day('2027-06-20'), $this->admin, 'Late visits from two LGAs.')->round->window_end->toDateString())
         ->toBe('2027-06-20');
 });
 
 it('refuses to move the window of a closed round', function (): void {
     $closed = Round::factory()->closed()->create(['year' => 2027, 'quarter' => 2]);
 
-    expect(fn () => app(UpdateRoundWindow::class)->execute($closed, day('2027-04-02'), day('2027-06-30'), $this->admin))
+    expect(fn () => app(UpdateRoundWindow::class)->execute($closed, day('2027-04-02'), day('2027-06-30'), $this->admin, 'Late visits from two LGAs.'))
         ->toThrow(RoundActionRefused::class, __('rounds.errors.round_closed'));
 });
 
@@ -160,17 +161,19 @@ it('closes a round: pins the current version, refreshes the view, dispatches Rou
     scoredAssessment($q2, $this->v1->id);
     expect(DB::selectOne("SELECT ispopulated FROM pg_matviews WHERE matviewname = 'round_aggregates'")->ispopulated)->toBeFalse();
 
-    $closed = app(CloseRound::class)->execute($q2, $this->admin);
+    $closed = app(CloseRound::class)->execute($q2, $this->admin, 'All returns are in for the quarter.');
 
     expect($closed)
         ->status->toBe(RoundStatus::Closed)
         ->rule_version_id->toBe($this->v1->id)
         ->closed_at->not->toBeNull()
+        ->closed_by->toBe($this->admin->id)
         ->and(DB::table('round_aggregates')->where(['round_id' => $q2->id, 'scope_type' => 'state', 'owner_type' => 'all', 'level' => 'all'])->value('facility_count'))->toBe(1);
     Event::assertDispatched(RoundClosed::class, fn (RoundClosed $e): bool => $e->roundId === $q2->id && $e->ruleVersionId === $this->v1->id);
 
     $entry = auditEntry($q2, 'closed');
     expect($entry['causer_id'])->toBe($this->admin->id)
+        ->and($entry['reason'])->toBe('All returns are in for the quarter.')
         ->and($entry['old'])->toEqual(['status' => 'open', 'rule_version_id' => null, 'closed_at' => null])
         ->and($entry['attributes']['status'])->toBe('closed')
         ->and($entry['attributes']['rule_version_id'])->toBe($this->v1->id);
@@ -178,18 +181,18 @@ it('closes a round: pins the current version, refreshes the view, dispatches Rou
 
 it('refuses to close a closed round, or one whose assessments are not all scored under the version it would pin', function (): void {
     $closed = Round::factory()->closed()->create(['year' => 2027, 'quarter' => 1]);
-    expect(fn () => app(CloseRound::class)->execute($closed, $this->admin))->toThrow(RoundActionRefused::class, __('rounds.errors.already_closed'));
+    expect(fn () => app(CloseRound::class)->execute($closed, $this->admin, 'All returns are in for the quarter.'))->toThrow(RoundActionRefused::class, __('rounds.errors.already_closed'));
 
     $q2 = Round::factory()->create(['year' => 2027, 'quarter' => 2]);
     scoredAssessment($q2, $this->v1->id);
     $unscored = Rows::assessment(['round_id' => $q2->id]); // e.g. a rescore still running
 
-    expect(fn () => app(CloseRound::class)->execute($q2, $this->admin))
+    expect(fn () => app(CloseRound::class)->execute($q2, $this->admin, 'All returns are in for the quarter.'))
         ->toThrow(RoundActionRefused::class, __('rounds.errors.not_fully_scored', ['count' => 1]));
     expect($q2->refresh()->status)->toBe(RoundStatus::Open);
 
     RescoreFixture::scores($unscored, $this->v1->id, 80);
-    expect(app(CloseRound::class)->execute($q2, $this->admin)->status)->toBe(RoundStatus::Closed);
+    expect(app(CloseRound::class)->execute($q2, $this->admin, 'All returns are in for the quarter.')->status)->toBe(RoundStatus::Closed);
 });
 
 it("leaves a closed round's scores untouched when a new version is published", function (): void {
@@ -197,7 +200,7 @@ it("leaves a closed round's scores untouched when a new version is published", f
     $q2 = Round::factory()->create(['year' => 2027, 'quarter' => 2]);
     scoredAssessment($q1, $this->v1->id, 50);
     scoredAssessment($q2, $this->v1->id, 50);
-    app(CloseRound::class)->execute($q1, $this->admin);
+    app(CloseRound::class)->execute($q1, $this->admin, 'All returns are in for the quarter.');
     $before = RescoreFixture::rows($q1->id);
     $dimensions = app(DimensionAggregator::class)->dimensions(new ReportFilter(year: 2027, quarter: 1));
 
@@ -213,7 +216,7 @@ it("leaves a closed round's scores untouched when a new version is published", f
 
 it('quarantines a submission for a closed round under ROUND_WINDOW', function (): void {
     $q2 = Round::factory()->create(['year' => 2027, 'quarter' => 2]);
-    app(CloseRound::class)->execute($q2, $this->admin);
+    app(CloseRound::class)->execute($q2, $this->admin, 'All returns are in for the quarter.');
 
     $record = quarantineThrough(ParsedSubmissionBuilder::new()->inRound($q2->refresh())->build());
 
@@ -227,7 +230,7 @@ it('quarantines a submission for a closed round under ROUND_WINDOW', function ()
 it('reopens with a reason, audited, keeping the pin; no rescore unless asked', function (): void {
     $q2 = Round::factory()->create(['year' => 2027, 'quarter' => 2]);
     scoredAssessment($q2, $this->v1->id);
-    app(CloseRound::class)->execute($q2, $this->admin);
+    app(CloseRound::class)->execute($q2, $this->admin, 'All returns are in for the quarter.');
 
     $result = app(ReopenRound::class)->execute($q2, $this->admin, '  Late facility returns from Zaria  ');
 
@@ -243,7 +246,8 @@ it('reopens with a reason, audited, keeping the pin; no rescore unless asked', f
     expect($entry['reason'])->toBe('Late facility returns from Zaria')
         ->and($entry['causer_id'])->toBe($this->admin->id)
         ->and($entry['old']['status'])->toBe('closed')
-        ->and($entry['attributes'])->toEqual(['status' => 'open', 'closed_at' => null, 'reopened_reason' => 'Late facility returns from Zaria', 'rescore' => false]);
+        ->and($entry['attributes'])->toEqual(['status' => 'open', 'closed_at' => null, 'closed_by' => null, 'reopened_reason' => 'Late facility returns from Zaria', 'rescore' => false])
+        ->and($result->round->closed_by)->toBeNull();
 });
 
 it('rescores on reopen when asked, and always when its pinned version is no longer current', function (): void {
@@ -251,8 +255,8 @@ it('rescores on reopen when asked, and always when its pinned version is no long
     $q2 = Round::factory()->create(['year' => 2027, 'quarter' => 2]);
     scoredAssessment($q1, $this->v1->id);
     scoredAssessment($q2, $this->v1->id);
-    app(CloseRound::class)->execute($q1, $this->admin);
-    app(CloseRound::class)->execute($q2, $this->admin);
+    app(CloseRound::class)->execute($q1, $this->admin, 'All returns are in for the quarter.');
+    app(CloseRound::class)->execute($q2, $this->admin, 'All returns are in for the quarter.');
 
     $asked = app(ReopenRound::class)->execute($q2, $this->admin, 'Corrections from the LGA team', rescore: true);
     expect($asked->rescore?->round_id)->toBe($q2->id)
@@ -276,6 +280,18 @@ it('refuses to reopen without a reason of at least 10 characters, or an open rou
     expect($closed->refresh()->status)->toBe(RoundStatus::Closed);
 })->with(['', '   short   ']);
 
+it('refuses to close, or to move a window, without a reason of at least 10 characters (step 4)', function (string $reason): void {
+    $q2 = Round::factory()->create(['year' => 2027, 'quarter' => 2]);
+
+    expect(fn () => app(CloseRound::class)->execute($q2, $this->admin, $reason))
+        ->toThrow(RoundActionRefused::class, __('rounds.errors.reason_too_short'));
+    expect(fn () => app(UpdateRoundWindow::class)->execute($q2, day('2027-04-03'), day('2027-06-30'), $this->admin, $reason))
+        ->toThrow(RoundActionRefused::class, __('rounds.errors.reason_too_short'));
+    expect($q2->refresh())
+        ->status->toBe(RoundStatus::Open)
+        ->window_start->toDateString()->toBe('2027-04-01');
+})->with(['', '   short   ']);
+
 it('refuses to reopen a round that is open', function (): void {
     $open = Round::factory()->create(['year' => 2027, 'quarter' => 1]);
 
@@ -285,7 +301,7 @@ it('refuses to reopen a round that is open', function (): void {
 
 it('writes no model audit entry beside the explicit ones', function (): void {
     $result = app(CreateRound::class)->execute(2027, 2, day('2027-04-01'), day('2027-06-30'), $this->admin);
-    app(CloseRound::class)->execute($result->round, $this->admin);
+    app(CloseRound::class)->execute($result->round, $this->admin, 'All returns are in for the quarter.');
     app(ReopenRound::class)->execute($result->round, $this->admin, 'Late facility returns from Zaria');
 
     expect(DB::table('activity_log')->where('subject_type', $result->round->getMorphClass())->where('subject_id', $result->round->id)->orderBy('id')->pluck('event')->all())

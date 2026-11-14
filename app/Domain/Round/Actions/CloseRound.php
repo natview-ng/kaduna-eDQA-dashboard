@@ -23,6 +23,10 @@ use Illuminate\Support\Facades\DB;
  *
  * Refused while any accepted or flagged assessment has no scores under that version (a rescore
  * still running, or one that could not score it): a round is never pinned to scores it lacks.
+ *
+ * Closing publishes the round (D-07, D-77), so it takes a reason like every other change to what
+ * the public sees (step 4), audited with the administrator, who is kept in closed_by. Open issues
+ * (quarantine, deletions at source) do not block it: the reason is where the administrator says why.
  */
 final class CloseRound
 {
@@ -31,9 +35,16 @@ final class CloseRound
         private readonly RefreshRoundAggregates $refresh,
     ) {}
 
-    public function execute(Round $round, User $actor): Round
+    public const MIN_REASON = 10;
+
+    public function execute(Round $round, User $actor, string $reason): Round
     {
-        $round = DB::transaction(function () use ($round, $actor): Round {
+        $reason = trim($reason);
+        if (mb_strlen($reason) < self::MIN_REASON) {
+            throw RoundActionRefused::reasonTooShort();
+        }
+
+        $round = DB::transaction(function () use ($round, $actor, $reason): Round {
             $round = Round::query()->lockForUpdate()->findOrFail($round->id);
             if ($round->status === RoundStatus::Closed) {
                 throw RoundActionRefused::alreadyClosed();
@@ -51,11 +62,12 @@ final class CloseRound
 
             $old = ['status' => $round->status->value, 'rule_version_id' => $round->rule_version_id, 'closed_at' => $round->closed_at?->toIso8601String()];
             $closedAt = now();
-            activity()->withoutLogs(fn () => $round->update(['status' => RoundStatus::Closed, 'rule_version_id' => $versionId, 'closed_at' => $closedAt]));
+            activity()->withoutLogs(fn () => $round->update(['status' => RoundStatus::Closed, 'rule_version_id' => $versionId, 'closed_at' => $closedAt, 'closed_by' => $actor->id]));
 
             AuditLog::record($round, $actor, 'closed',
                 old: $old,
                 new: ['status' => RoundStatus::Closed->value, 'rule_version_id' => $versionId, 'closed_at' => $closedAt->toIso8601String()],
+                reason: $reason,
             );
 
             RoundClosed::dispatch($round->id, $versionId);

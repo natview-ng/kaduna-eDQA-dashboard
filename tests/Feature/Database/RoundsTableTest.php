@@ -38,3 +38,10 @@ it('rejects a second round for the same year and quarter', function (): void {
 
     expectUniqueViolation(fn () => Rows::round(['year' => 2026, 'quarter' => 2]), 'rounds_year_quarter_unique');
 });
+
+it('keeps closed_by for a closed round only (step 4)', function (): void {
+    $admin = Rows::user();
+    expect(Rows::round(['year' => 2031, 'quarter' => 1, 'status' => 'closed', 'closed_by' => $admin]))->toBeInt();
+
+    expectCheckViolation(fn () => Rows::round(['year' => 2031, 'quarter' => 2, 'status' => 'open', 'closed_by' => $admin]), 'closed_by_only_when_closed');
+});

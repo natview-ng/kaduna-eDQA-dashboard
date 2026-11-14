@@ -89,8 +89,8 @@ it('creates, re-windows, closes and reopens a round as the runtime role', functi
 
     // CreateRound and UpdateRoundWindow lock the rounds table; CloseRound refreshes the view.
     $round = app(CreateRound::class)->execute(2091, 2, CarbonImmutable::parse('2091-04-01'), CarbonImmutable::parse('2091-06-30'), $admin)->round;
-    app(UpdateRoundWindow::class)->execute($round, CarbonImmutable::parse('2091-04-02'), CarbonImmutable::parse('2091-06-30'), $admin);
-    app(CloseRound::class)->execute($round, $admin);
+    app(UpdateRoundWindow::class)->execute($round, CarbonImmutable::parse('2091-04-02'), CarbonImmutable::parse('2091-06-30'), $admin, 'Late visits from two LGAs.');
+    app(CloseRound::class)->execute($round, $admin, 'All returns are in for the quarter.');
     $reopened = app(ReopenRound::class)->execute($round, $admin, 'Grants check reopening')->round;
 
     expect(DB::selectOne('select current_user as role')?->role)->toBe('edqa_app')

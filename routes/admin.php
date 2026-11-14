@@ -3,14 +3,18 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Admin\AdminFacilityController;
+use App\Http\Controllers\Admin\AdminFacilityListController;
+use App\Http\Controllers\Admin\AdminRoundsController;
 use App\Http\Controllers\Admin\AdminSourcesController;
 use App\Http\Controllers\Assessments\AssessmentStatusController;
 use App\Http\Controllers\Assessments\CorrectAssessmentController;
 use App\Http\Controllers\Attachments\ShowAttachmentController;
 use App\Http\Controllers\DevComponentsController;
 use App\Http\Controllers\Facilities\CascadeExportController;
+use App\Http\Controllers\Facilities\FacilityController;
 use App\Http\Controllers\Facilities\FacilityDetailController;
 use App\Http\Controllers\Facilities\FacilityOptionsController;
+use App\Http\Controllers\Facilities\WardController;
 use App\Http\Controllers\Odk\BackfillReportDownloadController;
 use App\Http\Controllers\Quarantine\BulkResolveQuarantineController;
 use App\Http\Controllers\Quarantine\DataIssuesPageController;
@@ -37,12 +41,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 // The pages (ARCHITECTURE.md §9.3, D-55): /admin opens Data sources.
-// Rounds, Facility list and Scoring rules are placeholders until their Phase 5 steps build them.
+// Scoring rules is a placeholder until its Phase 5 step builds it.
 Route::redirect('/', '/admin/sources')->name('home');
 Route::get('sources', AdminSourcesController::class)->name('sources');
 Route::get('data-issues', DataIssuesPageController::class)->name('data-issues');
-Route::inertia('rounds', 'admin/rounds')->name('rounds');
-Route::inertia('facilities', 'admin/facilities')->name('facilities');
+Route::get('rounds', AdminRoundsController::class)->name('rounds');
+Route::get('facilities', AdminFacilityListController::class)->name('facilities');
 // The admin facility view (ARCHITECTURE.md §9.2.7): every round, flags, attachments, the audit
 // trail, the source and its link, and corrections. ?round= picks the round.
 Route::get('facilities/{facility}', AdminFacilityController::class)->whereNumber('facility')->name('facilities.show');
@@ -90,6 +94,14 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::get('quarantine', QuarantineIndexController::class)->name('quarantine.index');
     Route::get('quarantine/{record}', ShowQuarantinedRecordController::class)->whereNumber('record')->name('quarantine.show');
     Route::get('facility-options', FacilityOptionsController::class)->name('facility-options');
+    // The master list (Phase 5 step 5): add, edit inline, deactivate/reactivate; never delete.
+    // Wards are added and renamed within an LGA; the 23 LGAs have no route (hard rule 9).
+    Route::post('facilities', [FacilityController::class, 'store'])->name('facilities.store');
+    Route::patch('facilities/{facility}', [FacilityController::class, 'update'])->whereNumber('facility')->name('facilities.update');
+    Route::post('facilities/{facility}/deactivate', [FacilityController::class, 'deactivate'])->whereNumber('facility')->name('facilities.deactivate');
+    Route::post('facilities/{facility}/reactivate', [FacilityController::class, 'reactivate'])->whereNumber('facility')->name('facilities.reactivate');
+    Route::post('wards', [WardController::class, 'store'])->name('wards.store');
+    Route::patch('wards/{ward}', [WardController::class, 'update'])->whereNumber('ward')->name('wards.update');
     Route::post('quarantine/bulk-resolve', BulkResolveQuarantineController::class)->name('quarantine.bulk-resolve');
     Route::post('quarantine/{record}/resolve', ResolveQuarantineController::class)->whereNumber('record')->name('quarantine.resolve');
     Route::post('submissions/{submission}/deletion-review', ReviewDeletionController::class)->whereNumber('submission')->name('submissions.deletion-review');

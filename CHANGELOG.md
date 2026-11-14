@@ -9,6 +9,36 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Facility list page (Phase 5 step 5, D-91).**
+  - Search on name, code, ward or LGA; filter by LGA, ward, level, ownership and status; pages of
+    25 with each facility's visits and latest score.
+  - Edit a facility inline (name, code while it has no assessments, ward and so its LGA, level,
+    ownership, coordinates), with a note that names and places show on the public dashboard,
+    published rounds included. Add a facility. Deactivate or reactivate with a reason, never
+    delete; deactivating warns when visits in an open round would fail FACILITY_UNKNOWN.
+  - Add and rename wards within an LGA. The 23 LGAs are fixed, and the page says so.
+  - After a change that reaches the form's lists, "The facility media file is out of date" stays
+    on the Facility list and Data sources pages until the file is regenerated.
+- **Facility master list import** (console only, D-91):
+  `php artisan edqa:facilities:import-master-list {workbook.xlsx} [--dry-run] [--force]` reads the
+  signed-off reconciliation workbook (Matched rows, and Review rows decided MAP or ADD), prints
+  what would change, and refuses the whole file, with sheet and line, for an unknown LGA or an
+  undecided row. Every change is audited as "master list import {file}". There is no upload route.
+- A migration adds trigram search indexes (pg_trgm, already provisioned) and two small indexes on
+  the audit log.
+- **Rounds page (Phase 5 step 4, D-90): closing a round publishes it.**
+  - Every round, newest first: window, "Open — not public" or "Closed — public", accepted
+    assessments per source, open issues (with a link to them), rule version, who closed it and
+    when, and why it was last reopened.
+  - Create a round; the window starts as the quarter's dates. An overlap, a round that already
+    exists or a window past the late-visit grace shows on the field it concerns.
+  - Close: first see what is still open and **Reconcile all sources now**, then give a reason. The
+    dialog says closing publishes the figures and that later submissions are held under
+    ROUND_WINDOW. Closing with open issues is allowed.
+  - Reopen (it leaves the public dashboard), edit the window and rescore an open round, each with
+    a reason.
+- Closing a round now takes a reason (`POST /api/rounds/{id}/close` refuses one without), as do
+  window changes; who closed a round is kept (`rounds.closed_by`, a new migration).
 - **Admin shell, extended (Phase 5 step 0, D-85).**
   - The rail now has **Audit log** (a placeholder page until it is built), **My account** (the
     password page) and **Log out**, after the five pages and before "View public dashboard". The
@@ -72,6 +102,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Reopening a round now clears its cached figures at once, so the public dashboard stops showing
+  it straight away.
 - **Monitor, public:** a visitor's page no longer shows a "Counts by source" panel that loads for
   ever. The counts are the admin preview's only (D-81), so the panel now appears only there.
 - **Contrast:** the "No data" score tag (Visuals rankings, LGA tables) and an overridden flag's tag

@@ -65,19 +65,23 @@ it('moves a window with PATCH', function (): void {
     $round = Round::factory()->create(['year' => 2027, 'quarter' => 2]);
 
     $this->actingAs($this->admin)->patchJson("/admin/api/rounds/{$round->id}", ['window_start' => '2027-04-03', 'window_end' => '2027-06-30'])
+        ->assertUnprocessable()->assertJsonValidationErrors('reason');
+    $this->actingAs($this->admin)->patchJson("/admin/api/rounds/{$round->id}", ['window_start' => '2027-04-03', 'window_end' => '2027-06-30', 'reason' => 'Field teams started late'])
         ->assertOk()
         ->assertJsonPath('data.window_start', '2027-04-03')
         ->assertJsonPath('warnings', []);
 });
 
-it('closes and reopens through the API, with the reason required to reopen', function (): void {
+it('closes and reopens through the API, with a reason required for both (step 4)', function (): void {
     $round = Round::factory()->create(['year' => 2027, 'quarter' => 2]);
 
     $this->actingAs($this->admin)->postJson("/admin/api/rounds/{$round->id}/close")
+        ->assertUnprocessable()->assertJsonValidationErrors('reason');
+    $this->actingAs($this->admin)->postJson("/admin/api/rounds/{$round->id}/close", ['reason' => 'All returns are in for Q2'])
         ->assertOk()
         ->assertJsonPath('data.status', 'closed')
         ->assertJsonPath('data.rule_version_id', $this->v1);
-    $this->actingAs($this->admin)->postJson("/admin/api/rounds/{$round->id}/close")
+    $this->actingAs($this->admin)->postJson("/admin/api/rounds/{$round->id}/close", ['reason' => 'All returns are in for Q2'])
         ->assertConflict()->assertJsonPath('code', 'already_closed');
 
     $this->actingAs($this->admin)->postJson("/admin/api/rounds/{$round->id}/reopen", ['reason' => 'short'])
@@ -93,5 +97,5 @@ it('closes and reopens through the API, with the reason required to reopen', fun
 });
 
 it('answers 404 for an unknown round', function (): void {
-    $this->actingAs($this->admin)->postJson('/admin/api/rounds/999999/close')->assertNotFound();
+    $this->actingAs($this->admin)->postJson('/admin/api/rounds/999999/close', ['reason' => 'All returns are in for Q2'])->assertNotFound();
 });

@@ -10,6 +10,7 @@ use App\Domain\Round\Actions\ReopenRound;
 use App\Domain\Round\Actions\UpdateRoundWindow;
 use App\Domain\Round\Models\Round;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Rounds\CloseRoundRequest;
 use App\Http\Requests\Rounds\ReopenRoundRequest;
 use App\Http\Requests\Rounds\StoreRoundRequest;
 use App\Http\Requests\Rounds\UpdateRoundWindowRequest;
@@ -49,14 +50,14 @@ final class RoundController extends Controller
 
     public function update(UpdateRoundWindowRequest $request, Round $round, UpdateRoundWindow $update): RoundResource
     {
-        $result = $update->execute($round, self::day($request, 'window_start'), self::day($request, 'window_end'), self::actor($request));
+        $result = $update->execute($round, self::day($request, 'window_start'), self::day($request, 'window_end'), self::actor($request), $request->string('reason')->toString());
 
         return (new RoundResource($result->round))->additional(['warnings' => $result->warnings]);
     }
 
-    public function close(Request $request, Round $round, CloseRound $close): RoundResource
+    public function close(CloseRoundRequest $request, Round $round, CloseRound $close): RoundResource
     {
-        return new RoundResource($close->execute($round, self::actor($request)));
+        return new RoundResource($close->execute($round, self::actor($request), $request->string('reason')->toString()));
     }
 
     public function reopen(ReopenRoundRequest $request, Round $round, ReopenRound $reopen): RoundResource

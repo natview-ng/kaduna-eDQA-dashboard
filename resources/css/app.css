@@ -271,7 +271,7 @@
     .field:hover {
         @apply border-ink-2;
     }
-    .field:has(select:focus-visible) {
+    .field:has(:focus-visible) {
         outline: 2px solid var(--color-deep-2);
         outline-offset: 2px;
     }
@@ -287,6 +287,10 @@
     }
     .field > select {
         @apply min-h-9 min-w-0 flex-1 cursor-pointer border-0 bg-transparent pr-2 font-medium text-ink;
+        outline: none;
+    }
+    .field > input {
+        @apply min-h-9 min-w-0 flex-1 border-0 bg-transparent pr-2 font-medium text-ink;
         outline: none;
     }
     /* A message inside the page: never a toast, never colour alone (the text says it). */

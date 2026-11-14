@@ -193,7 +193,7 @@ it('reads each source\'s pull history once per admin page, for the status bar an
     $this->actingAs($this->admin);
 
     DB::enableQueryLog();
-    $this->get('/admin/rounds')->assertOk()->assertInertia(fn (Assert $page) => $page
+    $this->get('/admin/audit')->assertOk()->assertInertia(fn (Assert $page) => $page
         ->where('admin.staleIngestion.sources.0.key', 'odk')
         ->where('admin.staleIngestion.sources.1.key', 'kobo'));
     $log = collect(DB::getQueryLog())->pluck('query');

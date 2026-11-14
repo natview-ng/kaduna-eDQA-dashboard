@@ -109,6 +109,59 @@ final class QuarantineQuery
     }
 
     /**
+     * What is still open in each round, for the Rounds page and its close check (step 4): open
+     * quarantine records, assessments deleted at source and not yet reviewed (D-62), and open
+     * DUPLICATE_ASSESSMENT records that clash with an accepted visit from the other source (§5.8:
+     * the same test the backfill report uses). One query per kind, however many rounds; a round
+     * with nothing open is all zeros.
+     *
+     * @param  list<int>  $roundIds
+     * @return array<int, array{quarantine: int, deletions: int, cross_source: int}> round ID => counts
+     */
+    public function issueCountsByRound(array $roundIds): array
+    {
+        $counts = array_fill_keys($roundIds, ['quarantine' => 0, 'deletions' => 0, 'cross_source' => 0]);
+        if ($roundIds === []) {
+            return $counts;
+        }
+        $ids = '{'.implode(',', $roundIds).'}';
+
+        foreach ($this->openCountsByRound($roundIds) as $roundId => $open) {
+            $counts[$roundId]['quarantine'] = $open;
+        }
+
+        $deletions = DB::select(<<<'SQL'
+            SELECT a.round_id, COUNT(*) AS n
+            FROM assessments a
+            JOIN submissions s ON s.id = a.submission_id
+            WHERE a.round_id = ANY(?::bigint[]) AND s.deleted_at_source IS NOT NULL AND s.deletion_reviewed_at IS NULL
+            GROUP BY a.round_id
+            SQL, [$ids]);
+        foreach ($deletions as $row) {
+            $counts[(int) $row->round_id]['deletions'] = (int) $row->n;
+        }
+
+        $crossSource = DB::select(<<<'SQL'
+            SELECT r.round_id, COUNT(DISTINCT r.id) AS n
+            FROM quarantined_records r
+            WHERE r.round_id = ANY(?::bigint[]) AND r.status = 'open'
+                AND r.failures @> '[{"code": "DUPLICATE_ASSESSMENT"}]'::jsonb
+                AND EXISTS (
+                    SELECT 1 FROM assessments a
+                    JOIN facilities f ON f.id = a.facility_id
+                    WHERE a.round_id = r.round_id AND a.status IN ('accepted', 'flagged')
+                        AND lower(f.code) = lower(trim(r.facility_ref)) AND a.source_id <> r.source_id
+                )
+            GROUP BY r.round_id
+            SQL, [$ids]);
+        foreach ($crossSource as $row) {
+            $counts[(int) $row->round_id]['cross_source'] = (int) $row->n;
+        }
+
+        return $counts;
+    }
+
+    /**
      * Records per hard-failure code, most frequent first. A record failing two rules counts in
      * both groups.
      *

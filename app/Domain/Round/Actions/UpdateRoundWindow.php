@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\DB;
 /**
  * "Edit window" (ARCHITECTURE.md §3): an open round's window moves under the same checks as a new
  * one, and never so that an accepted visit (accepted or flagged assessment, by its local visit
- * date, D-30) would fall outside it. A closed round is refused: reopen it first. Audited old/new.
+ * date, D-30) would fall outside it. A closed round is refused: reopen it first. Audited old/new,
+ * with the reason it takes (step 4: a window decides which visits count in the round).
  */
 final class UpdateRoundWindow
 {
@@ -26,9 +27,16 @@ final class UpdateRoundWindow
         private readonly RoundWindowCheck $windows,
     ) {}
 
-    public function execute(Round $round, CarbonImmutable $start, CarbonImmutable $end, User $actor): RoundWindowResult
+    public const MIN_REASON = 10;
+
+    public function execute(Round $round, CarbonImmutable $start, CarbonImmutable $end, User $actor, string $reason): RoundWindowResult
     {
-        return DB::transaction(function () use ($round, $start, $end, $actor): RoundWindowResult {
+        $reason = trim($reason);
+        if (mb_strlen($reason) < self::MIN_REASON) {
+            throw RoundActionRefused::reasonTooShort();
+        }
+
+        return DB::transaction(function () use ($round, $start, $end, $actor, $reason): RoundWindowResult {
             $round = Round::query()->lockForUpdate()->findOrFail($round->id);
             if ($round->status === RoundStatus::Closed) {
                 throw RoundActionRefused::roundClosed();
@@ -54,6 +62,7 @@ final class UpdateRoundWindow
             AuditLog::record($round, $actor, 'window_updated',
                 old: $old,
                 new: $new,
+                reason: $reason,
                 extra: ['warnings' => array_column($warnings, 'code')],
             );
 

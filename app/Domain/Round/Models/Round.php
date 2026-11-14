@@ -10,6 +10,7 @@ use App\Domain\Round\Enums\RoundStatus;
 use App\Domain\Round\Support\RoundLabel;
 use App\Domain\Scoring\Models\ScoringRuleVersion;
 use App\Domain\Validation\Models\QuarantinedRecord;
+use App\Models\User;
 use App\Support\Audit\Audited;
 use Carbon\CarbonImmutable;
 use Database\Factories\RoundFactory;
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property RoundStatus $status
  * @property int|null $rule_version_id
  * @property CarbonImmutable|null $closed_at
+ * @property int|null $closed_by
  * @property string|null $reopened_reason
  */
 #[UseFactory(RoundFactory::class)]
@@ -38,7 +40,7 @@ final class Round extends Model
     use HasFactory;
 
     protected $fillable = [
-        'year', 'quarter', 'window_start', 'window_end', 'status', 'closed_at', 'reopened_reason',
+        'year', 'quarter', 'window_start', 'window_end', 'status', 'closed_at', 'closed_by', 'reopened_reason',
         'rule_version_id',
     ];
 
@@ -55,6 +57,7 @@ final class Round extends Model
             'window_end' => 'immutable_date',
             'status' => RoundStatus::class,
             'closed_at' => 'immutable_datetime',
+            'closed_by' => 'integer',
             'rule_version_id' => 'integer',
             'created_at' => 'immutable_datetime',
             'updated_at' => 'immutable_datetime',
@@ -78,6 +81,17 @@ final class Round extends Model
         return $this->belongsTo(ScoringRuleVersion::class, 'rule_version_id');
     }
 
+    /**
+     * The administrator who closed the round (step 4); null while open, and for rounds closed
+     * before the column existed.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function closedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'closed_by');
+    }
+
     /** @return HasMany<Assessment, $this> */
     public function assessments(): HasMany
     {
@@ -98,6 +112,6 @@ final class Round extends Model
 
     protected function auditedAttributes(): array
     {
-        return ['year', 'quarter', 'window_start', 'window_end', 'status', 'closed_at', 'reopened_reason', 'rule_version_id'];
+        return ['year', 'quarter', 'window_start', 'window_end', 'status', 'closed_at', 'closed_by', 'reopened_reason', 'rule_version_id'];
     }
 }

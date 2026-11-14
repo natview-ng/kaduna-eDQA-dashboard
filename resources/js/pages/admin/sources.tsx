@@ -6,7 +6,7 @@ import DeletionsPanel from '@/components/DeletionsPanel';
 import PullAllPanel, { type PullAllRun } from '@/components/PullAllPanel';
 import PullHistoryPanel, { type PullHistoryFilters } from '@/components/PullHistoryPanel';
 import SourcePanel, { type FollowedRun } from '@/components/SourcePanel';
-import type { BackfillStatus, DeletionRow, Paginated, PullHistoryRow, SourceEntry } from '@/types/admin';
+import type { BackfillStatus, CascadeStatus, DeletionRow, Paginated, PullHistoryRow, SourceEntry } from '@/types/admin';
 
 export type AdminSourcesProps = {
     sources: SourceEntry[];
@@ -15,6 +15,8 @@ export type AdminSourcesProps = {
     historyFilters: PullHistoryFilters;
     deletions: { rows: DeletionRow[]; total: number };
     docs: { runbook: string | null; cascade: string | null };
+    /** Whether the facility media file is out of date (step 5). */
+    cascade: CascadeStatus;
 };
 
 type Followed = Record<string, FollowedRun | null>;
@@ -35,7 +37,7 @@ const runsFrom = (sources: SourceEntry[], pick: (source: SourceEntry) => number 
  * owns which run each panel follows, so Pull all's runs show in each source's own progress. A
  * finished run reloads the sources, the history and the deletions, not the whole page.
  */
-export default function AdminSources({ sources, backfill, history, historyFilters, deletions, docs }: AdminSourcesProps) {
+export default function AdminSources({ sources, backfill, history, historyFilters, deletions, docs, cascade }: AdminSourcesProps) {
     const [pulls, setPulls] = useState<Followed>(() => runsFrom(sources, (source) => source.running_run_id));
     const [sweeps, setSweeps] = useState<Followed>(() => runsFrom(sources, (source) => source.running_reconcile_run_id));
     const refresh = () => router.reload({ only: ['sources', 'history', 'deletions', 'backfill', 'admin', 'shell'] });
@@ -64,7 +66,7 @@ export default function AdminSources({ sources, backfill, history, historyFilter
             <PullHistoryPanel history={history} filters={historyFilters} sources={sources.map(({ key, name }) => ({ key, name }))} />
             <DeletionsPanel deletions={deletions} onReviewed={refresh} />
             <BackfillPanel backfill={backfill} />
-            <CascadePanel howUrl={docs.cascade} />
+            <CascadePanel howUrl={docs.cascade} outOfDate={cascade.out_of_date} onRegenerated={() => router.reload({ only: ['cascade'] })} />
         </div>
     );
 }

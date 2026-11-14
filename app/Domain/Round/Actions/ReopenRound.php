@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Round\Actions;
 
+use App\Domain\Reporting\RoundCache;
 use App\Domain\Round\DTOs\ReopenResult;
 use App\Domain\Round\Enums\RoundStatus;
 use App\Domain\Round\Exceptions\RoundActionRefused;
@@ -31,6 +32,7 @@ final class ReopenRound
     public function __construct(
         private readonly CurrentRuleVersion $current,
         private readonly RescoreRound $rescore,
+        private readonly RoundCache $cache,
     ) {}
 
     public function execute(Round $round, User $actor, string $reason, bool $rescore = false): ReopenResult
@@ -48,16 +50,20 @@ final class ReopenRound
 
             $rescoring = $rescore || $round->rule_version_id !== $this->current->id();
             $old = ['status' => $round->status->value, 'closed_at' => $round->closed_at?->toIso8601String(), 'reopened_reason' => $round->reopened_reason];
-            activity()->withoutLogs(fn () => $round->update(['status' => RoundStatus::Open, 'closed_at' => null, 'reopened_reason' => $reason]));
+            activity()->withoutLogs(fn () => $round->update(['status' => RoundStatus::Open, 'closed_at' => null, 'closed_by' => null, 'reopened_reason' => $reason]));
 
             AuditLog::record($round, $actor, 'reopened',
                 old: $old,
-                new: ['status' => RoundStatus::Open->value, 'closed_at' => null, 'reopened_reason' => $reason, 'rescore' => $rescoring],
+                new: ['status' => RoundStatus::Open->value, 'closed_at' => null, 'closed_by' => null, 'reopened_reason' => $reason, 'rescore' => $rescoring],
                 reason: $reason,
             );
 
             return [$round, $rescoring];
         });
+
+        // Reopening takes the round off the public dashboard (D-77, step 4): its cached answers
+        // go at once, once the reopen is committed, so no visitor is served them from the cache.
+        $this->cache->flushRound($round->id);
 
         $run = $rescoring ? $this->rescore->start($round, RescoreTrigger::Manual, $actor, $reason) : null;
 

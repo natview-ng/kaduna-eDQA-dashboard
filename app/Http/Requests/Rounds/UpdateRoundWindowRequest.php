@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Rounds;
 
+use App\Domain\Round\Actions\UpdateRoundWindow;
 use Illuminate\Foundation\Http\FormRequest;
 
 final class UpdateRoundWindowRequest extends FormRequest
@@ -19,6 +20,7 @@ final class UpdateRoundWindowRequest extends FormRequest
         return [
             'window_start' => ['required', 'date_format:Y-m-d'],
             'window_end' => ['required', 'date_format:Y-m-d'],
+            'reason' => ['required', 'string', 'min:'.UpdateRoundWindow::MIN_REASON],
         ];
     }
 }

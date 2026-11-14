@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Admin;
 
+use App\Domain\Facility\Queries\CascadeStatusQuery;
 use App\Domain\Ingestion\Queries\BackfillStatusQuery;
 use App\Domain\Ingestion\Queries\DeletionsAtSourceQuery;
 use App\Domain\Ingestion\Queries\PullHistoryQuery;
@@ -26,7 +27,7 @@ final class AdminSourcesController extends Controller
     /** How long a backfill report link works (SECURITY.md §7: 30 minutes). */
     public const SIGNED_MINUTES = 30;
 
-    public function __invoke(PullHistoryRequest $request, SourcesPayload $sources, BackfillStatusQuery $backfill, PullHistoryQuery $history, DeletionsAtSourceQuery $deletions): Response
+    public function __invoke(PullHistoryRequest $request, SourcesPayload $sources, BackfillStatusQuery $backfill, PullHistoryQuery $history, DeletionsAtSourceQuery $deletions, CascadeStatusQuery $cascade): Response
     {
         return Inertia::render('admin/sources', [
             'sources' => fn (): array => $sources->build(),
@@ -45,6 +46,8 @@ final class AdminSourcesController extends Controller
             'history' => fn () => $history->paginate($request->filters()),
             'historyFilters' => $request->filters(),
             'deletions' => fn (): array => $deletions->list(),
+            // Step 5: the facility media file is out of date after a master-list change.
+            'cascade' => fn (): array => $cascade->status(),
             'docs' => [
                 'runbook' => self::doc('docs/runbooks/source-credentials-day.md'),
                 'cascade' => self::doc('docs/odk-cascade-media.md'),

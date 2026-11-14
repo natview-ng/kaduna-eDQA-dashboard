@@ -237,3 +237,29 @@ it('keeps the source webhooks switched off (404) while no secret is configured',
     $this->postJson('/webhooks/odk', [])->assertNotFound();
     $this->postJson('/webhooks/kobo', [])->assertNotFound();
 });
+
+// ---- No upload route (CLAUDE.md hard rule 1, D-91): data enters from the sources; the facility
+// master list only through the console (edqa:facilities:import-master-list).
+
+it('has no route that takes a file: no upload or import URI, and nothing in app/Http reads an uploaded file', function (): void {
+    $named = array_values(array_filter(array_map(fn (RoutingRoute $route): string => $route->uri(), appRoutes()), fn (string $uri): bool => preg_match('/upload|import/i', $uri) === 1));
+    expect($named)->toBe([]);
+
+    $root = realpath(__DIR__.'/../../../app/Http');
+    $offenders = [];
+    $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator((string) $root, FilesystemIterator::SKIP_DOTS));
+    foreach ($files as $file) {
+        if (! str_ends_with((string) $file, '.php')) {
+            continue;
+        }
+        $source = (string) file_get_contents((string) $file);
+        // Anything that reads an uploaded file, anywhere; and, in a form request, a file rule.
+        $reads = preg_match('/UploadedFile|->file\(|->hasFile\(|->allFiles\(|File::types|Rule::file|Rule::imageFile/', $source) === 1;
+        $rule = str_contains((string) $file, DIRECTORY_SEPARATOR.'Requests'.DIRECTORY_SEPARATOR)
+            && preg_match('/[\'"|](file|image|mimes:[^\'"]*|mimetypes:[^\'"]*|extensions:[^\'"]*)[\'"|]/', $source) === 1;
+        if ($reads || $rule) {
+            $offenders[] = str_replace(DIRECTORY_SEPARATOR, '/', substr((string) $file, strlen((string) $root) + 1));
+        }
+    }
+    expect($offenders)->toBe([]);
+});

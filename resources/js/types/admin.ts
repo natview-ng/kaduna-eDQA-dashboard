@@ -228,3 +228,65 @@ export type Resolution = {
     assessment_id: number | null;
     rescore_round: RoundRef | null;
 };
+
+/** One round on the Rounds page (Phase 5 step 4): every count is the server's. */
+export type RoundRow = {
+    id: number;
+    year: number;
+    quarter: number;
+    label: string;
+    window_start: string;
+    window_end: string;
+    status: 'open' | 'closed';
+    closed_at: string | null;
+    /** The administrator who closed it; null while open (or closed before this was kept). */
+    closed_by: string | null;
+    /** The version number pinned at close (D-32); null while open. */
+    rule_version: number | null;
+    /** The version number its scores are read under now; null when none is published. */
+    reads_rule_version: number | null;
+    reopened_reason: string | null;
+    assessments: { total: number; by_source: { key: string | null; name: string; count: number }[] };
+    issues: { quarantine: number; deletions: number; cross_source: number };
+};
+
+/** A source that can be reconciled before a close: configured and switched on. */
+export type ReconcilableSource = { key: string; name: string; running_reconcile_run_id: number | null };
+
+/** A rescore and its progress (GET /api/rescores/{batchId}). */
+export type RescoreRunData = {
+    run_id: number;
+    batch_id: string;
+    round_id: number;
+    status: 'running' | 'succeeded' | 'failed';
+    assessments: { total: number; processed: number; unscorable: number };
+    changed_scores: number;
+};
+
+/** Whether the facility media file is out of date (Phase 5 step 5, CascadeStatusQuery). */
+export type CascadeStatus = { out_of_date: boolean; changed_at: string | null; exported_at: string | null };
+
+/** One facility of the master list on the Facility list page (step 5): every count is the server's. */
+export type FacilityListRow = {
+    id: number;
+    code: string;
+    name: string;
+    ward: { id: number; name: string };
+    lga: { id: number; code: string; name: string };
+    level: 'primary' | 'secondary' | 'tertiary';
+    ownership: 'public' | 'private';
+    active: boolean;
+    lat: string | null;
+    lng: string | null;
+    /** Accepted and flagged assessments. */
+    visits: number;
+    /** Of them, in an open round: what deactivating would strand. */
+    open_round_visits: number;
+    /** An assessment holds the code, so it cannot change. */
+    code_locked: boolean;
+    latest: { round: string; score: import('@/types/score').ScoreValue } | null;
+};
+
+export type LgaWithWards = { id: number; code: string; name: string; wards: { id: number; name: string }[] };
+
+export type FacilityListFilters = { q: string | null; lga: string | null; ward: number | null; level: string | null; ownership: string | null; active: string | null; page: number };

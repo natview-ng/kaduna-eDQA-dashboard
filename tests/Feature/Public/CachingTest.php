@@ -35,7 +35,7 @@ it('serves the public figures from the cache, untouched by later score writes, u
     expect(publicSummary())->toBe(1);
 
     // Closing the open round flushes it: the public now sees Q2, the latest closed round.
-    app(CloseRound::class)->execute(Round::query()->findOrFail($this->f->q2), User::factory()->create());
+    app(CloseRound::class)->execute(Round::query()->findOrFail($this->f->q2), User::factory()->create(), 'All returns are in for the quarter.');
     expect(publicSummary())->toBe(7);
 });
 
