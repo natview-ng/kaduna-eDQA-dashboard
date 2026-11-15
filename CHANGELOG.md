@@ -9,6 +9,19 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Scoring rules page (Phase 5 step 6, D-92).**
+  - The current version: who published it, when and why, its bands, N/A policy and choice map;
+    weighting and display rounding shown read-only, with what the rounding means.
+  - One draft: band thresholds checked as you type (each 0–100, going down), a searchable table of
+    every item's weight (1 unless set), the N/A policy; save or discard.
+  - "Preview impact" for each open round: the facilities and LGAs that change band, and the state
+    overall before and after. Closed rounds are listed as unaffected: the public dashboard only
+    changes when an open round is closed.
+  - Publish with a reason, in a dialog that repeats the preview, then each open round's rescore
+    followed to the end.
+  - Version history, with the differences between any two versions in words.
+- The draft can be saved (`PATCH /api/scoring-rules/{id}`) and discarded (`DELETE`), both
+  audited; a published version is never changed. The preview now names each facility.
 - **Facility list page (Phase 5 step 5, D-91).**
   - Search on name, code, ward or LGA; filter by LGA, ward, level, ownership and status; pages of
     25 with each facility's visits and latest score.

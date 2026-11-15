@@ -55,7 +55,7 @@ final class RuleVersionPreviewAggregator
 
     private function previewRound(Round $round, RuleConfig $current, RuleConfig $draft, int $chunkSize): RoundPreview
     {
-        /** @var array<int, array{code: string, lga_id: int, before: list<float>, after: list<float>}> $facilities */
+        /** @var array<int, array{code: string, name: string, lga_id: int, before: list<float>, after: list<float>}> $facilities */
         $facilities = [];
         $assessments = 0;
         $skipped = 0;
@@ -64,7 +64,7 @@ final class RuleVersionPreviewAggregator
             ->join('facilities', 'facilities.id', '=', 'assessments.facility_id')
             ->where('assessments.round_id', $round->id)
             ->orderBy('assessments.id')
-            ->select(['assessments.id', 'assessments.facility_id', 'facilities.code', 'facilities.lga_id'])
+            ->select(['assessments.id', 'assessments.facility_id', 'facilities.code', 'facilities.name', 'facilities.lga_id'])
             ->chunk($chunkSize, function ($rows) use (&$facilities, &$assessments, &$skipped, $current, $draft): void {
                 $items = DB::table('item_responses')
                     ->whereIn('assessment_id', $rows->pluck('id')->all())
@@ -85,7 +85,7 @@ final class RuleVersionPreviewAggregator
                     }
 
                     $id = (int) $row->facility_id;
-                    $facilities[$id] ??= ['code' => (string) $row->code, 'lga_id' => (int) $row->lga_id, 'before' => [], 'after' => []];
+                    $facilities[$id] ??= ['code' => (string) $row->code, 'name' => (string) $row->name, 'lga_id' => (int) $row->lga_id, 'before' => [], 'after' => []];
                     $facilities[$id]['before'][] = $before;
                     $facilities[$id]['after'][] = $after;
                 }
@@ -105,7 +105,7 @@ final class RuleVersionPreviewAggregator
 
             $change = self::bandChange($before, $after, $current, $draft);
             if ($change !== null) {
-                $facilityChanges[] = ['facility_id' => $id, 'code' => $facility['code'], 'lga_id' => $facility['lga_id'], ...$change];
+                $facilityChanges[] = ['facility_id' => $id, 'code' => $facility['code'], 'name' => $facility['name'], 'lga_id' => $facility['lga_id'], ...$change];
             }
         }
 

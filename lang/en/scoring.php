@@ -15,7 +15,7 @@ return [
     'errors' => [
         // Rule versions
         'draft_exists' => 'There is already a draft. Publish or discard it before starting another.',
-        'not_a_draft' => 'Only a draft can be published; this version is already published.',
+        'not_a_draft' => 'This version is published: only the draft can be changed, discarded or published.',
         'reason_too_short' => 'Give a reason of at least 10 characters.',
         'unknown_config_key' => ':key is not part of a scoring rule. Only bands, item weights, N/A policy and choice map can change.',
 

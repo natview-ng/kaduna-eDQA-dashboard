@@ -290,3 +290,43 @@ export type FacilityListRow = {
 export type LgaWithWards = { id: number; code: string; name: string; wards: { id: number; name: string }[] };
 
 export type FacilityListFilters = { q: string | null; lga: string | null; ward: number | null; level: string | null; ownership: string | null; active: string | null; page: number };
+
+/** A scoring rule version's config (ARCHITECTURE.md §7). */
+export type RuleConfigData = {
+    bands: { strong: number; acceptable: number; review: number };
+    item_weights: Record<string, number>;
+    na_policy: string;
+    choice_map: Record<string, string>;
+};
+
+/** One rule version on the Scoring rules page (Phase 5 step 6). */
+export type RuleVersionRow = {
+    id: number;
+    version: number;
+    status: 'draft' | 'current' | 'published';
+    config: RuleConfigData;
+    created_by: string | null;
+    created_at: string | null;
+    published_at: string | null;
+    published_by: string | null;
+    published_reason: string | null;
+};
+
+export type ScoredItem = { key: string; dimension: string; code: string; label: string };
+
+type BandChange = { before: import('@/types/score').ScoreValue; after: import('@/types/score').ScoreValue };
+
+/** One open round in the publish preview (RuleVersionPreviewAggregator): every number is the server's. */
+export type RoundPreviewData = {
+    round_id: number;
+    year: number;
+    quarter: number;
+    assessments: number;
+    skipped: number;
+    facilities_changing_band: ({ facility_id: number; code: string; name: string; lga_id: number } & BandChange)[];
+    lgas_changing_band: ({ lga_id: number; code: string; name: string } & BandChange)[];
+    facilities_changing_count: number;
+    lgas_changing_count: number;
+    state_overall_before: import('@/types/score').ScoreValue;
+    state_overall_after: import('@/types/score').ScoreValue;
+};

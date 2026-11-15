@@ -14,7 +14,7 @@ use App\Domain\Scoring\DTOs\ScoreValue;
 final readonly class RoundPreview
 {
     /**
-     * @param  list<array{facility_id: int, code: string, lga_id: int, before: ScoreValue, after: ScoreValue}>  $facilitiesChangingBand
+     * @param  list<array{facility_id: int, code: string, name: string, lga_id: int, before: ScoreValue, after: ScoreValue}>  $facilitiesChangingBand
      * @param  list<array{lga_id: int, code: string, name: string, before: ScoreValue, after: ScoreValue}>  $lgasChangingBand
      */
     public function __construct(
@@ -42,6 +42,9 @@ final readonly class RoundPreview
             'skipped' => $this->skipped,
             'facilities_changing_band' => array_map($scores, $this->facilitiesChangingBand),
             'lgas_changing_band' => array_map($scores, $this->lgasChangingBand),
+            // Step 6: the counts the publish dialog states, counted here, never in the browser.
+            'facilities_changing_count' => count($this->facilitiesChangingBand),
+            'lgas_changing_count' => count($this->lgasChangingBand),
             'state_overall_before' => $this->stateOverallBefore->toArray(),
             'state_overall_after' => $this->stateOverallAfter->toArray(),
         ];
