@@ -57,6 +57,14 @@ export default function AdminFacilities({ facilities, facilityFilters: filters, 
     const [addKey, setAddKey] = useState(0);
     const [pending, setPending] = useState<Pending | null>(null);
     const [outcome, setOutcome] = useState<string | null>(null);
+    // The media-file panel sits at the top while the file is out of date, and stays there for the
+    // rest of the visit once it has been: regenerating clears out_of_date, and moving the panel
+    // would remount it and lose the counts and the download link just produced.
+    const [cascadeOnTop, setCascadeOnTop] = useState(cascade.out_of_date);
+    if (cascade.out_of_date && !cascadeOnTop) {
+        setCascadeOnTop(true);
+    }
+    const cascadePanel = <CascadePanel howUrl={null} outOfDate={cascade.out_of_date} onRegenerated={() => router.reload({ only: ['cascade'] })} />;
 
     const reload = () => router.reload({ only: ['facilities', 'lgas', 'cascade'] });
     const done = (text: string) => {
@@ -138,7 +146,7 @@ export default function AdminFacilities({ facilities, facilityFilters: filters, 
                 </p>
             )}
 
-            {cascade.out_of_date && <CascadePanel howUrl={null} outOfDate onRegenerated={() => router.reload({ only: ['cascade'] })} />}
+            {cascadeOnTop && cascadePanel}
 
             <Panel labelledBy="facilities-title">
                 <PanelHeader id="facilities-title" title={t('admin.facilities.table.title')} />
@@ -159,7 +167,7 @@ export default function AdminFacilities({ facilities, facilityFilters: filters, 
                 />
             </Panel>
 
-            <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+            <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
                 <Panel labelledBy="add-facility-title">
                     <PanelHeader id="add-facility-title" title={t('admin.facilities.add.title')} description={t('admin.facilities.add.description')} />
                     <div className="px-5 pt-3 pb-5">
@@ -179,7 +187,7 @@ export default function AdminFacilities({ facilities, facilityFilters: filters, 
                 <WardManager lgas={lgas} onChanged={done} />
             </div>
 
-            {!cascade.out_of_date && <CascadePanel howUrl={null} onRegenerated={() => router.reload({ only: ['cascade'] })} />}
+            {!cascadeOnTop && cascadePanel}
 
             <ConfirmWithReasonDialog
                 open={pending !== null}

@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use App\Domain\Assessment\Models\Assessment;
+use App\Domain\Export\Models\Export;
 use App\Models\User;
 use App\Support\Audit\AuditLog;
 use Database\Seeders\LgaSeeder;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Testing\TestResponse;
 use Illuminate\View\View;
 use Tests\Support\ReportingFixture;
@@ -259,4 +261,21 @@ it('does show the published figures, so the checks above are not vacuous', funct
     $admin = User::query()->where('email', $this->adminEmail)->firstOrFail();
     $adminView = (string) $this->actingAs($admin)->get("/admin/facilities/{$this->facilities[0]}?round={$this->closed}")->getContent();
     expect($adminView)->toContain('MARKER-ASSESSOR')->toContain('MARKER-ATTACH');
+});
+
+it('reaches no export anonymously: no public export route, nothing on a public page, every export endpoint refusing a guest', function (): void {
+    // Exports are admin-only (D-80, Phase 6 step 0): exports leave the system, so no public route,
+    // page or prop leads to one.
+    $exportRoutes = collect(Route::getRoutes()->getRoutes())->filter(fn (RoutingRoute $route): bool => str_contains($route->uri(), 'export'));
+    expect($exportRoutes->filter(fn (RoutingRoute $route): bool => ! str_starts_with($route->uri(), 'admin/'))->map(fn (RoutingRoute $route): string => $route->uri())->values()->all())->toBe([]);
+
+    foreach (publicUrls() as $url) {
+        $body = (string) $this->get($url)->getContent();
+        expect($body)->not->toContain('admin/api/exports')->not->toContain('/download?')->not->toContain('Include assessor and source details');
+    }
+
+    $export = Export::query()->create(['type' => 'assessments', 'filter' => (object) [], 'options' => ['format' => 'csv', 'include_private' => true], 'requested_by' => User::query()->where('email', $this->adminEmail)->value('id')]);
+    $this->postJson('/admin/api/exports', ['type' => 'assessments', 'format' => 'csv', 'include_private' => true])->assertUnauthorized();
+    $this->getJson("/admin/api/exports/{$export->id}")->assertUnauthorized();
+    $this->get(URL::temporarySignedRoute('admin.exports.download', now()->addMinutes(30), ['export' => $export->id], absolute: false))->assertRedirect('/login');
 });

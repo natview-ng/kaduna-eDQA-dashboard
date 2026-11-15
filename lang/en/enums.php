@@ -19,6 +19,17 @@ return [
         'hard' => 'Hard',
         'soft' => 'Soft',
     ],
+    'export_status' => [
+        'queued' => 'Waiting to start',
+        'running' => 'Preparing',
+        'done' => 'Ready',
+        'failed' => 'Failed',
+        'expired' => 'Expired',
+    ],
+    'export_format' => [
+        'csv' => 'CSV',
+        'xlsx' => 'Excel',
+    ],
     'round_status' => [
         'open' => 'Open',
         'closed' => 'Closed',

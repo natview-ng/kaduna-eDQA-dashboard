@@ -1,8 +1,10 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import Announcer from '@/components/Announcer';
 import CascadePanel from '@/components/CascadePanel';
 import WardManager from '@/components/WardManager';
+import { I18nProvider } from '@/lib/i18n';
 import AdminFacilities from '@/pages/admin/facilities';
 import { axeCheck, renderUi, testTranslations } from '@/test/render';
 import type { FacilityListRow, LgaWithWards, Paginated } from '@/types/admin';
@@ -165,6 +167,28 @@ describe('AdminFacilities', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Regenerate facility media file' }));
 
         await waitFor(() => expect(routerReload).toHaveBeenCalledWith({ only: ['cascade'] }));
+    });
+
+    it('keeps the regenerated file\'s download where it was asked for once the file is current again', async () => {
+        // Found by the full-round e2e journey: the reload clears out_of_date, and the panel used to
+        // jump to the foot of the page as a fresh copy, losing the counts and the download link.
+        stubFetch(() => ({ status: 201, body: { data: { filename: 'cascade.zip', lgas: 23, wards: 255, facilities: 2190, url: '/download', expires_at: '2026-11-14T12:00:00Z' } } }));
+        const props = { facilities: page([row()]), facilityFilters: filters, lgas };
+        const { rerender } = renderUi(<AdminFacilities {...props} cascade={{ ...cascade, out_of_date: true }} />, translations);
+        await userEvent.click(screen.getByRole('button', { name: 'Regenerate facility media file' }));
+        expect(await screen.findByText('Ready: 23 LGAs, 255 wards, 2,190 facilities.')).toBeTruthy();
+
+        rerender(
+            <I18nProvider translations={translations}>
+                <Announcer>
+                    <AdminFacilities {...props} cascade={cascade} />
+                </Announcer>
+            </I18nProvider>,
+        );
+        expect(screen.queryByText(/The facility media file is out of date/)).toBeNull();
+        expect(screen.getByText('Ready: 23 LGAs, 255 wards, 2,190 facilities.')).toBeTruthy();
+        expect(screen.getByRole('link', { name: 'Download cascade.zip' })).toBeTruthy();
+        expect(screen.getAllByRole('button', { name: 'Regenerate facility media file' })).toHaveLength(1);
     });
 
     it('searches after typing stops, keeping the filters in the URL', async () => {

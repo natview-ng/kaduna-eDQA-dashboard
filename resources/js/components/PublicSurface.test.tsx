@@ -34,6 +34,7 @@ const translations: Translations = {
     },
     admin: {
         preview: { label: 'Admin preview', text: 'Admin preview — includes the open round', back: 'Back to admin' },
+        exports: { button: 'Export…', format: 'Format', formats: { csv: 'CSV', xlsx: 'Excel' }, private: 'Include assessor and source details', private_help: 'Adds personal data.', start: 'Start export', starting: 'Starting…', progress: 'Export', percent: ':progress% done', download: 'Download :file', expiry: 'The link works for 30 minutes.' },
     },
     auth: {
         fields: { email: 'Email address', password: 'Password' },
@@ -96,6 +97,9 @@ describe('PublicLayout', () => {
         expect(screen.queryByRole('region', { name: 'Admin preview' })).toBeNull();
         expect(hrefs().some((href) => href.startsWith('/admin') || href.startsWith('/login'))).toBe(false);
         expect(screen.queryByRole('navigation', { name: 'Account' })).toBeNull();
+        // Exports are admin-only (D-80): no button, no export endpoint on a visitor's page.
+        expect(screen.queryByRole('button', { name: 'Export…' })).toBeNull();
+        expect(document.body.innerHTML).not.toContain('/admin/api/exports');
         expect(await axeCheck(document.body)).toHaveNoViolations();
     });
 
@@ -117,6 +121,7 @@ describe('PublicLayout', () => {
         expect(bar.textContent).toContain('Admin preview — includes the open round');
         expect(within(bar).getByRole('link', { name: 'Back to admin' }).getAttribute('href')).toBe('/admin');
         expect(bar.compareDocumentPosition(screen.getByRole('main')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+        expect(within(bar).getByRole('button', { name: 'Export…' }).getAttribute('aria-expanded')).toBe('false');
     });
 });
 

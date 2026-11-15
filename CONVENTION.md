@@ -252,8 +252,22 @@ Strong → ok, Acceptable → fine (slate, D-89), Review → warn, Needs action 
 `TrendChart`, `MonthGroupChart`, `DataTable`, `Drawer`, `Toast`, `ConfirmWithReasonDialog`,
 `EmptyState`, `Skeleton`.
 
-`ConfirmWithReasonDialog` is mandatory for: reject quarantine, override flag, correct assessment,
-reopen round, publish rule version, deactivate facility.
+`ConfirmWithReasonDialog` is mandatory for the reasoned actions. Each takes a required
+`string $reason` in its Action (§2.2) and records it in the audit log:
+
+- reject a quarantined submission (one, or several at once);
+- override a flag;
+- correct an assessment (and correct & reprocess a quarantined submission);
+- close a round, and reopen it;
+- publish a rule version;
+- deactivate a facility (and reactivate it);
+- withdraw an assessment, and restore it;
+- replace an assessment from another submission ("Use this one instead" on a duplicate; "Keep the
+  existing one" is reasoned too).
+
+The other writes that change what counts use it as well: keep an assessment deleted at source
+(mark the deletion reviewed), edit a round's window, rescore a round. A new action that removes,
+replaces, publishes or hides figures joins this list (ARCHITECTURE.md D-94).
 
 ---
 

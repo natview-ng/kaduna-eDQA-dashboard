@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Support\Audit;
 
 use App\Models\User;
+use App\Support\Export\SpreadsheetCell;
 use Carbon\CarbonImmutable;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +44,7 @@ final class AuditLogExport
         $rows = 0;
         foreach ($this->query->each($filters) as $row) {
             $subject = $row['subject'];
-            fputcsv($handle, array_map(self::safe(...), [
+            fputcsv($handle, array_map(SpreadsheetCell::safe(...), [
                 CarbonImmutable::parse((string) $row['at'])->setTimezone((string) config('app.timezone'))->format('Y-m-d H:i'),
                 $row['actor'] ?? ($row['console'] ? 'Console' : 'System'),
                 (string) $row['event'],
@@ -93,11 +94,5 @@ final class AuditLogExport
         $disk = Storage::disk('exports');
 
         return $disk;
-    }
-
-    /** A cell a spreadsheet would run as a formula gets a leading apostrophe. */
-    private static function safe(string $value): string
-    {
-        return preg_match('/^[=+\-@\t\r]/', $value) === 1 ? "'".$value : $value;
     }
 }

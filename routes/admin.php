@@ -13,6 +13,7 @@ use App\Http\Controllers\Assessments\AssessmentStatusController;
 use App\Http\Controllers\Assessments\CorrectAssessmentController;
 use App\Http\Controllers\Attachments\ShowAttachmentController;
 use App\Http\Controllers\DevComponentsController;
+use App\Http\Controllers\Exports\ExportController;
 use App\Http\Controllers\Facilities\CascadeExportController;
 use App\Http\Controllers\Facilities\FacilityController;
 use App\Http\Controllers\Facilities\FacilityDetailController;
@@ -68,6 +69,12 @@ Route::put('settings/password', [SecurityController::class, 'update'])
     ->middleware('throttle:6,1')
     ->name('user-password.update');
 
+// A queued export's file (Phase 6 step 0, D-96): a signed link (30 minutes) from GET
+// /admin/api/exports/{id}, and a signed-in administrator too; streamed from the private disk,
+// audited. Not under /admin/api: it is a file, not JSON.
+Route::get('exports/{export}/download', [ExportController::class, 'download'])
+    ->whereNumber('export')->middleware(['signed:relative', 'throttle:120,1'])->name('exports.download');
+
 // Component gallery for design review; 404 outside the local environment.
 Route::get('dev/components', DevComponentsController::class)->name('dev.components');
 
@@ -97,6 +104,11 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::post('audit/export', [AuditExportController::class, 'store'])->middleware('throttle:6,1')->name('audit.export');
     Route::get('audit/exports/{file}', [AuditExportController::class, 'download'])
         ->middleware('signed')->where('file', '[A-Za-z0-9.-]+')->name('audit.exports.show');
+
+    // Queued exports (Phase 6 step 0, D-96): asked for (10 a minute per administrator, SECURITY.md
+    // §8), then followed to the end; written on the exports queue, never in the request.
+    Route::post('exports', [ExportController::class, 'store'])->middleware('throttle:exports')->name('exports.store');
+    Route::get('exports/{export}', [ExportController::class, 'show'])->whereNumber('export')->name('exports.show');
 
     // The cascading-select media (§5.1): generated on request, fetched through a signed link.
     Route::post('facility-list/export-cascade', [CascadeExportController::class, 'store'])->name('facility-list.cascade.store');

@@ -14,6 +14,24 @@ return [
         'back' => 'Back to admin',
     ],
 
+    // The ExportButton (Phase 6 step 0, D-96): admin pages and the preview bar only.
+    'exports' => [
+        'button' => 'Export…',
+        'format' => 'Format',
+        'formats' => [
+            'csv' => 'CSV',
+            'xlsx' => 'Excel',
+        ],
+        'private' => 'Include assessor and source details',
+        'private_help' => 'Adds assessor names, device IDs, visit GPS, source links and attachment links. The file then holds personal data: keep it safe and share it only with people who need it. Your choice is recorded in the audit log and in the file.',
+        'start' => 'Start export',
+        'starting' => 'Starting…',
+        'progress' => 'Export',
+        'percent' => ':progress% done',
+        'download' => 'Download :file',
+        'expiry' => 'The link works for 30 minutes. The file is deleted 7 days after it was made.',
+    ],
+
     'rail' => [
         'view_public' => 'View public dashboard',
         'account' => 'My account',
@@ -982,6 +1000,7 @@ return [
             'user' => 'Administrator',
             'auth' => 'Sign-in',
             'source' => 'Source',
+            'export' => 'Export',
         ],
         'table' => [
             'title' => 'Entries',
@@ -1052,6 +1071,11 @@ return [
             'cascade_downloaded' => 'Facility media file downloaded',
             'audit_exported' => 'Audit log exported',
             'audit_export_downloaded' => 'Audit log export downloaded',
+            'export_requested' => 'Export requested',
+            'export_completed' => 'Export ready',
+            'export_failed' => 'Export failed',
+            'export_downloaded' => 'Export downloaded',
+            'export_expired' => 'Export expired',
         ],
         'export' => [
             'title' => 'Export',

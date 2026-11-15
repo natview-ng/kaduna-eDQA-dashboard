@@ -278,12 +278,13 @@
     .field-set {
         @apply border-deep bg-wash;
     }
-    /* ink-2 on wash is 4.3:1, under AA: a set field's label is full ink. */
-    .field-set > label {
-        @apply text-ink;
-    }
     .field > label {
         @apply shrink-0 whitespace-nowrap text-ink-2;
+    }
+    /* ink-2 on wash is 4.3:1, under AA: a set field's label is full ink. After .field > label,
+       which has the same specificity: placed before it, it never applied (axe, every public page). */
+    .field-set > label {
+        @apply text-ink;
     }
     .field > select {
         @apply min-h-9 min-w-0 flex-1 cursor-pointer border-0 bg-transparent pr-2 font-medium text-ink;

@@ -49,7 +49,6 @@ return [
         'no_overlap' => 'The :other mock has no visits to overlap: generate it first.',
         'written' => 'Wrote :valid valid, :flagged to be flagged and :broken to be quarantined, plus :edited edits (staged) and :attachments photo(s), to :path.',
         'bad_round' => 'Give the round as 2026Q2, not ":round".',
-        'no_round' => 'There is no round :round.',
         'bad_span' => 'Give the quarters as 2024Q1-2025Q2, oldest first, not ":span".',
         'quarters_odk_only' => '--quarters is for the ODK Central mock only.',
     ],

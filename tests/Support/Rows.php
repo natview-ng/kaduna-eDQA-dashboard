@@ -229,6 +229,22 @@ final class Rows
         ]);
     }
 
+    /** @param  array<string, mixed>  $overrides */
+    public static function export(array $overrides = []): int
+    {
+        return DB::table('exports')->insertGetId([
+            'type' => 'assessments',
+            'filter' => '{}',
+            'options' => '{"format":"csv","include_private":false}',
+            'requested_by' => self::user(),
+            'status' => 'queued',
+            'progress' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+            ...$overrides,
+        ]);
+    }
+
     private static function next(): int
     {
         return ++self::$sequence;

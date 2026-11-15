@@ -65,6 +65,8 @@ final class AppServiceProvider extends ServiceProvider
         // is not counted together with the API group's 120 a minute.
         // Pull, pull all and reconcile: 6 a minute per administrator, per source and action (the path).
         RateLimiter::for('source-pull', fn (Request $request): Limit => Limit::perMinute(6)->by('source-pull:'.($request->user()?->getAuthIdentifier() ?? $request->ip()).':'.$request->path()));
+        // Exports: 10 a minute per administrator (SECURITY.md §8), on top of the admin API's 120.
+        RateLimiter::for('exports', fn (Request $request): Limit => Limit::perMinute((int) config('edqa.exports.per_minute'))->by('exports:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
         // The webhooks: 60 a minute per source and sending address.
         RateLimiter::for('webhook', fn (Request $request): Limit => Limit::perMinute(60)->by('webhook:'.$request->path().':'.$request->ip()));
         // The public dashboard: 120 a minute per IP (SECURITY.md §8), then a plain page back to Home.

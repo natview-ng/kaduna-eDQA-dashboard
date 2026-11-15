@@ -32,6 +32,8 @@ final class DemoScoringSeeder extends Seeder
             throw new RuntimeException('DemoScoringSeeder only runs in local, staging or testing, never '.app()->environment().'.');
         }
 
+        // The cache outlives migrate:fresh: a version published before it would still be named.
+        CurrentRuleVersion::forget();
         $v1 = (int) DB::table('scoring_rule_versions')->where('version', 1)->value('id');
         if ($v1 === 0 || $current->id() !== $v1) {
             throw new RuntimeException('DemoScoringSeeder expects rule version 1 to be the only published version; run it on a fresh database (make fresh).');

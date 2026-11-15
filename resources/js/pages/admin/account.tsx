@@ -29,7 +29,7 @@ export default function Account({ status, logins, unlockCommand }: AccountProps)
     const head = 'bg-subtle px-3 py-2 text-left text-xs font-medium text-ink-2';
 
     return (
-        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+        <div className="grid grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
             <Panel labelledBy="password-title">
                 <PanelHeader id="password-title" title={t('auth.settings.password_title')} />
                 <div className="px-5 pt-3 pb-5">
@@ -61,7 +61,7 @@ export default function Account({ status, logins, unlockCommand }: AccountProps)
             <div className="flex flex-col gap-5">
                 <Panel labelledBy="logins-title">
                     <PanelHeader id="logins-title" title={t('admin.account.logins.title')} description={t('admin.account.logins.description')} />
-                    <div className="mt-3 overflow-x-auto">
+                    <div role="region" aria-label={t('admin.account.logins.caption')} tabIndex={0} className="relative mt-3 overflow-x-auto">
                         {logins.length === 0 ? (
                             <p className="px-5 pb-5 text-sm text-ink-2">{t('admin.account.logins.none')}</p>
                         ) : (

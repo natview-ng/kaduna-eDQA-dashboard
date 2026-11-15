@@ -4,6 +4,8 @@ EXEC    := $(COMPOSE) exec -T app
 # The Kobo mock always serves its own asset (SourceMockGenerator::KOBO_ASSET, as compose.e2e-sources.yml
 # configures it), never the asset a developer's .env names for the real server.
 KOBO_MOCK_EXEC := $(COMPOSE) exec -T -e KOBO_ASSET_UID=aKdDqaMock2026 app
+# `make e2e-round`: both mocks (compose.e2e-sources.yml) and the journey's own database (compose.e2e-round.yml).
+E2E_ROUND := $(COMPOSE) -f compose.e2e-sources.yml -f compose.e2e-round.yml
 RUNPHP  := $(COMPOSE) run --rm --no-deps -T --entrypoint
 
 # Dev-only credentials from docker/postgres/init-dev.sql.
@@ -11,7 +13,7 @@ APP_DB_USER     := edqa_app
 APP_DB_PASSWORD := edqa_app_dev
 
 .DEFAULT_GOAL := help
-.PHONY: help up down build sh logs artisan composer npm test test-slow lint check fresh routes prod-build grants-check e2e e2e-sources e2e-issues size lighthouse load sources-mock-up sources-mock-seed
+.PHONY: help up down build sh logs artisan composer npm test test-slow lint check fresh routes prod-build grants-check e2e e2e-sources e2e-round e2e-issues size lighthouse load sources-mock-up sources-mock-seed
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  %-13s %s\n", $$1, $$2}'
@@ -104,6 +106,32 @@ e2e-sources: ## Playwright against both mocks: Pull all end to end, the duplicat
 		$(COMPOSE) --profile e2e run --rm --no-deps -e E2E_KOBO_DELETED=1 playwright tests/e2e/sources.spec.ts -g "deleted at source" $(c); deleted=$$?; \
 		$(COMPOSE) -f compose.e2e-sources.yml exec -T app php tests/e2e/support/kobo-mock-delete.php restore; \
 		$(COMPOSE) up -d --wait app worker; [ $$status -ne 0 ] && exit $$status; [ $$auth -ne 0 ] && exit $$auth; exit $$deleted
+
+e2e-round: ## The Phase 5 full-round journey (tests/e2e/admin-full-round.spec.ts) on its own database, edqa_e2e, against both mocks; the stack is put back after
+	$(COMPOSE) --profile sources up -d odk-mock kobo-mock
+	$(COMPOSE) exec -T postgres psql -q -U postgres -v ON_ERROR_STOP=1 < tests/e2e/support/full-round-db.sql
+	$(E2E_ROUND) up -d --wait app worker
+	$(E2E_ROUND) exec -T app php artisan migrate:fresh --seed --no-interaction
+	$(COMPOSE) exec -T postgres psql -q -U postgres -d edqa_e2e -v ON_ERROR_STOP=1 < tests/e2e/support/full-round-baseline.sql
+	$(E2E_ROUND) exec -T app php artisan db:seed --class=E2eAdminSeeder --no-interaction
+	@# 300 submissions for Q3 2026, which the journey creates: ODK Central 100 (10 broken, 2 edited at
+	@# source later), KoboToolbox 197 (10 broken) plus 3 visits also on ODK (2 copies, 1 entered again).
+	$(E2E_ROUND) exec -T app php artisan edqa:source-mock:generate odk --count=100 --broken=10 --round=2026Q3
+	$(E2E_ROUND) exec -T app php artisan edqa:source-mock:generate kobo --count=197 --broken=10 --overlap=3 --round=2026Q3
+	$(E2E_ROUND) exec -T app php artisan edqa:sources:sync
+	@# Part 1 (steps a-d) ends after Pull all. Between the parts, at the sources: one accepted Kobo
+	@# visit is deleted (the reconcile finds it) and the 2 staged ODK edits become visible (the
+	@# journey's own reconcile before closing picks them up). Part 2 is steps e-k. Then the deleted
+	@# visit is put back and the stack restarted without the overrides, whatever the outcome.
+	$(COMPOSE) --profile e2e run --rm --no-deps -e E2E_FULL_ROUND=1 playwright tests/e2e/admin-full-round.spec.ts --project=desktop $(c); first=$$?; second=1; \
+		if [ $$first -eq 0 ] \
+			&& $(E2E_ROUND) exec -T app php tests/e2e/support/kobo-mock-delete.php delete \
+			&& $(E2E_ROUND) exec -T app php artisan edqa:reconcile kobo > /dev/null \
+			&& $(E2E_ROUND) exec -T app php artisan edqa:source-mock:generate odk --edits; then \
+			$(COMPOSE) --profile e2e run --rm --no-deps -e E2E_FULL_ROUND=2 playwright tests/e2e/admin-full-round.spec.ts --project=desktop $(c); second=$$?; \
+		fi; \
+		$(E2E_ROUND) exec -T app php tests/e2e/support/kobo-mock-delete.php restore; \
+		$(COMPOSE) up -d --wait app worker; [ $$first -ne 0 ] && exit $$first; exit $$second
 
 e2e-issues: ## Playwright on the Data issues page with known broken records held through the real pipeline (tests/e2e/data-issues.spec.ts)
 	$(EXEC) php artisan db:seed --class=E2eAdminSeeder --no-interaction

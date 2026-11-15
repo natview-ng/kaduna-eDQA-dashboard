@@ -245,7 +245,8 @@ it('schedules a pull every ten minutes and a nightly reconcile for each configur
         ScheduleFacade::clearResolvedInstance();
         require base_path('routes/console.php');
 
-        return array_values(array_filter(ScheduleFacade::getFacadeRoot()->events(), fn ($e): bool => str_starts_with((string) $e->description, 'edqa:')));
+        // The source events only: the export retention job (Phase 6) has its own test.
+        return array_values(array_filter(ScheduleFacade::getFacadeRoot()->events(), fn ($e): bool => str_starts_with((string) $e->description, 'edqa:pull:') || str_starts_with((string) $e->description, 'edqa:reconcile:')));
     };
 
     $scheduled = $events();

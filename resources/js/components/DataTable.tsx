@@ -34,13 +34,15 @@ export type DataTableProps = {
  * The table shell every page uses: a caption, column headers with scope, sort buttons with
  * aria-sort on the sorted header, and a horizontally scrolling region that can be reached and
  * scrolled from the keyboard. Sorting itself is the server's (TanStack Table, manual mode).
+ * The region is `relative` so the sr-only text in its cells (absolutely positioned) is clipped by
+ * it too: without it that text escaped and the page scrolled sideways at 200% zoom.
  */
 export default function DataTable({ caption, captionHidden = false, columns, sort, onSort, children, empty }: DataTableProps) {
     const t = useTranslate();
     const hasRows = Children.count(children) > 0;
 
     return (
-        <div role="region" aria-label={t('common.ui.scroll_region', { label: caption })} tabIndex={0} className="overflow-x-auto">
+        <div role="region" aria-label={t('common.ui.scroll_region', { label: caption })} tabIndex={0} className="relative overflow-x-auto">
             <table className="w-full border-collapse text-sm [&_td:first-child]:pl-5 [&_td:last-child]:pr-5 [&_th:first-child]:pl-5 [&_th:last-child]:pr-5 [&_tbody_td]:py-2.5 [&_tbody_th]:py-2.5 [&_tbody_tr]:transition-colors [&_tbody_tr]:duration-150 [&_tbody_tr:hover]:bg-paper/70">
                 <caption className={captionHidden ? 'sr-only' : 'px-5 pt-3 pb-1 text-left text-xs text-ink-2'}>
                     {caption}

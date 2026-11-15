@@ -48,7 +48,7 @@ export default function RuleSummary({ rules, active, onChoose }: RuleSummaryProp
                                     <code className={`block text-2xs ${secondary}`}>{rule.code}</code>
                                     <span className={`mt-1 text-xs ${secondary} ${pressed ? 'block' : 'line-clamp-2'}`}>{rule.why}</span>
                                 </span>
-                                <span className={`shrink-0 rounded-full px-2 py-px text-xs whitespace-nowrap tabular-nums ${rule.open > 0 ? 'bg-bad-bg font-medium text-bad' : 'text-ink-2'}`}>
+                                <span className={`shrink-0 rounded-full px-2 py-px text-xs whitespace-nowrap tabular-nums ${rule.open > 0 ? 'bg-bad-bg font-medium text-bad' : secondary}`}>
                                     {t('admin.issues.summary.open', { count: formatCount(rule.open) })}
                                 </span>
                             </button>

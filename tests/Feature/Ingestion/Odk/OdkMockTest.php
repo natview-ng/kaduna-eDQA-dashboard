@@ -15,6 +15,7 @@ use App\Domain\Ingestion\Models\Submission;
 use App\Domain\Ingestion\Models\SubmissionAttachment;
 use App\Domain\Ingestion\SourceRegistry;
 use App\Domain\Ingestion\SubmissionParser;
+use App\Domain\Round\Models\Round;
 use App\Domain\Scoring\CurrentRuleVersion;
 use App\Domain\Validation\Models\QuarantinedRecord;
 use App\Support\OdkMock\MockSubmissionGenerator;
@@ -44,7 +45,9 @@ beforeEach(function (): void {
     config(['edqa.sources.odk' => [...config('edqa.sources.odk'),
         'url' => 'https://odk-mock.test', 'email' => 'mock@odk.local', 'password' => 'mock-password', 'project_id' => '1', 'form_id' => 'dqa',
     ]]);
-    config(['edqa.odk.mock_path' => $this->mock]);
+    // The generator leaves out the facilities the Kobo mock visits: point it at an empty folder,
+    // never the developer's storage/app/kobo-mock, or the data depends on what was generated there.
+    config(['edqa.odk.mock_path' => $this->mock, 'edqa.kobo.mock_path' => $this->mock.'-kobo-none']);
     Sleep::fake();
     Storage::fake('attachments');
     $mock = $this->mock;
@@ -187,6 +190,19 @@ it('refuses outside local and testing, and a round it cannot read', function ():
     app()->detectEnvironment(fn (): string => 'production');
     $this->artisan('edqa:source-mock:generate', ['source' => 'odk'])->assertFailed();
     expect(is_dir($this->mock))->toBeFalse();
+});
+
+it('writes for a round not created yet, over its quarter, so the round can be created in the admin afterwards', function (): void {
+    // RoundSeeder stops at Q2 2026: Q3 2026 is written over July to September (the full-round e2e journey).
+    $this->artisan('edqa:source-mock:generate', ['source' => 'odk', '--count' => 12, '--broken' => 0, '--round' => '2026Q3'])->assertSuccessful();
+
+    $quarters = array_unique(array_map(function (string $file): string {
+        $day = odkParse(json_decode((string) file_get_contents($file), true))->visitDate();
+
+        return "{$day->year}Q{$day->quarter}";
+    }, glob($this->mock.'/submissions/*.json') ?: []));
+    expect(array_values($quarters))->toBe(['2026Q3'])
+        ->and(Round::query()->where('year', 2026)->where('quarter', 3)->exists())->toBeFalse();
 });
 
 it('is pulled end to end: three pages, the broken ones quarantined, an edit applied in place, nothing twice', function (): void {

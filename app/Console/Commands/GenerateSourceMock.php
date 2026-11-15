@@ -30,7 +30,7 @@ final class GenerateSourceMock extends Command
         {--broken=10 : How many of them must be quarantined}
         {--edits : Only make the staged edits visible to the next pull or sweep}
         {--overlap=0 : Also write N visits that are on the other mock too}
-        {--round= : The round, as 2026Q2 (default: the open round, else the latest)}
+        {--round= : The round, as 2026Q2 (default: the open round, else the latest); it need not exist yet}
         {--quarters= : ODK only, instead of --round: a span of quarters as 2024Q1-2025Q2; their rounds need not exist yet (the backfill)}
         {--older-quarters=0 : With --quarters, the first N quarters are submitted with --older-version}
         {--older-version=2025.2 : The form version of those older quarters}
@@ -131,7 +131,11 @@ final class GenerateSourceMock extends Command
             throw new RuntimeException((string) __('sources.mock.bad_round', ['round' => $asked]));
         }
 
+        // A round not created yet is an unsaved Round over its quarter (as --quarters does): the data
+        // can be written first and the round created in the admin before the pull (the full-round e2e).
+        $start = CarbonImmutable::create((int) $m[1], 3 * (int) $m[2] - 2, 1);
+
         return Round::query()->where('year', (int) $m[1])->where('quarter', (int) $m[2])->first()
-            ?? throw new RuntimeException((string) __('sources.mock.no_round', ['round' => $asked]));
+            ?? new Round(['year' => (int) $m[1], 'quarter' => (int) $m[2], 'window_start' => $start, 'window_end' => $start->addMonths(3)->subDay()]);
     }
 }

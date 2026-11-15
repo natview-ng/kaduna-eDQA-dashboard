@@ -46,7 +46,8 @@ export default function RuleVersionHistory({ versions, items }: RuleVersionHisto
     return (
         <Panel labelledBy="rules-history-title">
             <PanelHeader id="rules-history-title" title={t('admin.scoring.history.title')} />
-            <div className="mt-3 overflow-x-auto">
+            {/* Focusable, so a keyboard user can scroll it sideways on a phone (axe: scrollable-region-focusable). */}
+            <div role="region" aria-label={t('admin.scoring.history.caption')} tabIndex={0} className="relative mt-3 overflow-x-auto">
                 <table className="w-full text-sm">
                     <caption className="sr-only">{t('admin.scoring.history.caption')}</caption>
                     <thead>

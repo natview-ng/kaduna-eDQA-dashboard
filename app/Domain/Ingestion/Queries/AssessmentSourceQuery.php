@@ -29,37 +29,53 @@ final class AssessmentSourceQuery
 
     public function forSubmission(int $submissionId): ?AssessmentSource
     {
-        $submission = Submission::query()->whereKey($submissionId)->first(['id', 'source_id', 'external_id', 'instance_id']);
-        if ($submission === null) {
-            return null;
-        }
+        return $this->forSubmissions([$submissionId])[$submissionId] ?? null;
+    }
 
-        $attachments = SubmissionAttachment::query()
-            ->where('submission_id', $submissionId)
+    /**
+     * The same for many submissions at once, two queries in all: an export's chunk (Phase 6 step 0).
+     * $absolute gives attachment links with the portal's address, for a file that leaves it.
+     *
+     * @param  list<int>  $submissionIds
+     * @return array<int, AssessmentSource> by submission id
+     */
+    public function forSubmissions(array $submissionIds, bool $absolute = false): array
+    {
+        if ($submissionIds === []) {
+            return [];
+        }
+        $attachments = [];
+        SubmissionAttachment::query()
+            ->whereIn('submission_id', $submissionIds)
             ->orderBy('id')
             ->get(['id', 'submission_id', 'filename', 'mime', 'size', 'status', 'reason'])
-            ->map(fn (SubmissionAttachment $attachment): array => [
-                'id' => $attachment->id,
-                'filename' => (string) $attachment->filename,
-                'mime' => $attachment->mime,
-                'size' => $attachment->size,
-                'status' => $attachment->status->value,
-                'reason' => is_string($attachment->reason) ? $attachment->reason : null,
-                'url' => $attachment->status === AttachmentStatus::Fetched
-                    ? route('admin.attachments.show', ['submission' => $submissionId, 'filename' => (string) $attachment->filename], absolute: false)
-                    : null,
-            ])
-            ->values()
-            ->all();
+            ->each(function (SubmissionAttachment $attachment) use (&$attachments, $absolute): void {
+                $submissionId = (int) $attachment->submission_id;
+                $attachments[$submissionId][] = [
+                    'id' => $attachment->id,
+                    'filename' => (string) $attachment->filename,
+                    'mime' => $attachment->mime,
+                    'size' => $attachment->size,
+                    'status' => $attachment->status->value,
+                    'reason' => is_string($attachment->reason) ? $attachment->reason : null,
+                    'url' => $attachment->status === AttachmentStatus::Fetched
+                        ? route('admin.attachments.show', ['submission' => $submissionId, 'filename' => (string) $attachment->filename], absolute: $absolute)
+                        : null,
+                ];
+            });
 
-        $key = $this->sources->keyOf((int) $submission->source_id);
+        $sources = [];
+        foreach (Submission::query()->whereIn('id', $submissionIds)->get(['id', 'source_id', 'external_id', 'instance_id']) as $submission) {
+            $key = $this->sources->keyOf((int) $submission->source_id);
+            $sources[(int) $submission->id] = new AssessmentSource(
+                $key,
+                $key === null ? null : $this->sources->name($key),
+                (string) $submission->instance_id,
+                $key === null ? null : $this->links->submission($key, is_string($submission->external_id) ? $submission->external_id : null),
+                $attachments[(int) $submission->id] ?? [],
+            );
+        }
 
-        return new AssessmentSource(
-            $key,
-            $key === null ? null : $this->sources->name($key),
-            (string) $submission->instance_id,
-            $key === null ? null : $this->links->submission($key, is_string($submission->external_id) ? $submission->external_id : null),
-            $attachments,
-        );
+        return $sources;
     }
 }

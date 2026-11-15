@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Domain\Export\Jobs\ExpireExportsJob;
 use App\Domain\Ingestion\Enums\PullTrigger;
 use App\Domain\Ingestion\Jobs\PullSubmissionsJob;
 use App\Domain\Ingestion\Jobs\ReconcileSourceJob;
@@ -36,3 +37,10 @@ foreach ($sources->configured() as $source) {
         ->withoutOverlapping()
         ->when($enabled);
 }
+
+// Export retention (Phase 6 step 0, D-96): every night, files older than edqa.exports.retention_days
+// (7) are deleted from the private exports disk and their rows marked expired. Queued on `low`.
+Schedule::job(new ExpireExportsJob)
+    ->name('edqa:exports:expire')
+    ->dailyAt('03:15')
+    ->withoutOverlapping();

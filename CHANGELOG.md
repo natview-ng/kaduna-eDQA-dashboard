@@ -9,6 +9,62 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Queued exports (Phase 6 step 0, D-96).** Administrators export the assessments in view from the
+  admin preview bar, as CSV or Excel:
+  - The export is prepared in the background (the `exports` queue). The page follows its progress
+    and offers a download link when it is ready. The link works for 30 minutes and needs a
+    signed-in administrator.
+  - The file is deleted after 7 days by a nightly job.
+  - The default columns never include assessor names, device IDs, visit GPS or attachment links.
+    "Include assessor and source details" adds them, with the instance ID and the link at the
+    source. That choice is recorded in the audit log and the file name, and in an "About this
+    export" sheet in Excel files.
+  - Requests, completions, failures, downloads and expiries are all in the audit log.
+  - 10 exports a minute per administrator.
+  - A 10,000-row CSV takes about 5 seconds.
+  - Exports are never reachable from the public site.
+
+### Changed
+
+- **New dependency:** `maatwebsite/excel` 4.0, for Excel files.
+- The audit log export and the new exports share one rule for cells a spreadsheet would read as a
+  formula.
+
+## [0.8.0] - 2026-11-15
+
+The admin area is complete (Phase 5): an administrator runs a round from an empty quarter to a
+published one without developer help. Closing a round is what publishes it. The whole journey is
+now one end-to-end test, and the administrators have a guide.
+
+### Added
+
+- **The full-round journey (Phase 5 close-out, D-95)**, `make e2e-round`: one Playwright test,
+  keyboard first, headless, on its own database (`edqa_e2e`) so it never touches dev data. Both
+  mocks hold 300 submissions for a quarter with no round yet: broken ones, 3 visits on both tools,
+  2 edits and 1 deletion at the source. One administrator then:
+  - confirms the open round is not public;
+  - signs in at `/login` and creates the round;
+  - regenerates the media file and runs Pull all;
+  - works through Data issues: corrects a blank LGA, rejects one, bulk-rejects the wrong-quarter
+    visits, resolves a duplicate across the two tools, withdraws the deleted visit;
+  - corrects an assessment, and edits and deactivates a facility;
+  - publishes a band change, reconciles both sources and closes the round;
+  - reads every step in the audit log;
+  - logs out to find the round published and nothing private on any public page.
+- **Administrator guide**, `docs/admin-guide.md`, in plain English for the client's
+  administrators:
+  - signing in and the account rules (passwords, lockouts, new-device emails, the IP allow-list);
+  - each page;
+  - running a round and what "closing publishes" means;
+  - every data issue and how to fix it;
+  - duplicates and deletions between ODK Central and KoboToolbox;
+  - what must be done on the platforms themselves (the media file, fixes at the source, form
+    redeploys).
+
+  Screenshots come from the journey (`docs/images/admin-guide/`).
+- **Decision records** D-94 (withdrawn status, replace from submission, deletion review, publish on
+  close) and D-95; open question Q-19 restored and Q-34 added (ARCHITECTURE.md §11). The
+  reasoned-action list in CONVENTION.md §6 now names every action that needs a reason.
 - **Audit log page (Phase 5 step 7, D-93)**, read only: every recorded change and sign-in event,
   filtered by who, subject, source, event, dates and reason; who, what, when, the subject (with a
   link), the reason and the before/after of each entry. Sign-in events (login, failed login,
@@ -94,6 +150,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Mock data commands:** `edqa:source-mock:generate odk` now takes `--quarters`,
   `--older-quarters` and `--older-version` (backfill spans), which used to need
   `edqa:odk-mock:generate`. They apply to the ODK mock only; the Kobo mock refuses `--quarters`.
+  `--round` (both mocks) now also takes a round that does not exist yet, writing over its quarter,
+  so the round can be created in the admin before the pull.
 - **Code cleanup, no change in behaviour:**
   - Rounds are named ("Q3 2026") in one place, `RoundLabel`, instead of six.
   - Both sources read form-version dates with the strict `IsoTime` parser.
@@ -124,6 +182,28 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- **Facility list:** after regenerating the media file from the "out of date" notice, the panel
+  jumped to the foot of the page and lost the counts and the download link. It now stays where it
+  was used. Found by the full-round journey.
+- **`make fresh` after a rule version was published:** the demo seed stopped with "expects rule
+  version 1 to be the only published version", because the cache outlived the fresh database. It
+  now forgets the cached version first.
+- **`make e2e-sources`, third pass (deletion at source):** its helper script stopped before doing
+  anything, because a class name was used before its import. It runs now.
+- **Contrast, every public page:** the Year and Duration filter labels were grey on the tinted field
+  (4.3:1, under AA). A rule meant to make them full ink came first in the stylesheet, so it never
+  applied. It now does.
+- **Data issues:** a rule's "0 open" count on the selected rule was grey on the tint (4.3:1); it now
+  uses the row's full-ink colour.
+- **Pages scrolling sideways:**
+  - Data issues, Facility list and My account scrolled sideways on a phone, because their
+    two-column grids let a wide table stretch the page. They now keep to the screen.
+  - Facility list and Rounds scrolled sideways at 200% zoom, because screen-reader-only text in a
+    table escaped the table's scroll area. It now stays inside it.
+- **Keyboard:** the rule-version history and the sign-ins table on My account can be scrolled from
+  the keyboard on a phone.
+- **Tests:** the ODK mock tests read the developer's Kobo mock folder, so their results changed with
+  whatever had been generated there. They now use an empty folder of their own.
 - Reopening a round now clears its cached figures at once, so the public dashboard stops showing
   it straight away.
 - **Monitor, public:** a visitor's page no longer shows a "Counts by source" panel that loads for
@@ -856,7 +936,9 @@ or dashboard pages yet.
 - The session cookie is `Secure` unless `SESSION_SECURE_COOKIE=false`, which is meant for local
   HTTP development only.
 
-[Unreleased]: https://github.com/naynie41/kaduna-eDQA-dashboard/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/naynie41/kaduna-eDQA-dashboard/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/naynie41/kaduna-eDQA-dashboard/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/naynie41/kaduna-eDQA-dashboard/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/naynie41/kaduna-eDQA-dashboard/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/naynie41/kaduna-eDQA-dashboard/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/naynie41/kaduna-eDQA-dashboard/compare/v0.3.0...v0.4.0

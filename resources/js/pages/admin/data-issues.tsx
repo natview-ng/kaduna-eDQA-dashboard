@@ -159,7 +159,7 @@ export default function AdminDataIssues({ issueFilters: filters, rules, records,
             />
 
             {/* D-89: the records first; the rules beside them on a wide screen, below otherwise. */}
-            <div className="grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="grid grid-cols-1 items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_360px]">
             <Panel labelledBy="issues-records-title">
                 <PanelHeader
                     id="issues-records-title"

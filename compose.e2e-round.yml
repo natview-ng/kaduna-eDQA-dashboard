@@ -1,0 +1,13 @@
+# For `make e2e-round` only, on top of compose.e2e-sources.yml (both mocks): the app and the
+# worker use their own database, edqa_e2e (tests/e2e/support/full-round-db.sql), and their own
+# cache and Redis key prefixes, so the full-round journey (it closes a round and publishes a rule
+# version) never touches the developer's data, cache or queues. The target puts the stack back
+# without this file. Nothing here is a secret.
+services:
+  app:
+    environment: &e2e-round
+      DB_DATABASE: edqa_e2e
+      CACHE_PREFIX: edqa-e2e-round-cache-
+      REDIS_PREFIX: edqa-e2e-round-
+  worker:
+    environment: *e2e-round

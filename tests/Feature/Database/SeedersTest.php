@@ -8,11 +8,14 @@ use App\Domain\Reporting\Aggregators\StateSummaryAggregator;
 use App\Domain\Reporting\DTOs\LgaRow;
 use App\Domain\Reporting\DTOs\ReportFilter;
 use App\Domain\Reporting\Enums\ReportAudience;
+use App\Domain\Scoring\CurrentRuleVersion;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\DemoAssessmentSeeder;
 use Database\Seeders\DemoScoringSeeder;
 use Database\Seeders\LgaSeeder;
+use Database\Seeders\ScoringRuleVersionSeeder;
 use Database\Seeders\Synthetic\SyntheticFacilityList;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 const THE_23_LGAS = [
@@ -167,6 +170,17 @@ it('seeds a demo dataset whose item responses approximate the published means', 
     foreach (['ALL_PERFECT', 'SCORE_JUMP'] as $flag) {
         expect(DB::table('assessments')->whereJsonContains('flags', $flag)->count())->toBeBetween(2, 40, $flag);
     }
+});
+
+it('scores the demo data after a fresh migrate whatever rule version the cache still remembers', function (): void {
+    // `make fresh` (or `make e2e-round`) after a rule version was published: the database starts
+    // again at v1, but the cache outlives migrate:fresh and still names the old version.
+    $this->seed([LgaSeeder::class, ScoringRuleVersionSeeder::class]);
+    Cache::put(CurrentRuleVersion::CACHE_KEY, ['id' => 999_999, 'config' => null]);
+
+    runSeedersAs('local', DemoScoringSeeder::class);
+
+    expect(app(CurrentRuleVersion::class)->id())->toBe((int) DB::table('scoring_rule_versions')->where('version', 1)->value('id'));
 });
 
 it('never scores demo data in production', function (): void {

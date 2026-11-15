@@ -256,6 +256,16 @@ return [
         'export_sync_rows' => 5000,
     ],
 
+    // Queued exports (Phase 6 step 0, D-96): written on the exports queue in chunks of
+    // chunk_rows, downloaded through a signed link that works link_minutes, and deleted with
+    // their row marked expired retention_days after they were written (the daily job).
+    'exports' => [
+        'chunk_rows' => 1000,
+        'link_minutes' => 30,
+        'retention_days' => 7,
+        'per_minute' => 10,
+    ],
+
     'validation' => [
         // ARCHITECTURE.md §6, in catalogue order: the pipeline runs them in this order and
         // UNKNOWN_FORM_VERSION must come first. Strings, not ::class: the rule classes arrive

@@ -11,13 +11,16 @@ declare(strict_types=1);
  *   php tests/e2e/support/kobo-mock-delete.php delete    # move one accepted Kobo visit's file aside
  *   php tests/e2e/support/kobo-mock-delete.php restore   # put it back
  */
+
+// The imports first: a name is resolved against the `use` lines above it, so Kernel::class
+// before them was the bare class "Kernel" and the script failed before doing anything.
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\Facades\DB;
+
 $root = dirname(__DIR__, 3);
 require $root.'/vendor/autoload.php';
 $app = require $root.'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
-
-use Illuminate\Contracts\Console\Kernel;
-use Illuminate\Support\Facades\DB;
 
 $mock = $root.'/storage/app/kobo-mock';
 $aside = $mock.'/e2e-deleted';

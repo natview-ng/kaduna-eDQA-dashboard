@@ -7,6 +7,7 @@ namespace App\Support\Audit;
 use App\Domain\Assessment\Models\Assessment;
 use App\Domain\Assessment\Models\AssessmentScore;
 use App\Domain\Assessment\Models\ItemResponse;
+use App\Domain\Export\Models\Export;
 use App\Domain\Facility\Models\Facility;
 use App\Domain\Facility\Models\Ward;
 use App\Domain\Ingestion\Models\PullRun;
@@ -61,6 +62,7 @@ final class AuditLogQuery
             'rule_version' => [ScoringRuleVersion::class],
             'user' => [User::class],
             'source' => [PullRun::class, self::SUBMISSION, SubmissionAttachment::class, SubmissionSource::class],
+            'export' => [Export::class],
         ];
     }
 

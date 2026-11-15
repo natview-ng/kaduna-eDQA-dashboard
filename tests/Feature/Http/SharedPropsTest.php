@@ -103,3 +103,15 @@ it('says when the public figures last changed: the latest close, or a later resc
     DB::table('assessment_scores')->where('assessment_id', '!=', $q1Assessment)->update(['computed_at' => '2026-06-01 09:00:00+01']);
     $this->get('/')->assertInertia(fn (Assert $page) => $page->where('figuresUpdatedAt', '2026-05-09T14:30:00+01:00'));
 });
+
+it('gives a visitor no export: no export strings or endpoints in any public page, and none for an administrator outside the preview', function (string $path): void {
+    // Phase 6 step 0 (D-80): the ExportButton lives in the admin area and the preview bar only; its
+    // strings come with the admin translations, which a visitor never gets.
+    $html = (string) $this->get($path)->assertOk()->getContent();
+    expect($html)->not->toContain('admin/api/exports')->not->toContain('"exports":')->not->toContain('Include assessor and source details');
+
+    // An administrator's preview of the same page carries them, so the check is not vacuous.
+    $admin = activity()->withoutLogs(fn () => User::factory()->create());
+    $preview = (string) $this->actingAs($admin)->get($path)->assertOk()->getContent();
+    expect($preview)->toContain('Include assessor and source details');
+})->with(['/', '/facilities', '/lgas', '/monitor', '/visuals', '/plan']);
