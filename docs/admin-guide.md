@@ -265,7 +265,7 @@ Excel, and the file holds exactly what the page shows, for the filters in view.
 | Admin preview bar, LGA view and Implementation plan | The LGA table |
 | Admin preview bar, Visuals | State summary or LGA table |
 | Data issues (hard rules tab) | The held-back records, with rule codes and details |
-| Data sources | The pull history |
+| Data sources | The pull history; and, per source, the backfill report (Excel only: what each source's history became, by round, by rule, by form version, examples, and the facilities that did not match the master list) |
 | Audit log | The entries shown |
 
 - **It is prepared in the background.** The panel shows its progress, then a download link that

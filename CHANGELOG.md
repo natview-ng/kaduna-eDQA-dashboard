@@ -9,6 +9,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **The backfill report as Excel (Phase 6 step 2, D-98).** `edqa:backfill-report --format=xlsx`
+  (optionally `--source=kobo`), and a download per source on the Data sources page.
+  - Sheets: Summary (per source and round: pulled, accepted, flagged, quarantined, rejected,
+    duplicates, duplicates across sources), By rule × year, By rule × form version, Examples,
+    Unmatched facilities, and About this file.
+  - No personal details. Every number comes from the same query as the Markdown and CSV reports.
+
 - **CSV and Excel exports reconciled with the dashboard (Phase 6 step 1, D-97).** Seven exports,
   each holding exactly what its page shows, from the same calculations:
   - state summary, LGA table and facility scores (every page, the metric in view and all four);
@@ -58,6 +65,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   list and the direct `/admin/api/audit/export` route are gone.
 - The step-0 "assessments" export is replaced by facility scores and item responses.
 - Facility view: rows with the same score and name are now always listed in the same order.
+
+### Fixed
+
+- **Excel exports:** a count of zero was written as an empty cell. Zeros now show as 0.
 
 ## [0.8.0] - 2026-11-15
 

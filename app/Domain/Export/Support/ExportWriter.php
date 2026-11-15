@@ -93,20 +93,25 @@ final class ExportWriter
      */
     public function writeSheets(array $sheets, string $path, Closure $about, ?Closure $progress = null): int
     {
-        $written = 0;
-        $data = array_map(fn (Sheet $sheet): DataSheet => new DataSheet($sheet->title, $sheet->columns, function () use ($sheet, &$written, $progress): Generator {
-            yield from $sheet->rows;
-            $written += count($sheet->rows);
-            if ($progress !== null) {
-                $progress($written);
-            }
-        }), $sheets);
+        // The sheets are in memory, so the total is known up front; the progress moves as each
+        // sheet is written (Laravel Excel does not run a generator past its last row).
+        $total = array_sum(array_map(fn (Sheet $sheet): int => count($sheet->rows), $sheets));
+        $before = 0;
+        $data = [];
+        foreach ($sheets as $sheet) {
+            $through = $before + count($sheet->rows);
+            $data[] = new DataSheet($sheet->title, $sheet->columns, function () use ($sheet, $through, $progress): Generator {
+                if ($progress !== null) {
+                    $progress($through);
+                }
+                yield from $sheet->rows;
+            });
+            $before = $through;
+        }
 
-        $this->excel->store(new Workbook($data, new AboutSheet((string) __('exports.sheets.about'), function () use ($about, &$written): array {
-            return $about($written);
-        })), $path, self::DISK, Excel::XLSX);
+        $this->excel->store(new Workbook($data, new AboutSheet((string) __('exports.sheets.about'), fn (): array => $about($total))), $path, self::DISK, Excel::XLSX);
 
-        return $written;
+        return $total;
     }
 
     /**

@@ -60,25 +60,37 @@ final class ExportDescription
     public function about(Export $export, ExportType $type, int $rows): array
     {
         $requester = $export->requester()->value('name');
-        $typeRows = $type->describe($export->filter);
+
+        return $this->rows($type, $export->filter, is_string($requester) ? $requester : '', $rows, $export->includesPrivate());
+    }
+
+    /**
+     * "About this file" for any export, from the export plumbing or the console (the backfill
+     * report written by edqa:backfill-report).
+     *
+     * @param  array<string, mixed>  $filter
+     * @return list<array{0: string, 1: string|int}>
+     */
+    public function rows(ExportType $type, array $filter, string $generatedBy, int $rows, bool $private): array
+    {
         $byLabel = [];
-        foreach ($typeRows as [$label, $value]) {
+        foreach ($type->describe($filter) as [$label, $value]) {
             $byLabel[$label] = $value;
         }
         $filterLabel = (string) __('exports.about.filter');
         $versionLabel = (string) __('exports.about.rule_version');
 
         return [
-            [(string) __('exports.about.type'), (string) __("exports.types.{$export->type}.title")],
+            [(string) __('exports.about.type'), (string) __("exports.types.{$type->key()}.title")],
             [$filterLabel, $byLabel[$filterLabel] ?? (string) __('exports.filter.all')],
             [(string) __('exports.about.generated_at'), CarbonImmutable::now()->setTimezone((string) config('app.timezone'))->format('j M Y, H:i').' WAT'],
-            [(string) __('exports.about.generated_by'), is_string($requester) ? $requester : ''],
+            [(string) __('exports.about.generated_by'), $generatedBy],
             [(string) __('exports.about.rows'), $rows],
             [$versionLabel, $byLabel[$versionLabel] ?? (string) __('exports.about.not_applicable')],
             [(string) __('exports.about.rounding'), (string) __('exports.about.rounding_modes.'.config('edqa.presentation.rounding'))],
             [(string) __('exports.about.aggregation'), (string) __('exports.about.aggregation_methods.'.config('edqa.aggregation.weighting'))],
             [(string) __('exports.about.sources'), $this->sources->configured()],
-            [(string) __('exports.about.private'), (string) __($export->includesPrivate() ? 'exports.about.private_yes' : 'exports.about.private_no')],
+            [(string) __('exports.about.private'), (string) __($private ? 'exports.about.private_yes' : 'exports.about.private_no')],
             [(string) __('exports.about.published'), (string) __('exports.about.published_line')],
         ];
     }

@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\DB;
  * - Duplicates, per source: its open DUPLICATE_ASSESSMENT records, how many of them clash with
  *   an assessment from the other source (§5.8), and the cross-source duplicates its runs counted
  *   (D-60: never stored, so only pull_runs knows them).
-  * - Examples: the most frequent failure details of each rule, at most three: hard rules only, so
+ * - Examples: the most frequent failure details of each rule, at most three: hard rules only, so
  *   never an assessor (ASSESSOR_VOLUME is soft).
  * - Per source and round too (Phase 6 step 2): its open DUPLICATE_ASSESSMENT records and those
  *   clashing with the other source, for the Excel report's Summary.

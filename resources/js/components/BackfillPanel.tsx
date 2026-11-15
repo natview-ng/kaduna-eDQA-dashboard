@@ -1,3 +1,4 @@
+import ExportButton from '@/components/ExportButton';
 import Panel from '@/components/Panel';
 import PanelHeader from '@/components/PanelHeader';
 import { formatCount, formatDateTime } from '@/lib/format';
@@ -53,6 +54,10 @@ export default function BackfillPanel({ backfill }: BackfillPanelProps) {
                                 })}
                             </dd>
                         </dl>
+                        {/* The report as it stands now for this source, as Excel (Phase 6 step 2). */}
+                        <div className="mt-2">
+                            <ExportButton types={[{ key: 'backfill_report', offersPrivate: false, formats: ['xlsx'] }]} filter={{ source: key }} />
+                        </div>
                     </div>
                 ))}
                 <dl className="grid gap-x-6 gap-y-2 border-t border-rule pt-3 rail:grid-cols-[minmax(12rem,auto)_1fr]">

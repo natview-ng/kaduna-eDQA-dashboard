@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Concerns\FromGenerator;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
@@ -20,7 +21,7 @@ use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
  * a bold header row frozen at the top with an autofilter, each column's number format (scores at
  * full precision and as displayed, counts, dates) and a width to suit it.
  */
-final class DataSheet implements FromGenerator, WithCustomValueBinder, WithEvents, WithHeadings, WithTitle
+final class DataSheet implements FromGenerator, WithCustomValueBinder, WithEvents, WithHeadings, WithStrictNullComparison, WithTitle
 {
     use TextValueBinder;
 
@@ -57,7 +58,9 @@ final class DataSheet implements FromGenerator, WithCustomValueBinder, WithEvent
             AfterSheet::class => function (AfterSheet $event): void {
                 $sheet = $event->getSheet()->getDelegate();
                 $last = Coordinate::stringFromColumnIndex(max(1, count($this->columns)));
-                $rows = max(2, $sheet->getHighestDataRow());
+                // Strict null comparison writes a zero as 0, never as an empty cell; an empty export
+                // keeps its header row alone, with nothing formatted below it.
+                $rows = $sheet->getHighestDataRow();
 
                 $sheet->getStyle("A1:{$last}1")->getFont()->setBold(true);
                 $sheet->freezePane('A2');
@@ -66,7 +69,7 @@ final class DataSheet implements FromGenerator, WithCustomValueBinder, WithEvent
                     $letter = Coordinate::stringFromColumnIndex($i + 1);
                     $sheet->getColumnDimension($letter)->setWidth($column->width());
                     $format = $column->kind->excelFormat();
-                    if ($format !== null) {
+                    if ($format !== null && $rows >= 2) {
                         $sheet->getStyle("{$letter}2:{$letter}{$rows}")->getNumberFormat()->setFormatCode($format);
                     }
                 }

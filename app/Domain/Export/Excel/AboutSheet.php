@@ -8,6 +8,7 @@ use Closure;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 
@@ -17,7 +18,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
  * it, and the line on published and provisional figures. Built after the data sheet, so the row
  * count is final.
  */
-final class AboutSheet implements FromArray, WithCustomValueBinder, WithEvents, WithTitle
+final class AboutSheet implements FromArray, WithCustomValueBinder, WithEvents, WithStrictNullComparison, WithTitle
 {
     use TextValueBinder;
 

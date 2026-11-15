@@ -19,6 +19,8 @@ export type ExportChoice = {
     key: string;
     /** Whether "Include assessor and source details" applies to this type. */
     offersPrivate: boolean;
+    /** The formats it comes in; both unless said (a workbook of several sheets is Excel only). */
+    formats?: ('csv' | 'xlsx')[];
 };
 
 export type ExportButtonProps = {
@@ -45,13 +47,17 @@ export default function ExportButton({ types, filter }: ExportButtonProps) {
     const [includePrivate, setIncludePrivate] = useState(false);
     const [exportId, setExportId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const offersPrivate = types.find((choice) => choice.key === type)?.offersPrivate ?? false;
+    const chosen = types.find((choice) => choice.key === type);
+    const offersPrivate = chosen?.offersPrivate ?? false;
+    const formats = chosen?.formats ?? (['csv', 'xlsx'] as const);
+    // A format the chosen type does not come in falls back to its first.
+    const sendFormat = formats.includes(format) ? format : (formats[0] ?? 'csv');
 
     const start = async (event: FormEvent) => {
         event.preventDefault();
         setError(null);
         const query = Object.fromEntries(Object.entries(filter).filter(([, value]) => value !== null && value !== ''));
-        const result = await action.run('POST', '/admin/api/exports', { type, format, include_private: offersPrivate && includePrivate, filter: query });
+        const result = await action.run('POST', '/admin/api/exports', { type, format: sendFormat, include_private: offersPrivate && includePrivate, filter: query });
         if (result.ok) {
             setExportId(result.data.data.export_id);
         } else {
@@ -81,17 +87,21 @@ export default function ExportButton({ types, filter }: ExportButtonProps) {
                                     </div>
                                 </fieldset>
                             )}
-                            <fieldset>
-                                <legend className="text-sm font-medium">{t('admin.exports.format')}</legend>
-                                <div className="mt-1.5 flex gap-4">
-                                    {(['csv', 'xlsx'] as const).map((value) => (
-                                        <label key={value} className="inline-flex items-center gap-1.5 text-sm">
-                                            <input type="radio" name={`${id}-format`} value={value} checked={format === value} onChange={() => setFormat(value)} />
-                                            {t(`admin.exports.formats.${value}`)}
-                                        </label>
-                                    ))}
-                                </div>
-                            </fieldset>
+                            {formats.length > 1 ? (
+                                <fieldset>
+                                    <legend className="text-sm font-medium">{t('admin.exports.format')}</legend>
+                                    <div className="mt-1.5 flex gap-4">
+                                        {formats.map((value) => (
+                                            <label key={value} className="inline-flex items-center gap-1.5 text-sm">
+                                                <input type="radio" name={`${id}-format`} value={value} checked={sendFormat === value} onChange={() => setFormat(value)} />
+                                                {t(`admin.exports.formats.${value}`)}
+                                            </label>
+                                        ))}
+                                    </div>
+                                </fieldset>
+                            ) : (
+                                <p className="text-sm">{t('admin.exports.only_format', { format: t(`admin.exports.formats.${sendFormat}`) })}</p>
+                            )}
                             {offersPrivate && (
                                 <div>
                                     <label className="inline-flex items-start gap-2 text-sm">

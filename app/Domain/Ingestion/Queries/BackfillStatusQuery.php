@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Storage;
 final class BackfillStatusQuery
 {
     /** A backfill report's file name on the exports disk (BackfillReportWriter). */
-    public const REPORT_PATTERN = '/^backfill-report-\d{8}-\d{6}\.(md|csv)$/';
+    public const REPORT_PATTERN = '/^backfill-report-\d{8}-\d{6}\.(md|csv|xlsx)$/';
 
     public function __construct(
         private readonly SourceRegistry $sources,

@@ -31,7 +31,11 @@ final class BackfillReportDownloadController extends Controller
         AuditLog::record(null, $user instanceof User ? $user : null, 'backfill_report_downloaded', old: [], new: ['file' => $file]);
 
         return $disk->download($file, $file, [
-            'Content-Type' => str_ends_with($file, '.csv') ? 'text/csv; charset=UTF-8' : 'text/markdown; charset=UTF-8',
+            'Content-Type' => match (true) {
+                str_ends_with($file, '.csv') => 'text/csv; charset=UTF-8',
+                str_ends_with($file, '.xlsx') => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                default => 'text/markdown; charset=UTF-8',
+            },
             'X-Content-Type-Options' => 'nosniff',
             'Cache-Control' => 'private, no-store',
         ]);

@@ -17,7 +17,7 @@ const translations = {
     },
     admin: {
         exports: {
-            button: 'Export…', what: 'What to export', types: { facility_scores: 'Facility scores', item_responses: 'Item responses', lga_table: 'LGA table' }, format: 'Format', formats: { csv: 'CSV', xlsx: 'Excel' },
+            button: 'Export…', what: 'What to export', types: { facility_scores: 'Facility scores', item_responses: 'Item responses', lga_table: 'LGA table', backfill_report: 'Backfill report (Excel)' }, format: 'Format', only_format: 'Format: :format', formats: { csv: 'CSV', xlsx: 'Excel' },
             private: 'Include assessor and source details', private_help: 'Adds assessor names, device IDs, visit GPS, source links and attachment links.',
             start: 'Start export', starting: 'Starting…', progress: 'Export', percent: ':progress% done', download: 'Download :file', expiry: 'The link works for 30 minutes.',
         },
@@ -101,6 +101,20 @@ describe('ExportButton', () => {
         await waitFor(() => expect(fetch).toHaveBeenCalled());
         const post = fetch.mock.calls.find(([, init]) => init?.method === 'POST');
         expect(JSON.parse(String(post?.[1]?.body))).toMatchObject({ type: 'facility_scores', include_private: false });
+    });
+
+    it('offers only Excel for a workbook of several sheets, and sends it', async () => {
+        const fetch = stubFetch({ status: 202, body: { data: { export_id: 5 } } });
+        renderUi(<ExportButton types={[{ key: 'backfill_report', offersPrivate: false, formats: ['xlsx'] }]} filter={{ source: 'kobo' }} />, translations);
+
+        await userEvent.click(screen.getByRole('button', { name: 'Export…' }));
+        expect(screen.queryByRole('radio')).toBeNull();
+        expect(screen.getByText('Format: Excel')).toBeTruthy();
+        await userEvent.click(screen.getByRole('button', { name: 'Start export' }));
+
+        await waitFor(() => expect(fetch).toHaveBeenCalled());
+        const post = fetch.mock.calls.find(([, init]) => init?.method === 'POST');
+        expect(JSON.parse(String(post?.[1]?.body))).toEqual({ type: 'backfill_report', format: 'xlsx', include_private: false, filter: { source: 'kobo' } });
     });
 
     it('says why an export was refused, in words, and stays on the form', async () => {

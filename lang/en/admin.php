@@ -26,8 +26,10 @@ return [
             'data_issues' => 'Data issues',
             'pull_history' => 'Pull history',
             'audit_log' => 'Audit log',
+            'backfill_report' => 'Backfill report (Excel)',
         ],
         'format' => 'Format',
+        'only_format' => 'Format: :format',
         'formats' => [
             'csv' => 'CSV',
             'xlsx' => 'Excel',
