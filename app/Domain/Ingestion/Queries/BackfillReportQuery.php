@@ -28,15 +28,23 @@ use Illuminate\Support\Facades\DB;
  * - Duplicates, per source: its open DUPLICATE_ASSESSMENT records, how many of them clash with
  *   an assessment from the other source (§5.8), and the cross-source duplicates its runs counted
  *   (D-60: never stored, so only pull_runs knows them).
- * - Examples: the most frequent failure details of each rule, at most three.
+  * - Examples: the most frequent failure details of each rule, at most three: hard rules only, so
+ *   never an assessor (ASSESSOR_VOLUME is soft).
+ * - Per source and round too (Phase 6 step 2): its open DUPLICATE_ASSESSMENT records and those
+ *   clashing with the other source, for the Excel report's Summary.
+ * - Unmatched facilities: open FACILITY_UNKNOWN records grouped by the facility as sent (and its
+ *   LGA as sent), with the rounds they fall in and one detail.
+ * - A source key limits every figure to that source (the Data sources page's download).
  */
 final class BackfillReportQuery
 {
-    public function build(): BackfillReport
+    public function build(?string $source = null): BackfillReport
     {
         $timezone = (string) config('app.timezone');
+        $only = $source === null ? '' : ' AND src.key = ?';
+        $onlyBinding = $source === null ? [] : [$source];
 
-        $rounds = DB::select(<<<'SQL'
+        $rounds = DB::select(<<<SQL
             WITH current AS (
                 SELECT s.id, s.status, s.source_id, COALESCE(a.round_id, q.round_id) AS round_id
                 FROM submissions s
@@ -57,20 +65,22 @@ final class BackfillReportQuery
             FROM current c
             JOIN submission_sources src ON src.id = c.source_id
             LEFT JOIN rounds rd ON rd.id = c.round_id
+            WHERE true{$only}
             GROUP BY GROUPING SETS ((src.key, c.round_id, rd.year, rd.quarter), (src.key), ())
             ORDER BY is_grand, src.key, is_total, rd.year NULLS LAST, rd.quarter NULLS LAST
-            SQL);
+            SQL, $onlyBinding);
 
-        $totals = DB::selectOne(<<<'SQL'
-            SELECT COUNT(*) AS submissions, COUNT(*) FILTER (WHERE status = 'superseded') AS superseded FROM submissions
-            SQL);
+        $totals = DB::selectOne(<<<SQL
+            SELECT COUNT(*) AS submissions, COUNT(*) FILTER (WHERE s.status = 'superseded') AS superseded
+            FROM submissions s JOIN submission_sources src ON src.id = s.source_id WHERE true{$only}
+            SQL, $onlyBinding);
 
-        $failures = <<<'SQL'
+        $failures = <<<SQL
             FROM quarantined_records r
             JOIN submissions s ON s.id = r.submission_id
             JOIN submission_sources src ON src.id = r.source_id
             CROSS JOIN LATERAL jsonb_array_elements(r.failures) f
-            WHERE r.status = 'open' AND f->>'severity' = 'hard'
+            WHERE r.status = 'open' AND f->>'severity' = 'hard'{$only}
             SQL;
 
         $byYear = DB::select(<<<SQL
@@ -79,13 +89,13 @@ final class BackfillReportQuery
                 COUNT(DISTINCT r.id) AS records
             {$failures}
             GROUP BY 1, 2, 3 ORDER BY 1, 2, 3
-            SQL, [$timezone]);
+            SQL, [$timezone, ...$onlyBinding]);
 
         $byVersion = DB::select(<<<SQL
             SELECT src.key AS source, f->>'code' AS code, s.form_version AS version, COUNT(DISTINCT r.id) AS records
             {$failures}
             GROUP BY 1, 2, 3 ORDER BY 1, 2, 3
-            SQL);
+            SQL, $onlyBinding);
 
         $examples = DB::select(<<<SQL
             SELECT code, detail, records FROM (
@@ -94,11 +104,11 @@ final class BackfillReportQuery
                 {$failures}
                 GROUP BY 1, 2
             ) ranked WHERE rank <= 3 ORDER BY code, records DESC, detail
-            SQL);
+            SQL, $onlyBinding);
 
         // A DUPLICATE_ASSESSMENT record clashes with the other source when the accepted assessment
         // for its round and facility came from a submission of another source.
-        $duplicates = DB::select(<<<'SQL'
+        $duplicates = DB::select(<<<SQL
             SELECT src.key AS source,
                 COALESCE(d.records, 0) AS duplicate_assessment,
                 COALESCE(d.against_other, 0) AS against_other_source,
@@ -120,8 +130,43 @@ final class BackfillReportQuery
             LEFT JOIN (
                 SELECT source_id, SUM(cross_source_duplicates) AS cross_source FROM pull_runs GROUP BY source_id
             ) x ON x.source_id = src.id
+            WHERE true{$only}
             ORDER BY src.id
-            SQL);
+            SQL, $onlyBinding);
+
+        // The same duplicates by round, a total per source and a grand total (as the rounds above), for
+        // the Summary sheet: keyed by rowKey().
+        $duplicatesByRound = [];
+        foreach (DB::select(<<<SQL
+            SELECT src.key AS source, r.round_id, GROUPING(r.round_id) = 1 AS is_total, GROUPING(src.key) = 1 AS is_grand, COUNT(DISTINCT r.id) AS records,
+                COUNT(DISTINCT r.id) FILTER (WHERE EXISTS (
+                    SELECT 1 FROM assessments a
+                    JOIN facilities fc ON fc.id = a.facility_id
+                    JOIN submissions sa ON sa.id = a.submission_id
+                    WHERE a.round_id = r.round_id AND fc.code = r.parsed->>'facility_ref' AND sa.source_id <> r.source_id
+                )) AS against_other
+            FROM quarantined_records r
+            JOIN submission_sources src ON src.id = r.source_id
+            CROSS JOIN LATERAL jsonb_array_elements(r.failures) f
+            WHERE r.status = 'open' AND f->>'code' = 'DUPLICATE_ASSESSMENT'{$only}
+            GROUP BY GROUPING SETS ((src.key, r.round_id), (src.key), ())
+            SQL, $onlyBinding) as $row) {
+            $key = self::rowKey((bool) $row->is_grand ? null : (string) $row->source, (bool) $row->is_total, $row->round_id === null ? null : (int) $row->round_id);
+            $duplicatesByRound[$key] = [(int) $row->records, (int) $row->against_other];
+        }
+
+        $unmatched = DB::select(<<<SQL
+            SELECT src.key AS source, COALESCE(NULLIF(btrim(r.facility_ref), ''), '') AS facility_ref, COALESCE(btrim(r.lga_ref), '') AS lga_ref,
+                COUNT(DISTINCT r.id) AS records,
+                string_agg(DISTINCT CASE WHEN rd.id IS NULL THEN NULL ELSE rd.year || ' Q' || rd.quarter END, ', ') AS rounds,
+                MIN(f->>'detail') AS detail
+            FROM quarantined_records r
+            JOIN submission_sources src ON src.id = r.source_id
+            LEFT JOIN rounds rd ON rd.id = r.round_id
+            CROSS JOIN LATERAL jsonb_array_elements(r.failures) f
+            WHERE r.status = 'open' AND f->>'code' = 'FACILITY_UNKNOWN'{$only}
+            GROUP BY 1, 2, 3 ORDER BY records DESC, 1, 2, 3
+            SQL, $onlyBinding);
 
         return new BackfillReport(
             submissions: (int) ($totals->submissions ?? 0),
@@ -138,6 +183,8 @@ final class BackfillReportQuery
                 'quarantined' => (int) $row->quarantined,
                 'rejected' => (int) $row->rejected,
                 'unprocessed' => (int) $row->unprocessed,
+                'duplicates' => $duplicatesByRound[self::rowKey((bool) $row->is_grand ? null : (string) $row->source, (bool) $row->is_total, $row->round_id === null ? null : (int) $row->round_id)][0] ?? 0,
+                'cross_source' => $duplicatesByRound[self::rowKey((bool) $row->is_grand ? null : (string) $row->source, (bool) $row->is_total, $row->round_id === null ? null : (int) $row->round_id)][1] ?? 0,
             ], $rounds),
             byYear: array_map(fn (object $row): array => ['source' => (string) $row->source, 'code' => (string) $row->code, 'year' => (int) $row->year, 'records' => (int) $row->records], $byYear),
             byVersion: array_map(fn (object $row): array => ['source' => (string) $row->source, 'code' => (string) $row->code, 'version' => (string) $row->version, 'records' => (int) $row->records], $byVersion),
@@ -148,6 +195,20 @@ final class BackfillReportQuery
                 'against_other_source' => (int) $row->against_other_source,
                 'cross_source_duplicates' => (int) $row->cross_source_duplicates,
             ], $duplicates),
+            unmatched: array_map(fn (object $row): array => [
+                'source' => (string) $row->source,
+                'facility_ref' => (string) $row->facility_ref,
+                'lga_ref' => (string) $row->lga_ref,
+                'records' => (int) $row->records,
+                'rounds' => (string) ($row->rounds ?? ''),
+                'detail' => (string) ($row->detail ?? ''),
+            ], $unmatched),
         );
+    }
+
+    /** A Summary row's key: a source's round, a source's total, or the grand total. */
+    private static function rowKey(?string $source, bool $total, ?int $roundId): string
+    {
+        return $source === null ? 'grand' : ($total ? "{$source}|total" : "{$source}|".($roundId ?? 0));
     }
 }

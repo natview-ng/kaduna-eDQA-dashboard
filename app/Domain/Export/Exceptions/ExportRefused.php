@@ -26,6 +26,12 @@ final class ExportRefused extends RuntimeException
         return new self('private_not_offered');
     }
 
+    /** CSV asked for an export of several sheets. */
+    public static function excelOnly(): self
+    {
+        return new self('excel_only');
+    }
+
     public static function notReady(): self
     {
         return new self('not_ready');

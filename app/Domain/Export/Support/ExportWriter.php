@@ -71,12 +71,40 @@ final class ExportWriter
             $this->csv(array_map(fn (Column $column): string => $column->heading, $columns), $csvRows, $path);
         } else {
             $this->excel->store(new Workbook(
-                new DataSheet((string) __('exports.sheets.data'), $columns, $rows),
+                [new DataSheet((string) __('exports.sheets.data'), $columns, $rows)],
                 new AboutSheet((string) __('exports.sheets.about'), function () use ($about, &$written): array {
                     return $about($written);
                 }),
             ), $path, self::DISK, Excel::XLSX);
         }
+
+        return $written;
+    }
+
+    /**
+     * A multi-sheet Excel workbook (Phase 6 step 2: the backfill report), each sheet formatted like
+     * any export's data sheet, then "About this file". Used by the export plumbing and by
+     * edqa:backfill-report --format=xlsx alike.
+     *
+     * @param  list<Sheet>  $sheets
+     * @param  Closure(int): list<array{0: string, 1: string|int}>  $about  given the total row count
+     * @param  (Closure(int): void)|null  $progress  rows written so far, after each sheet
+     * @return int rows written, across the sheets
+     */
+    public function writeSheets(array $sheets, string $path, Closure $about, ?Closure $progress = null): int
+    {
+        $written = 0;
+        $data = array_map(fn (Sheet $sheet): DataSheet => new DataSheet($sheet->title, $sheet->columns, function () use ($sheet, &$written, $progress): Generator {
+            yield from $sheet->rows;
+            $written += count($sheet->rows);
+            if ($progress !== null) {
+                $progress($written);
+            }
+        }), $sheets);
+
+        $this->excel->store(new Workbook($data, new AboutSheet((string) __('exports.sheets.about'), function () use ($about, &$written): array {
+            return $about($written);
+        })), $path, self::DISK, Excel::XLSX);
 
         return $written;
     }

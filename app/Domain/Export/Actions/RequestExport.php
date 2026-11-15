@@ -9,6 +9,7 @@ use App\Domain\Export\Exceptions\ExportRefused;
 use App\Domain\Export\Jobs\GenerateExportJob;
 use App\Domain\Export\Models\Export;
 use App\Domain\Export\Types\ExportTypes;
+use App\Domain\Export\Types\MultiSheetExport;
 use App\Models\User;
 use App\Support\Audit\AuditLog;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,10 @@ final class RequestExport
         $exporter = $this->types->get($type);
         if ($includePrivate && ! $exporter->offersPrivate()) {
             throw ExportRefused::privateNotOffered();
+        }
+        // A workbook of several sheets has no CSV form.
+        if ($exporter instanceof MultiSheetExport && $format !== ExportFormat::Xlsx) {
+            throw ExportRefused::excelOnly();
         }
         $filter = $exporter->filter($filter);
 

@@ -23,6 +23,7 @@ final class ExportTypes
         'data_issues' => DataIssuesExport::class,
         'pull_history' => PullHistoryExport::class,
         'audit_log' => AuditLogExport::class,
+        'backfill_report' => BackfillReportExport::class,
     ];
 
     public function __construct(

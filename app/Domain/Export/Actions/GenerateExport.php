@@ -10,6 +10,7 @@ use App\Domain\Export\Models\Export;
 use App\Domain\Export\Support\ExportDescription;
 use App\Domain\Export\Support\ExportWriter;
 use App\Domain\Export\Types\ExportTypes;
+use App\Domain\Export\Types\MultiSheetExport;
 use App\Support\Audit\AuditLog;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Storage;
@@ -45,17 +46,16 @@ final class GenerateExport
             $type = $this->types->get($export->type);
             $filter = $export->filter;
             $total = $type->count($filter);
-            $rows = $this->writer->write(
-                $type, $filter, $export->includesPrivate(), $format, $path,
-                max(1, (int) config('edqa.exports.chunk_rows')),
-                function (int $written) use ($export, $total): void {
-                    $percent = $total === 0 ? 99 : min(99, intdiv($written * 100, $total));
-                    if ($percent > $export->progress) {
-                        $export->update(['progress' => $percent]);
-                    }
-                },
-                fn (int $count): array => $this->description->about($export, $type, $count),
-            );
+            $progress = function (int $written) use ($export, $total): void {
+                $percent = $total === 0 ? 99 : min(99, intdiv($written * 100, $total));
+                if ($percent > $export->progress) {
+                    $export->update(['progress' => $percent]);
+                }
+            };
+            $about = fn (int $count): array => $this->description->about($export, $type, $count);
+            $rows = $type instanceof MultiSheetExport
+                ? $this->writer->writeSheets($type->sheets($filter), $path, $about, $progress)
+                : $this->writer->write($type, $filter, $export->includesPrivate(), $format, $path, max(1, (int) config('edqa.exports.chunk_rows')), $progress, $about);
         } catch (Throwable $e) {
             report($e);
             Storage::disk(ExportWriter::DISK)->delete($path);
