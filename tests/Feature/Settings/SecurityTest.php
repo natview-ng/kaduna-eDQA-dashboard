@@ -16,7 +16,7 @@ it('shows the security page to an administrator, after password confirmation', f
         ->get(route('admin.security.edit'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
-            ->component('settings/security')
+            ->component('admin/account')
             ->missing('twoFactorEnabled')
             ->missing('recoveryCodes'));
 });

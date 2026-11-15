@@ -43,7 +43,7 @@ test.describe('Administration shell', () => {
         const tabs = page.getByRole('navigation', { name: 'Administration pages' });
 
         await expect(tabs.getByRole('link')).toHaveCount(8); // six pages, My account and the public dashboard
-        await expect(tabs.getByRole('link', { name: 'My account' })).toHaveAttribute('href', '/admin/settings/security');
+        await expect(tabs.getByRole('link', { name: 'My account' })).toHaveAttribute('href', '/admin/account');
         await expect(tabs.getByRole('button', { name: 'Log out' })).toBeVisible(); // not pressed: the session is shared
         await expect(tabs.getByRole('link', { name: /^Data issues, \d+ open$/ })).toBeVisible();
         await expect(page.getByLabel('Year')).toHaveCount(0); // the dashboard's filter bar

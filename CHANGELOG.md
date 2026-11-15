@@ -9,6 +9,15 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Audit log page (Phase 5 step 7, D-93)**, read only: every recorded change and sign-in event,
+  filtered by who, subject, source, event, dates and reason; who, what, when, the subject (with a
+  link), the reason and the before/after of each entry. Sign-in events (login, failed login,
+  lockout, unlock, password change, new-device login) are labelled. Export the filtered log as CSV
+  (prepared in the background over 5,000 rows); exports are recorded, views are not. Nothing can
+  change or remove an entry.
+- **My account** at `/admin/account` (the old settings address redirects): change your password as
+  before, see your last ten sign-ins (time, browser, the address as a range, new device or not),
+  and where to unlock a locked account (the server console).
 - **Scoring rules page (Phase 5 step 6, D-92).**
   - The current version: who published it, when and why, its bands, N/A policy and choice map;
     weighting and display rounding shown read-only, with what the rounding means.

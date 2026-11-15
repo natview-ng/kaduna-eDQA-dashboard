@@ -250,6 +250,12 @@ return [
         'rounding' => 'half_up',
     ],
 
+    // The Audit log page (Phase 5 step 7, D-93): an export of up to this many rows is written at
+    // once; a larger one is queued (exports queue) and listed on the page when ready.
+    'audit' => [
+        'export_sync_rows' => 5000,
+    ],
+
     'validation' => [
         // ARCHITECTURE.md §6, in catalogue order: the pipeline runs them in this order and
         // UNKNOWN_FORM_VERSION must come first. Strings, not ::class: the rule classes arrive

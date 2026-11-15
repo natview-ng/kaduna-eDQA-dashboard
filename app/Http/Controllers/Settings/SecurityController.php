@@ -9,9 +9,6 @@ use App\Http\Requests\Settings\PasswordUpdateRequest;
 use App\Models\User;
 use App\Support\Auth\PasswordChange;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
 /**
  * Password change (SECURITY.md §2): the policy and history apply, the user's other sessions end,
@@ -19,13 +16,6 @@ use Inertia\Response;
  */
 final class SecurityController extends Controller
 {
-    public function edit(Request $request): Response
-    {
-        return Inertia::render('settings/security', [
-            'status' => $request->session()->get('status'),
-        ]);
-    }
-
     public function update(PasswordUpdateRequest $request): RedirectResponse
     {
         /** @var User $user */

@@ -22,7 +22,7 @@ const META: Record<string, PageMeta> = {
     'admin/facility': { title: 'admin.pages.facility.title', subtitle: 'admin.pages.facility.subtitle', dashboard: false },
     'admin/scoring-rules': { title: 'admin.pages.scoring_rules.title', subtitle: 'admin.pages.scoring_rules.subtitle', dashboard: false },
     'admin/audit': { title: 'admin.pages.audit.title', subtitle: 'admin.pages.audit.subtitle', dashboard: false },
-    'settings/security': { title: 'auth.settings.title', dashboard: false },
+    'admin/account': { title: 'admin.pages.account.title', subtitle: 'admin.pages.account.subtitle', dashboard: false },
     'dev/components': { title: 'common.pages.dev.title', dashboard: false },
 };
 

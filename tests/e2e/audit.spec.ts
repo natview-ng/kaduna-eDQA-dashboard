@@ -26,7 +26,7 @@ const PAGES: { name: string; path: string; heading: string }[] = [
     { name: 'admin-rounds', path: '/admin/rounds', heading: 'Rounds' },
     { name: 'admin-facilities', path: '/admin/facilities', heading: 'Facility list' },
     { name: 'admin-scoring-rules', path: '/admin/scoring-rules', heading: 'Scoring rules' },
-    { name: 'security', path: '/admin/settings/security', heading: 'Security' },
+    { name: 'account', path: '/admin/account', heading: 'My account' },
 ];
 
 async function ready(page: Page, heading: string): Promise<void> {

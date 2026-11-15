@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Admin\AdminAuditController;
 use App\Http\Controllers\Admin\AdminFacilityController;
 use App\Http\Controllers\Admin\AdminFacilityListController;
 use App\Http\Controllers\Admin\AdminRoundsController;
 use App\Http\Controllers\Admin\AdminScoringRulesController;
 use App\Http\Controllers\Admin\AdminSourcesController;
+use App\Http\Controllers\Admin\AuditExportController;
 use App\Http\Controllers\Assessments\AssessmentStatusController;
 use App\Http\Controllers\Assessments\CorrectAssessmentController;
 use App\Http\Controllers\Attachments\ShowAttachmentController;
@@ -26,6 +28,7 @@ use App\Http\Controllers\Quarantine\ShowQuarantinedRecordController;
 use App\Http\Controllers\Rounds\RoundController;
 use App\Http\Controllers\Scoring\RescoreController;
 use App\Http\Controllers\Scoring\ScoringRuleController;
+use App\Http\Controllers\Settings\AccountController;
 use App\Http\Controllers\Settings\SecurityController;
 use App\Http\Controllers\Sources\PullRunController;
 use App\Http\Controllers\Sources\SourceIndexController;
@@ -51,14 +54,16 @@ Route::get('facilities', AdminFacilityListController::class)->name('facilities')
 // trail, the source and its link, and corrections. ?round= picks the round.
 Route::get('facilities/{facility}', AdminFacilityController::class)->whereNumber('facility')->name('facilities.show');
 Route::get('scoring-rules', AdminScoringRulesController::class)->name('scoring-rules');
-// Audit log: a placeholder until its step builds it (every write is already in activity_log).
-Route::inertia('audit', 'admin/audit')->name('audit');
+// The audit log (SECURITY.md §4, D-93): read only, filtered on the server; views are not audited.
+Route::get('audit', AdminAuditController::class)->name('audit');
 
-// Password change (SECURITY.md §2): accounts themselves are managed by artisan commands.
-Route::redirect('settings', '/admin/settings/security')->name('settings');
-Route::get('settings/security', [SecurityController::class, 'edit'])
+// My account (step 7): change the password and see your recent sign-ins. Accounts themselves are
+// managed by artisan commands (create, unlock). The old settings URLs lead here.
+Route::get('account', AccountController::class)
     ->middleware(RequirePassword::class)
     ->name('security.edit');
+Route::redirect('settings', '/admin/account')->name('settings');
+Route::redirect('settings/security', '/admin/account')->name('security.legacy');
 Route::put('settings/password', [SecurityController::class, 'update'])
     ->middleware('throttle:6,1')
     ->name('user-password.update');
@@ -86,6 +91,12 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::get('pulls/{run}', PullRunController::class)->whereNumber('run')->name('pulls.show');
     Route::get('backfill-reports/{file}', BackfillReportDownloadController::class)
         ->middleware('signed')->where('file', '[A-Za-z0-9.-]+')->name('backfill-reports.show');
+
+    // The audit log as CSV (step 7): written (or queued over 5,000 rows), fetched through a signed
+    // link; both audited. No route changes or removes an audit entry.
+    Route::post('audit/export', [AuditExportController::class, 'store'])->middleware('throttle:6,1')->name('audit.export');
+    Route::get('audit/exports/{file}', [AuditExportController::class, 'download'])
+        ->middleware('signed')->where('file', '[A-Za-z0-9.-]+')->name('audit.exports.show');
 
     // The cascading-select media (§5.1): generated on request, fetched through a signed link.
     Route::post('facility-list/export-cascade', [CascadeExportController::class, 'store'])->name('facility-list.cascade.store');

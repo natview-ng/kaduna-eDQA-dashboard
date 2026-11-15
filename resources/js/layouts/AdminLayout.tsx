@@ -36,7 +36,7 @@ function AdminShell({ children }: AdminLayoutProps) {
     // The admin facility view sits under the Facility list.
     const adminComponent = component === 'admin/facility' ? 'admin/facilities' : component;
     const current: AdminRailCurrent | null =
-        component === 'settings/security' ? 'account' : (ADMIN_PAGES.find(({ page }) => adminComponent === `admin/${page}`)?.page ?? null);
+        component === 'admin/account' ? 'account' : (ADMIN_PAGES.find(({ page }) => adminComponent === `admin/${page}`)?.page ?? null);
     const shell = props.shell ?? null;
     const admin = props.admin ?? null;
     const titleRef = useHeadingFocus(component);

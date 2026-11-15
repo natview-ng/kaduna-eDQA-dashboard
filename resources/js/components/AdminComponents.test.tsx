@@ -311,7 +311,7 @@ describe('AdminRail', () => {
         const nav = screen.getByRole('navigation', { name: 'Administration pages' });
         expect(within(nav).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
             '/admin/sources', '/admin/data-issues', '/admin/rounds', '/admin/facilities', '/admin/scoring-rules', '/admin/audit',
-            '/admin/settings/security', '/',
+            '/admin/account', '/',
         ]);
         expect(within(nav).getByRole('link', { name: 'Audit log' })).toBeTruthy();
         expect(within(nav).getByRole('link', { name: 'My account' })).toBeTruthy();
