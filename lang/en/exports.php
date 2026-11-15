@@ -3,70 +3,255 @@
 declare(strict_types=1);
 
 /*
- * Queued exports (Phase 6 step 0, D-96): the file's own words (headings, the "About this export"
- * sheet) and the refusals. The ExportButton's words are in admin.php under exports.
+ * Exports (Phase 6 steps 0–1, D-96, D-97): the files' own words (headings, statuses, the "About this
+ * file" sheet) and the refusals. The ExportButton's words are in admin.php under exports.
  */
 
 return [
 
+    // A score is three columns side by side: full precision, as displayed (1 dp), and its band.
+    'columns' => [
+        'precise' => ':name (full precision)',
+        'displayed' => ':name (displayed)',
+        'band' => ':name band',
+    ],
+
+    'dimensions' => [
+        'availability' => 'Availability',
+        'consistency' => 'Consistency',
+        'validity' => 'Validity',
+        'overall' => 'Overall',
+    ],
+
+    'status' => [
+        'published' => 'Published',
+        'provisional' => 'Provisional — round not closed',
+    ],
+
+    'results' => [
+        'pass' => 'Pass',
+        'fail' => 'Fail',
+        'na' => 'N/A',
+    ],
+
+    // Added by "Include assessor and source details".
+    'private_columns' => [
+        'assessor' => 'Assessor',
+        'device' => 'Device ID',
+        'latitude' => 'Visit latitude',
+        'longitude' => 'Visit longitude',
+        'instance_id' => 'Instance ID',
+        'source_link' => 'Link at source',
+        'attachments' => 'Attachment links',
+    ],
+
+    'unknown_source' => 'Unknown source',
+
     'types' => [
-        'assessments' => [
-            'title' => 'Assessments',
+        'state_summary' => [
+            'title' => 'State summary',
             'columns' => [
-                'round' => 'Round',
+                'section' => 'Section',
+                'measure' => 'Measure',
+                'group' => 'Group',
+                'facilities' => 'Facilities',
+                'score' => 'Score',
+                'status' => 'Status',
+            ],
+            'sections' => [
+                'headline' => 'Headline',
+                'dimensions' => 'The three dimensions',
+                'owners' => 'Public and private',
+                'coverage_lga' => 'Coverage by LGA',
+                'coverage_level' => 'Coverage by level',
+            ],
+            'measures' => [
+                'average' => 'Average quality score',
+                'facilities_visited' => 'Facilities visited',
+                'lgas_covered' => 'Local governments',
+                'facilities_strong' => 'Facilities at :value or above',
+                'facilities_weak' => 'Facilities under :value',
+                'weakest' => 'Weakest dimension',
+                'lga_mean' => 'Mean facilities visited per LGA',
+            ],
+            'groups' => [
+                'state' => 'Kaduna State',
+            ],
+        ],
+        'lga_table' => [
+            'title' => 'LGA table',
+            'columns' => [
                 'lga_code' => 'LGA code',
                 'lga' => 'LGA',
-                'ward' => 'Ward',
-                'facility_code' => 'Facility code',
-                'facility' => 'Facility',
-                'level' => 'Level',
-                'ownership' => 'Ownership',
-                'source' => 'Source',
-                'visited_on' => 'Visit date',
-                'status' => 'Status',
+                'facilities' => 'Facilities',
                 'availability' => 'Availability',
                 'consistency' => 'Consistency',
                 'validity' => 'Validity',
+                'm1' => 'Month 1',
+                'm2' => 'Month 2',
+                'm3' => 'Month 3',
                 'overall' => 'Overall',
-                'band' => 'Band',
-                'assessor' => 'Assessor',
-                'device' => 'Device ID',
-                'latitude' => 'Visit latitude',
-                'longitude' => 'Visit longitude',
-                'instance_id' => 'Instance ID',
-                'source_link' => 'Link at source',
-                'attachments' => 'Attachment links',
+                'status' => 'Status',
             ],
-            'statuses' => [
+        ],
+        'facility_scores' => [
+            'title' => 'Facility scores',
+            'columns' => [
+                'code' => 'Facility code',
+                'facility' => 'Facility',
+                'lga' => 'LGA',
+                'ward' => 'Ward',
+                'level' => 'Level',
+                'ownership' => 'Ownership',
+                'round' => 'Round',
+                'assessed_on' => 'Assessed on',
+                'source' => 'Source',
+                'month' => ':metric, month :slot',
+                'metric_score' => ':metric score',
+                'status' => 'Status',
+            ],
+        ],
+        'item_responses' => [
+            'title' => 'Item responses',
+            'columns' => [
+                'code' => 'Facility code',
+                'facility' => 'Facility',
+                'lga' => 'LGA',
+                'ward' => 'Ward',
+                'level' => 'Level',
+                'ownership' => 'Ownership',
+                'round' => 'Round',
+                'source' => 'Source',
+                'dimension' => 'Dimension',
+                'slot' => 'Month slot',
+                'month' => 'Month',
+                'item_code' => 'Item code',
+                'item' => 'Item',
+                'result' => 'Result',
+                'checks_passed' => 'Checks passed',
+                'checks_total' => 'Checks',
+                'status' => 'Status',
+            ],
+        ],
+        'data_issues' => [
+            'title' => 'Data issues',
+            'columns' => [
+                'id' => 'Record',
+                'instance_id' => 'Instance ID',
+                'source' => 'Source',
+                'codes' => 'Rule codes',
+                'names' => 'Rules',
+                'details' => 'Details',
+                'status' => 'Status',
+                'resolution' => 'Resolution',
+                'facility_ref' => 'Facility as sent',
+                'lga_ref' => 'LGA as sent',
+                'round' => 'Round',
+                'received_at' => 'Held at (WAT)',
+                'resolved_at' => 'Resolved at (WAT)',
+            ],
+            'filter' => [
+                'state' => 'Status: :value',
+                'rule' => 'Rule: :value',
+                'lga' => 'LGA: :value',
+                'source' => 'Source: :value',
+            ],
+        ],
+        'pull_history' => [
+            'title' => 'Pull history',
+            'columns' => [
+                'id' => 'Run',
+                'source' => 'Source',
+                'started_at' => 'Started (WAT)',
+                'trigger' => 'Trigger',
+                'triggered_by' => 'Started by',
+                'fetched' => 'Fetched',
+                'parsed' => 'Parsed',
                 'accepted' => 'Accepted',
                 'flagged' => 'Flagged',
+                'quarantined' => 'Quarantined',
+                'duplicates' => 'Already stored',
+                'cross_source_duplicates' => 'From another source',
+                'deletions_detected' => 'Deleted at source',
+                'duration' => 'Duration (seconds)',
+                'outcome' => 'Outcome',
+                'error' => 'Error',
             ],
-            'unknown_source' => 'Unknown source',
+            'outcomes' => [
+                'succeeded' => 'Succeeded',
+                'failed' => 'Failed',
+                'skipped_not_configured' => 'Skipped: not configured',
+                'running' => 'Running',
+            ],
+        ],
+        'audit_log' => [
+            'title' => 'Audit log',
+            'columns' => [
+                'at' => 'When (WAT)',
+                'who' => 'Who',
+                'event' => 'What',
+                'subject_type' => 'Subject type',
+                'subject' => 'Subject',
+                'source' => 'Source',
+                'reason' => 'Reason',
+                'before' => 'Before',
+                'after' => 'After',
+            ],
+            'console' => 'Console',
+            'system' => 'System',
+            'filter' => [
+                'actor' => 'Who: administrator :value',
+                'type' => 'Subject: :value',
+                'source' => 'Source: :value',
+                'event' => 'What: :value',
+                'from' => 'From :value',
+                'to' => 'To :value',
+                'q' => 'Reason contains ":value"',
+            ],
         ],
     ],
 
     'sheets' => [
         'data' => 'Data',
-        'about' => 'About this export',
+        'about' => 'About this file',
     ],
 
     'about' => [
         'type' => 'Export',
         'filter' => 'Filters',
-        'requested_by' => 'Requested by',
-        'requested_at' => 'Requested at',
+        'generated_at' => 'Generated at',
+        'generated_by' => 'Generated by',
         'rows' => 'Rows',
-        'private' => 'Assessor and source details',
-        'private_yes' => 'Included: names, device IDs, visit GPS, source links and attachment links. Handle as personal data.',
+        'rule_version' => 'Rule version',
+        'rule_version_round' => ':round: :version',
+        'no_version' => 'no published version',
+        'no_rounds' => 'No round in view',
+        'not_applicable' => 'Not applicable',
+        'rounding' => 'Rounding mode',
+        'rounding_modes' => [
+            'half_up' => 'Half up to one decimal place, for display only; the full-precision columns are unrounded',
+            'truncate' => 'Truncated to one decimal place, for display only; the full-precision columns are unrounded',
+        ],
+        'aggregation' => 'Aggregation method',
+        'aggregation_methods' => [
+            'unweighted' => 'Unweighted mean of facility scores: every facility counts once, for LGA, owner and state figures',
+            'facility_count' => 'Weighted by facility count',
+        ],
+        'sources' => 'Data sources',
+        'no_sources' => 'None configured',
+        'private' => 'Personal details',
+        'private_yes' => 'Included: assessor names, device IDs, visit GPS, source links and attachment links. Handle as personal data.',
         'private_no' => 'Not included',
-        'scores' => 'Scores',
-        'scores_note' => 'Each round is scored under its own scoring rule version, and rounded as on the dashboard. The open round can still change until it is closed.',
+        'published' => 'Published and provisional figures',
+        'published_line' => 'Figures from closed rounds are published; open-round figures are provisional.',
     ],
 
     'filter' => [
         'year' => 'Year :year',
         'lga' => 'LGA :lga',
+        'metric' => 'Metric: :metric',
         'latest' => 'Latest round',
+        'all' => 'Everything',
     ],
 
     'errors' => [

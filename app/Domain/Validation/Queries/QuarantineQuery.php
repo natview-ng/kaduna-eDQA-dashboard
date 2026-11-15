@@ -281,7 +281,54 @@ final class QuarantineQuery
     }
 
     /**
-     * @param  array{status?: ?string, state?: ?string, rule?: ?string, round?: int|string|null, lga?: ?string, source_id?: ?int}  $filters
+     * How many records the data issues export holds (Phase 6 step 1): the page's filters, plus
+     * any of a set of rounds (`rounds`, the export's year and quarter).
+     *
+     * @param  array{status?: ?string, state?: ?string, rule?: ?string, round?: int|string|null, rounds?: list<int>, lga?: ?string, source_id?: ?int}  $filters
+     */
+    public function exportCount(array $filters): int
+    {
+        return $this->filtered($filters)->count();
+    }
+
+    /**
+     * The data issues export's rows, newest first like the page, a chunk at a time, as plain
+     * values: rule codes, names and details as the page shows them, never the payload.
+     *
+     * @param  array{status?: ?string, state?: ?string, rule?: ?string, round?: int|string|null, rounds?: list<int>, lga?: ?string, source_id?: ?int}  $filters
+     * @return iterable<list<array{id: int, instance_id: string, source_id: int, round_id: ?int, facility_ref: ?string, lga_ref: ?string, status: string, resolution: ?string, codes: list<string>, names: list<string>, details: list<string>, received_at: ?string, resolved_at: ?string}>>
+     */
+    public function exportRows(array $filters, int $chunk = 1000): iterable
+    {
+        $after = PHP_INT_MAX;
+        do {
+            $records = $this->filtered($filters)->where('id', '<', $after)->orderByDesc('id')->limit($chunk)
+                ->get(['id', 'instance_id', 'source_id', 'round_id', 'facility_ref', 'lga_ref', 'status', 'resolution', 'failures', 'created_at', 'resolved_at']);
+            if ($records->isEmpty()) {
+                return;
+            }
+            $after = (int) $records->last()->id;
+
+            yield array_values($records->map(fn (QuarantinedRecord $record): array => [
+                'id' => (int) $record->id,
+                'instance_id' => (string) $record->instance_id,
+                'source_id' => (int) $record->source_id,
+                'round_id' => $record->round_id === null ? null : (int) $record->round_id,
+                'facility_ref' => $record->facility_ref,
+                'lga_ref' => $record->lga_ref,
+                'status' => $record->status->value,
+                'resolution' => $record->resolution?->value,
+                'codes' => array_map(fn (array $f): string => (string) $f['code'], $record->failures),
+                'names' => array_map(fn (array $f): string => (string) __('validation_rules.'.$f['code'].'.name'), $record->failures),
+                'details' => array_map(fn (array $f): string => (string) ($f['detail'] ?? ''), $record->failures),
+                'received_at' => $record->created_at?->toIso8601String(),
+                'resolved_at' => $record->resolved_at?->toIso8601String(),
+            ])->all());
+        } while ($records->count() === $chunk);
+    }
+
+    /**
+     * @param  array{status?: ?string, state?: ?string, rule?: ?string, round?: int|string|null, rounds?: list<int>, lga?: ?string, source_id?: ?int}  $filters
      * @return Builder<QuarantinedRecord>
      */
     private function filtered(array $filters): Builder
@@ -305,6 +352,9 @@ final class QuarantineQuery
         }
         if (($filters['round'] ?? null) !== null) {
             $query->where('round_id', (int) $filters['round']);
+        }
+        if (isset($filters['rounds'])) {
+            $query->whereIn('round_id', $filters['rounds']);
         }
         if (($filters['source_id'] ?? null) !== null) {
             $query->where('source_id', $filters['source_id']);

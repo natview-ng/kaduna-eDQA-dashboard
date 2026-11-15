@@ -4,18 +4,14 @@ declare(strict_types=1);
 
 use App\Domain\Facility\Models\Facility;
 use App\Domain\Round\Models\Round;
-use App\Jobs\ExportAuditLog;
 use App\Models\User;
 use App\Support\Audit\AuditLog;
-use App\Support\Audit\AuditLogExport;
 use App\Support\Auth\AuthAudit;
 use Database\Seeders\ScoringRuleVersionSeeder;
 use Illuminate\Routing\Route as RoutingRoute;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 // Phase 5 step 7 (D-93): the read-only audit log. With one role, administrators need to see each
@@ -52,7 +48,6 @@ function auditEvents(string $query = ''): array
 
 it('needs a signed-in administrator', function (): void {
     $this->get('/admin/audit')->assertRedirect('/login');
-    $this->postJson('/admin/api/audit/export')->assertUnauthorized();
 });
 
 it('lists every entry newest first, with who, what, when, the subject, the reason and before/after', function (): void {
@@ -98,44 +93,11 @@ it('does not audit a view of the log', function (): void {
     expect(DB::table('activity_log')->count())->toBe($before);
 });
 
-it('exports the filtered log as CSV, audited, and neutralises spreadsheet formulas', function (): void {
-    Storage::fake('exports');
-    AuditLog::record($this->round, $this->hauwa, 'window_updated', old: [], new: [], reason: '=HYPERLINK("http://x")');
-
-    $response = $this->actingAs($this->hauwa)->postJson('/admin/api/audit/export', ['type' => 'round'])->assertCreated();
-    $url = (string) $response->json('data.url');
-    expect($response->json('data.rows'))->toBe(2);
-
-    $csv = $this->actingAs($this->hauwa)->get($url)->assertOk()->streamedContent();
-    $lines = array_map(str_getcsv(...), array_values(array_filter(explode("\n", trim($csv)))));
-    expect($lines[0])->toBe(['When (WAT)', 'Who', 'Event', 'Subject type', 'Subject', 'Reason', 'Before', 'After'])
-        ->and($lines)->toHaveCount(3)
-        ->and($lines[1][5])->toBe("'=HYPERLINK(\"http://x\")")
-        ->and($lines[2][1])->toBe('Musa Garba')
-        ->and($lines[2][5])->toBe('Late visits from Ikara');
-
-    $exported = json_decode((string) DB::table('activity_log')->where('event', 'audit_exported')->where('causer_id', $this->hauwa->id)->value('properties'), true);
-    expect($exported['attributes']['rows'])->toBe(2)
-        ->and($exported['attributes']['filters'])->toBe(['type' => 'round']);
-});
-
-it('queues a large export, then lists it ready', function (): void {
-    Storage::fake('exports');
-    config(['edqa.audit.export_sync_rows' => 3]);
-    Queue::fake();
-
-    $this->actingAs($this->hauwa)->postJson('/admin/api/audit/export', [])->assertStatus(202)->assertJsonPath('data.queued', true);
-    Queue::assertPushed(ExportAuditLog::class);
-
-    // The worker runs it: the file is listed on the page with a signed link.
-    Queue::pushed(ExportAuditLog::class)->first()->handle(app(AuditLogExport::class));
-    $this->actingAs($this->hauwa)->get('/admin/audit')->assertInertia(fn (Assert $page) => $page->where('exports.0.rows', 5)->has('exports.0.url'));
-});
-
 it('has no route that changes or removes the audit log', function (): void {
     $routes = collect(Route::getRoutes()->getRoutes())->filter(fn (RoutingRoute $route): bool => str_contains($route->uri(), 'audit'));
     $writes = $routes->filter(fn (RoutingRoute $route): bool => array_diff($route->methods(), ['GET', 'HEAD']) !== [])->map(fn (RoutingRoute $route): string => $route->uri())->values()->all();
-    expect($writes)->toBe(['admin/api/audit/export']);
+    // Its export is the audit_log export type (Phase 6 step 1), under /admin/api/exports: no audit route writes.
+    expect($writes)->toBe([]);
 
     // Nothing in the app updates, deletes or truncates activity_log, by query builder, model or SQL.
     $root = realpath(__DIR__.'/../../../app');

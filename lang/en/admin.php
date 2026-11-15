@@ -17,6 +17,16 @@ return [
     // The ExportButton (Phase 6 step 0, D-96): admin pages and the preview bar only.
     'exports' => [
         'button' => 'Export…',
+        'what' => 'What to export',
+        'types' => [
+            'state_summary' => 'State summary (headline, dimensions, public and private, coverage)',
+            'lga_table' => 'LGA table',
+            'facility_scores' => 'Facility scores (every page, every metric)',
+            'item_responses' => 'Item responses (one row per item)',
+            'data_issues' => 'Data issues',
+            'pull_history' => 'Pull history',
+            'audit_log' => 'Audit log',
+        ],
         'format' => 'Format',
         'formats' => [
             'csv' => 'CSV',
@@ -1079,16 +1089,7 @@ return [
         ],
         'export' => [
             'title' => 'Export',
-            'description' => 'A CSV of the entries matching the filters above. Up to 5,000 rows are written at once; more are prepared in the background and listed here.',
-            'button' => 'Export CSV',
-            'working' => 'Exporting…',
-            'ready' => ':rows row(s) written.',
-            'download' => 'Download :file',
-            'queued' => 'The export is being prepared: it will appear below when it is ready.',
-            'recent' => 'Recent exports',
-            'recent_item' => ':file (:rows rows)',
-            'expiry' => 'The links work for 30 minutes; reload the page for new ones.',
-            'none' => 'No export yet.',
+            'description' => 'The entries matching the filters above, as CSV or Excel. It is prepared in the background; the download link appears here when it is ready.',
         ],
     ],
 

@@ -14,30 +14,38 @@ export type ExportStatus = {
     url: string | null;
 };
 
-export type ExportButtonProps = {
-    /** The export type: "assessments". */
-    type: string;
-    /** The dashboard filter in view, by the dashboard's URL names (ARCHITECTURE.md §8). */
-    filter: Record<string, string | number | null>;
+export type ExportChoice = {
+    /** The export type: "facility_scores". Its label is admin.exports.types.{key}. */
+    key: string;
     /** Whether "Include assessor and source details" applies to this type. */
     offersPrivate: boolean;
 };
 
+export type ExportButtonProps = {
+    /** What can be exported from here; more than one gives a choice. */
+    types: ExportChoice[];
+    /** The page's filter in view, by its URL names (ARCHITECTURE.md §8). */
+    filter: Record<string, string | number | null>;
+};
+
 /**
- * Export (Phase 6 step 0, D-96): admin pages and the admin preview bar only, never the public site
- * (D-80). Choose CSV or Excel and, where it applies, whether to include assessor and source
- * details; the export is queued, its progress followed (ProgressPanel), and a download link
- * offered when it is ready. The link works 30 minutes; the file is deleted after 7 days.
+ * Export (Phase 6, D-96, D-97): admin pages and the admin preview bar only, never the public site
+ * (D-80). Choose what to export where there is a choice, CSV or Excel and, where it applies,
+ * whether to include assessor and source details; the export is queued, its progress followed
+ * (ProgressPanel), and a download link offered when it is ready. The link works 30 minutes; the
+ * file is deleted after 7 days.
  */
-export default function ExportButton({ type, filter, offersPrivate }: ExportButtonProps) {
+export default function ExportButton({ types, filter }: ExportButtonProps) {
     const t = useTranslate();
     const id = useId();
     const action = useApiAction<{ data: { export_id: number } }>();
     const [open, setOpen] = useState(false);
+    const [type, setType] = useState(types[0]?.key ?? '');
     const [format, setFormat] = useState<'csv' | 'xlsx'>('csv');
     const [includePrivate, setIncludePrivate] = useState(false);
     const [exportId, setExportId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const offersPrivate = types.find((choice) => choice.key === type)?.offersPrivate ?? false;
 
     const start = async (event: FormEvent) => {
         event.preventDefault();
@@ -60,6 +68,19 @@ export default function ExportButton({ type, filter, offersPrivate }: ExportButt
                 <div id={`${id}-panel`} className="mt-2 max-w-xl rounded-md border border-rule bg-panel px-4 py-3 text-ink">
                     {exportId === null ? (
                         <form onSubmit={(event) => void start(event)} className="flex flex-col gap-3">
+                            {types.length > 1 && (
+                                <fieldset>
+                                    <legend className="text-sm font-medium">{t('admin.exports.what')}</legend>
+                                    <div className="mt-1.5 flex flex-col gap-1">
+                                        {types.map((choice) => (
+                                            <label key={choice.key} className="inline-flex items-center gap-1.5 text-sm">
+                                                <input type="radio" name={`${id}-type`} value={choice.key} checked={type === choice.key} onChange={() => setType(choice.key)} />
+                                                {t(`admin.exports.types.${choice.key}`)}
+                                            </label>
+                                        ))}
+                                    </div>
+                                </fieldset>
+                            )}
                             <fieldset>
                                 <legend className="text-sm font-medium">{t('admin.exports.format')}</legend>
                                 <div className="mt-1.5 flex gap-4">

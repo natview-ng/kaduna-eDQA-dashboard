@@ -9,15 +9,16 @@ use App\Domain\Export\Exceptions\ExportRefused;
 use App\Domain\Export\Jobs\GenerateExportJob;
 use App\Domain\Export\Models\Export;
 use App\Domain\Export\Types\ExportTypes;
-use App\Domain\Reporting\DTOs\ReportFilter;
 use App\Models\User;
 use App\Support\Audit\AuditLog;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 /**
- * Asks for an export (Phase 6 step 0, D-96): checks the type and its options, records the request
- * (and whether assessor and source details were asked for) in the audit log, and queues the work
- * on the exports queue once the row is committed. Nothing is written in the request.
+ * Asks for an export (Phase 6 steps 0–1, D-96, D-97): checks the type, its filter (the page's own:
+ * the dashboard filter for the report types) and its options, records the request (and whether
+ * assessor and source details were asked for) in the audit log, and queues the work on the exports
+ * queue once the row is committed. Nothing is written in the request.
  */
 final class RequestExport
 {
@@ -25,17 +26,23 @@ final class RequestExport
         private readonly ExportTypes $types,
     ) {}
 
-    public function execute(string $type, ReportFilter $filter, ExportFormat $format, bool $includePrivate, User $actor): Export
+    /**
+     * @param  array<string, mixed>  $filter  as asked, by the page's URL names
+     *
+     * @throws ValidationException
+     */
+    public function execute(string $type, array $filter, ExportFormat $format, bool $includePrivate, User $actor): Export
     {
         $exporter = $this->types->get($type);
         if ($includePrivate && ! $exporter->offersPrivate()) {
             throw ExportRefused::privateNotOffered();
         }
+        $filter = $exporter->filter($filter);
 
         return DB::transaction(function () use ($type, $filter, $format, $includePrivate, $actor): Export {
             $export = Export::query()->create([
                 'type' => $type,
-                'filter' => (object) $filter->toQuery(),
+                'filter' => (object) $filter,
                 'options' => ['format' => $format->value, 'include_private' => $includePrivate],
                 'requested_by' => $actor->id,
             ]);
@@ -43,7 +50,7 @@ final class RequestExport
                 'type' => $type,
                 'format' => $format->value,
                 'include_private' => $includePrivate,
-                'filter' => $filter->toQuery(),
+                'filter' => $filter,
             ]);
             GenerateExportJob::dispatch($export->id)->afterCommit();
 

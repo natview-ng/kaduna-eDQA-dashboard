@@ -239,8 +239,9 @@ action), item weights, and what N/A means. Rules are kept in **versions**.
 
 Every change made in the portal, by anyone: who, what, when, the subject (with a link), the
 reason, and the before and after values. Sign-ins, failed sign-ins and lockouts are there too.
-Filter by person, kind of subject, source, event, dates or words in the reason. **Export CSV**
-downloads what the filters show. The log cannot be edited or deleted by anyone.
+Filter by person, kind of subject, source, event, dates or words in the reason. **Export…**
+downloads what the filters show (see "Exports" below). The log cannot be edited or deleted by
+anyone.
 
 ### My account
 
@@ -249,6 +250,37 @@ downloads what the filters show. The log cannot be edited or deleted by anyone.
 Change your password, and see your **last ten sign-ins**: when, the browser, roughly where from,
 and whether it was a new device. If you do not recognise one, change your password now and tell
 the others.
+
+---
+
+### Exports
+
+Every figure the portal shows can be taken away as a file, with **Export…**. You choose CSV or
+Excel, and the file holds exactly what the page shows, for the filters in view.
+
+| Where | What you can export |
+|---|---|
+| Admin preview bar, Home and Monitor | State summary: the headline, the three dimensions, public and private, coverage |
+| Admin preview bar, Facility view | Facility scores (every page, every metric), or item responses (one row per item) |
+| Admin preview bar, LGA view and Implementation plan | The LGA table |
+| Admin preview bar, Visuals | State summary or LGA table |
+| Data issues (hard rules tab) | The held-back records, with rule codes and details |
+| Data sources | The pull history |
+| Audit log | The entries shown |
+
+- **It is prepared in the background.** The panel shows its progress, then a download link that
+  works for 30 minutes. The file is deleted after 7 days; export again for a new copy.
+- **Every score comes three ways:** the exact value, the value as the dashboard shows it (one
+  decimal place), and its band.
+- **Open-round rows say "Provisional — round not closed".** Only closed-round figures are
+  published.
+- **Excel files have an "About this file" sheet:** the filters, when and by whom it was made, the
+  scoring rule version, how values are rounded and averaged, the data sources, and whether
+  personal details are in it.
+- **Personal details:** item responses can include assessor names, device IDs, visit GPS, source
+  links and attachment links, but only if you tick **Include assessor and source details**. The
+  file then holds personal data: keep it safe. Your choice is recorded in the audit log.
+- Every export and download is in the audit log.
 
 ---
 
@@ -444,3 +476,4 @@ the technical team to update the server.
 
 Problems the portal cannot solve, such as sign-in settings, unlocking an account, a new form
 version or a source that keeps failing, go to the technical team.
+c

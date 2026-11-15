@@ -8,7 +8,9 @@ use App\Domain\Ingestion\Enums\PullOutcome;
 use App\Domain\Ingestion\Enums\PullTrigger;
 use App\Domain\Ingestion\Models\PullRun;
 use App\Domain\Ingestion\SourceRegistry;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * The Data sources page's combined history (ARCHITECTURE.md §9.3): every source's runs, newest
@@ -34,6 +36,43 @@ final class PullHistoryQuery
      */
     public function paginate(array $filters): LengthAwarePaginator
     {
+        /** @var LengthAwarePaginator<int, array{id: int, source: ?array{key: string, name: string}, started_at: string, trigger: string, triggered_by: ?string, fetched: int, parsed: int, accepted: int, flagged: int, quarantined: int, duplicates: int, cross_source_duplicates: int, deletions_detected: int, duration: ?array{minutes: int, seconds: int}, outcome: string, error: ?string}> */
+        return $this->filtered($filters)->paginate(self::PER_PAGE)->withQueryString()->through(fn (PullRun $run): array => $this->row($run));
+    }
+
+    /** @param  array{source?: ?string, trigger?: ?string, outcome?: ?string, from?: ?string, to?: ?string}  $filters */
+    public function count(array $filters): int
+    {
+        return $this->filtered($filters)->count();
+    }
+
+    /**
+     * Every matching run, newest first, a chunk at a time: the pull history export (Phase 6 step 1),
+     * the same rows as the page.
+     *
+     * @param  array{source?: ?string, trigger?: ?string, outcome?: ?string, from?: ?string, to?: ?string}  $filters
+     * @return iterable<list<array<string, mixed>>>
+     */
+    public function each(array $filters, int $chunk = 1000): iterable
+    {
+        $offset = 0;
+        do {
+            $runs = $this->filtered($filters)->offset($offset)->limit($chunk)->get();
+            if ($runs->isEmpty()) {
+                return;
+            }
+            $offset += $runs->count();
+
+            yield array_values($runs->map(fn (PullRun $run): array => $this->row($run))->all());
+        } while ($runs->count() === $chunk);
+    }
+
+    /**
+     * @param  array{source?: ?string, trigger?: ?string, outcome?: ?string, from?: ?string, to?: ?string}  $filters
+     * @return Builder<PullRun>
+     */
+    private function filtered(array $filters): Builder
+    {
         $trigger = PullTrigger::tryFrom((string) ($filters['trigger'] ?? ''));
         $outcome = $filters['outcome'] ?? null;
         $source = $filters['source'] ?? null;
@@ -50,30 +89,40 @@ final class PullHistoryQuery
         } elseif (is_string($outcome) && PullOutcome::tryFrom($outcome) !== null) {
             $query->where('outcome', $outcome);
         }
+        // A date range (the export's year and quarter): started within it, whole days.
+        if (is_string($filters['from'] ?? null)) {
+            $query->where('started_at', '>=', CarbonImmutable::parse($filters['from'], (string) config('app.timezone'))->startOfDay());
+        }
+        if (is_string($filters['to'] ?? null)) {
+            $query->where('started_at', '<', CarbonImmutable::parse($filters['to'], (string) config('app.timezone'))->addDay()->startOfDay());
+        }
 
-        /** @var LengthAwarePaginator<int, array{id: int, source: ?array{key: string, name: string}, started_at: string, trigger: string, triggered_by: ?string, fetched: int, parsed: int, accepted: int, flagged: int, quarantined: int, duplicates: int, cross_source_duplicates: int, deletions_detected: int, duration: ?array{minutes: int, seconds: int}, outcome: string, error: ?string}> */
-        return $query->paginate(self::PER_PAGE)->withQueryString()->through(function (PullRun $run): array {
-            $seconds = $run->finished_at === null ? null : max(0, (int) $run->started_at->diffInSeconds($run->finished_at));
-            $key = $this->sources->keyOf((int) $run->source_id);
+        return $query;
+    }
 
-            return [
-                'id' => $run->id,
-                'source' => $key === null ? null : ['key' => $key, 'name' => $this->sources->name($key)],
-                'started_at' => $run->started_at->toIso8601String(),
-                'trigger' => $run->trigger_type->value,
-                'triggered_by' => $run->triggeredBy?->name,
-                'fetched' => $run->fetched,
-                'parsed' => $run->parsed,
-                'accepted' => $run->accepted,
-                'flagged' => $run->flagged,
-                'quarantined' => $run->quarantined,
-                'duplicates' => $run->duplicates,
-                'cross_source_duplicates' => (int) $run->cross_source_duplicates,
-                'deletions_detected' => (int) $run->deletions_detected,
-                'duration' => $seconds === null ? null : ['minutes' => intdiv($seconds, 60), 'seconds' => $seconds % 60],
-                'outcome' => $run->outcome->value ?? 'running',
-                'error' => $run->error,
-            ];
-        });
+    /** @return array{id: int, source: ?array{key: string, name: string}, started_at: string, trigger: string, triggered_by: ?string, fetched: int, parsed: int, accepted: int, flagged: int, quarantined: int, duplicates: int, cross_source_duplicates: int, deletions_detected: int, duration: ?array{minutes: int, seconds: int}, outcome: string, error: ?string} */
+    private function row(PullRun $run): array
+    {
+        $seconds = $run->finished_at === null ? null : max(0, (int) $run->started_at->diffInSeconds($run->finished_at));
+        $key = $this->sources->keyOf((int) $run->source_id);
+
+        return [
+            'id' => $run->id,
+            'source' => $key === null ? null : ['key' => $key, 'name' => $this->sources->name($key)],
+            'started_at' => $run->started_at->toIso8601String(),
+            'trigger' => $run->trigger_type->value,
+            'triggered_by' => $run->triggeredBy?->name,
+            'fetched' => $run->fetched,
+            'parsed' => $run->parsed,
+            'accepted' => $run->accepted,
+            'flagged' => $run->flagged,
+            'quarantined' => $run->quarantined,
+            'duplicates' => $run->duplicates,
+            'cross_source_duplicates' => (int) $run->cross_source_duplicates,
+            'deletions_detected' => (int) $run->deletions_detected,
+            'duration' => $seconds === null ? null : ['minutes' => intdiv($seconds, 60), 'seconds' => $seconds % 60],
+            'outcome' => $run->outcome->value ?? 'running',
+            'error' => $run->error,
+        ];
     }
 }

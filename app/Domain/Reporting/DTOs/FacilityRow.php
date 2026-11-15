@@ -10,7 +10,8 @@ use App\Domain\Scoring\DTOs\ScoreValue;
 
 /**
  * One row of the facility view (§9.2.2). m1–m3 and score follow the metric switch; overall is
- * always the overall (the band tag).
+ * always the overall (the band tag). The three dimensions and the round id come along for the
+ * facility scores export (Phase 6 step 1: "current metric + all metrics", provisional rows).
  */
 final readonly class FacilityRow
 {
@@ -29,5 +30,9 @@ final readonly class FacilityRow
         public ScoreValue $m3,
         public ScoreValue $score,
         public ScoreValue $overall,
+        public ScoreValue $availability,
+        public ScoreValue $consistency,
+        public ScoreValue $validity,
+        public ?int $roundId,
     ) {}
 }

@@ -10,8 +10,6 @@ use App\Domain\Export\Models\Export;
 use App\Domain\Export\Support\ExportDescription;
 use App\Domain\Export\Support\ExportWriter;
 use App\Domain\Export\Types\ExportTypes;
-use App\Domain\Reporting\DTOs\ReportFilter;
-use App\Domain\Reporting\Enums\ReportAudience;
 use App\Support\Audit\AuditLog;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Storage;
@@ -30,6 +28,7 @@ final class GenerateExport
     public function __construct(
         private readonly ExportTypes $types,
         private readonly ExportWriter $writer,
+        private readonly ExportDescription $description,
     ) {}
 
     public function execute(int $exportId): void
@@ -44,7 +43,7 @@ final class GenerateExport
 
         try {
             $type = $this->types->get($export->type);
-            $filter = ReportFilter::fromArray($export->filter, ReportAudience::Admin);
+            $filter = $export->filter;
             $total = $type->count($filter);
             $rows = $this->writer->write(
                 $type, $filter, $export->includesPrivate(), $format, $path,
@@ -55,7 +54,7 @@ final class GenerateExport
                         $export->update(['progress' => $percent]);
                     }
                 },
-                fn (int $count): array => ExportDescription::about($export, $count),
+                fn (int $count): array => $this->description->about($export, $type, $count),
             );
         } catch (Throwable $e) {
             report($e);

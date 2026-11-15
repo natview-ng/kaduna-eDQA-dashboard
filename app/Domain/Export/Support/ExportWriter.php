@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Domain\Export\Support;
 
+use App\Domain\Export\Enums\ColumnKind;
 use App\Domain\Export\Enums\ExportFormat;
 use App\Domain\Export\Excel\AboutSheet;
 use App\Domain\Export\Excel\DataSheet;
 use App\Domain\Export\Excel\Workbook;
 use App\Domain\Export\Types\ExportType;
-use App\Domain\Reporting\DTOs\ReportFilter;
 use App\Support\Export\SpreadsheetCell;
 use Closure;
 use Generator;
@@ -19,11 +19,13 @@ use RuntimeException;
 
 /**
  * Writes an export to the private exports disk (SECURITY.md §7), chunk by chunk, telling the
- * caller how many rows are written after each chunk (the progress). CSV: UTF-8 with a byte-order
- * mark, so spreadsheets read names like Jema'a right, and any text a spreadsheet would read as a
- * formula prefixed with an apostrophe. Excel: the data sheet, then "About this export" (the
- * metadata, including whether assessor and source details are in it), every text cell written
- * as text.
+ * caller how many rows are written after each chunk (the progress).
+ *
+ * CSV (RFC 4180): UTF-8 with a byte-order mark, so spreadsheets read names like Jema'a and
+ * accented or Hausa names right; every field quoted when it holds a comma, quote or line break,
+ * quotes doubled, CRLF line ends; text a spreadsheet would read as a formula (= + - @ at the
+ * start) prefixed with an apostrophe. Excel: the formatted data sheet, then "About this file",
+ * every text cell written as text.
  */
 final class ExportWriter
 {
@@ -34,11 +36,12 @@ final class ExportWriter
     ) {}
 
     /**
+     * @param  array<string, mixed>  $filter
      * @param  Closure(int): void  $progress  rows written so far, after each chunk
-     * @param  Closure(int): list<array{0: string, 1: string|int}>  $about  the metadata, given the final row count
+     * @param  Closure(int): list<array{0: string, 1: string|int}>  $about  "About this file", given the final row count
      * @return int rows written
      */
-    public function write(ExportType $type, ReportFilter $filter, bool $private, ExportFormat $format, string $path, int $chunk, Closure $progress, Closure $about): int
+    public function write(ExportType $type, array $filter, bool $private, ExportFormat $format, string $path, int $chunk, Closure $progress, Closure $about): int
     {
         $written = 0;
         $rows = function () use ($type, $filter, $private, $chunk, $progress, &$written): Generator {
@@ -50,12 +53,25 @@ final class ExportWriter
                 $progress($written);
             }
         };
+        $columns = $type->columns($filter, $private);
 
         if ($format === ExportFormat::Csv) {
-            $this->csv($type->headings($private), $rows, $path);
+            // A displayed score keeps its one decimal place in text, as on the dashboard ("85.0").
+            $displayed = array_keys(array_filter($columns, fn (Column $column): bool => $column->kind === ColumnKind::Displayed));
+            $csvRows = function () use ($rows, $displayed): Generator {
+                foreach ($rows() as $row) {
+                    foreach ($displayed as $i) {
+                        if (is_float($row[$i] ?? null) || is_int($row[$i] ?? null)) {
+                            $row[$i] = number_format((float) $row[$i], 1, '.', '');
+                        }
+                    }
+                    yield $row;
+                }
+            };
+            $this->csv(array_map(fn (Column $column): string => $column->heading, $columns), $csvRows, $path);
         } else {
             $this->excel->store(new Workbook(
-                new DataSheet((string) __('exports.sheets.data'), $type->headings($private), $rows),
+                new DataSheet((string) __('exports.sheets.data'), $columns, $rows),
                 new AboutSheet((string) __('exports.sheets.about'), function () use ($about, &$written): array {
                     return $about($written);
                 }),
@@ -77,14 +93,25 @@ final class ExportWriter
         }
         try {
             fwrite($handle, "\u{FEFF}");
-            fputcsv($handle, $headings, escape: '');
+            self::line($handle, $headings);
             foreach ($rows() as $row) {
-                fputcsv($handle, array_map(fn (string|int|float|null $cell): string|int|float|null => is_string($cell) ? SpreadsheetCell::safe($cell) : $cell, $row), escape: '');
+                self::line($handle, $row);
             }
             rewind($handle);
             Storage::disk(self::DISK)->writeStream($path, $handle);
         } finally {
             fclose($handle);
         }
+    }
+
+    /**
+     * One RFC 4180 record: quoted where needed, quotes doubled, no backslash escaping, CRLF.
+     *
+     * @param  resource  $handle
+     * @param  list<string|int|float|null>  $cells
+     */
+    private static function line($handle, array $cells): void
+    {
+        fputcsv($handle, array_map(fn (string|int|float|null $cell): string|int|float|null => is_string($cell) ? SpreadsheetCell::safe($cell) : $cell, $cells), ',', '"', '', "\r\n");
     }
 }

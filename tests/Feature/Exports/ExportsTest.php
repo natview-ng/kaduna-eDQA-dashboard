@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Tests\Support\ReportingFixture;
+use Tests\Support\Rows;
 
 // Phase 6 step 0 (D-96): queued exports. Asked for from the admin area, written on the exports
 // queue in chunks, downloaded through a signed link (30 minutes) by a signed-in administrator,
@@ -71,9 +72,9 @@ function exportAudit(string $event): ?array
 }
 
 it('refuses guests: no export can be asked for, followed or downloaded signed out', function (): void {
-    $export = Export::query()->create(['type' => 'assessments', 'filter' => (object) [], 'options' => ['format' => 'csv', 'include_private' => false], 'requested_by' => $this->admin->id]);
+    $export = Export::query()->create(['type' => 'facility_scores', 'filter' => (object) [], 'options' => ['format' => 'csv', 'include_private' => false], 'requested_by' => $this->admin->id]);
 
-    $this->postJson('/admin/api/exports', ['type' => 'assessments', 'format' => 'csv'])->assertUnauthorized();
+    $this->postJson('/admin/api/exports', ['type' => 'facility_scores', 'format' => 'csv'])->assertUnauthorized();
     $this->getJson("/admin/api/exports/{$export->id}")->assertUnauthorized();
     $this->get(URL::temporarySignedRoute('admin.exports.download', now()->addMinutes(30), ['export' => $export->id], absolute: false))->assertRedirect('/login');
     expect(Export::query()->count())->toBe(1);
@@ -82,61 +83,65 @@ it('refuses guests: no export can be asked for, followed or downloaded signed ou
 it('queues the export on the exports queue and writes nothing in the request', function (): void {
     Queue::fake();
 
-    $export = requestTestExport(['type' => 'assessments', 'format' => 'csv', 'filter' => Q2_2026]);
+    $export = requestTestExport(['type' => 'facility_scores', 'format' => 'csv', 'filter' => Q2_2026]);
 
     Queue::assertPushedOn('exports', GenerateExportJob::class, fn (GenerateExportJob $job): bool => $job->exportId === $export->id);
     expect($export->status)->toBe(ExportStatus::Queued)
         ->and($export->progress)->toBe(0)
-        ->and($export->filter)->toBe(Q2_2026)
+        ->and($export->filter)->toEqual([...Q2_2026, 'metric' => 'overall'])
         ->and($export->options)->toBe(['format' => 'csv', 'include_private' => false])
         ->and(Storage::disk('exports')->allFiles())->toBe([]);
 });
 
-it('writes the default columns only: no assessor, device, visit GPS or attachment links', function (): void {
+it('writes the export, its expiry and its file name; the default never carries assessor, device, visit GPS or source details', function (): void {
     Queue::fake();
-    $export = runTestExport(requestTestExport(['type' => 'assessments', 'format' => 'csv', 'filter' => Q2_2026]));
+    $export = runTestExport(requestTestExport(['type' => 'facility_scores', 'format' => 'csv', 'filter' => Q2_2026]));
 
     expect($export->status)->toBe(ExportStatus::Done)
         ->and($export->row_count)->toBe(7)
         ->and($export->progress)->toBe(100)
         ->and($export->expires_at?->isSameDay(now()->addDays(7)))->toBeTrue()
-        ->and(basename((string) $export->path))->toMatch('/^assessments-\d{8}-\d{4}\.csv$/');
+        ->and(basename((string) $export->path))->toMatch('/^facility_scores-\d{8}-\d{4}\.csv$/');
 
     $rows = exportCsvRows($export);
-    expect($rows[0])->toBe(['Round', 'LGA code', 'LGA', 'Ward', 'Facility code', 'Facility', 'Level', 'Ownership', 'Source', 'Visit date', 'Status', 'Availability', 'Consistency', 'Validity', 'Overall', 'Band'])
-        ->and($rows)->toHaveCount(8);
-    $f3 = collect($rows)->first(fn (array $row): bool => $row[4] === 'KD-F3');
-    // F3: availability (95 + 85 + 75) / 3 = 85, overall (85 + 90 + 85) / 3 = 86.67, shown as on the dashboard.
-    expect($f3)->toBe(['Q2 2026', 'AAA', 'Alpha', 'Ward F3', 'KD-F3', 'Facility F3', 'Secondary', 'Public', 'ODK Central', '2026-05-02', 'Accepted', '85', '90', '85', '86.7', 'Acceptable']);
-
+    expect($rows)->toHaveCount(8)->and($rows[0])->not->toContain('Assessor', 'Device ID', 'Instance ID');
     $content = (string) Storage::disk('exports')->get((string) $export->path);
     expect($content)->not->toContain('MARKER-ASSESSOR')->not->toContain('MARKER-DEVICE')->not->toContain('10.5123')->not->toContain('uuid:');
 });
 
 it('adds assessor and source details only when asked, and says so in the audit entry and the file', function (): void {
     Queue::fake();
-    $export = runTestExport(requestTestExport(['type' => 'assessments', 'format' => 'xlsx', 'include_private' => true, 'filter' => Q2_2026]));
+    $assessment = (int) DB::table('assessments')->where('round_id', $this->f->q2)->value('id');
+    Rows::itemResponse(['assessment_id' => $assessment, 'dimension' => 'availability', 'month_slot' => 1, 'item_code' => 'register', 'value' => 'yes']);
+    $export = runTestExport(requestTestExport(['type' => 'item_responses', 'format' => 'xlsx', 'include_private' => true, 'filter' => Q2_2026]));
 
-    expect(basename((string) $export->path))->toMatch('/^assessments-\d{8}-\d{4}-with-assessor-details\.xlsx$/');
+    expect(basename((string) $export->path))->toMatch('/^item_responses-\d{8}-\d{4}-with-assessor-details\.xlsx$/');
     $book = IOFactory::load(Storage::disk('exports')->path((string) $export->path));
     $data = $book->getSheetByName('Data')?->toArray(null, true, false);
     expect($data[0])->toContain('Assessor', 'Device ID', 'Visit latitude', 'Visit longitude', 'Instance ID', 'Link at source', 'Attachment links')
         ->and(collect($data)->flatten()->all())->toContain('MARKER-ASSESSOR Zainab Lawal', 'MARKER-DEVICE-77', 10.5123, 7.4321);
 
-    $about = collect($book->getSheetByName('About this export')?->toArray(null, true, false))->mapWithKeys(fn (array $row): array => [(string) $row[0] => $row[1]]);
-    expect($about['Assessor and source details'])->toStartWith('Included')
-        ->and($about['Rows'])->toBe(7)
-        ->and($about['Requested by'])->toBe('Hauwa Bello')
+    $about = collect($book->getSheetByName('About this file')?->toArray(null, true, false))->mapWithKeys(fn (array $row): array => [(string) $row[0] => $row[1]]);
+    expect($about['Personal details'])->toStartWith('Included')
+        ->and($about['Rows'])->toBe(1)
+        ->and($about['Generated by'])->toBe('Hauwa Bello')
         ->and($about['Filters'])->toBe('Year 2026 · Q2');
 
-    expect(exportAudit('export_requested'))->toMatchArray(['attributes' => ['type' => 'assessments', 'format' => 'xlsx', 'include_private' => true, 'filter' => Q2_2026]])
-        ->and(exportAudit('export_completed')['attributes'])->toMatchArray(['rows' => 7, 'include_private' => true]);
+    expect(exportAudit('export_requested'))->toMatchArray(['attributes' => ['type' => 'item_responses', 'format' => 'xlsx', 'include_private' => true, 'filter' => Q2_2026]])
+        ->and(exportAudit('export_completed')['attributes'])->toMatchArray(['rows' => 1, 'include_private' => true]);
     expect(DB::table('activity_log')->where('event', 'export_requested')->value('causer_id'))->toBe($this->admin->id);
+});
+
+it('refuses the privacy option for a type that has no personal details', function (): void {
+    Queue::fake();
+    $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'lga_table', 'format' => 'csv', 'include_private' => true])
+        ->assertStatus(409)->assertJsonPath('code', 'private_not_offered');
+    expect(Export::query()->count())->toBe(0);
 });
 
 it('records a request without the option as not including details', function (): void {
     Queue::fake();
-    requestTestExport(['type' => 'assessments', 'format' => 'csv']);
+    requestTestExport(['type' => 'facility_scores', 'format' => 'csv']);
 
     expect(exportAudit('export_requested')['attributes']['include_private'])->toBeFalse();
 });
@@ -144,7 +149,7 @@ it('records a request without the option as not including details', function ():
 it('keeps the progress on the row while it writes, chunk by chunk', function (): void {
     Queue::fake();
     config(['edqa.exports.chunk_rows' => 2]);
-    $export = requestTestExport(['type' => 'assessments', 'format' => 'csv', 'filter' => Q2_2026]);
+    $export = requestTestExport(['type' => 'facility_scores', 'format' => 'csv', 'filter' => Q2_2026]);
     $seen = [];
     Event::listen('eloquent.updated: '.Export::class, function (Export $updated) use (&$seen): void {
         $seen[] = [$updated->status->value, $updated->progress];
@@ -158,7 +163,7 @@ it('keeps the progress on the row while it writes, chunk by chunk', function ():
 
 it('answers the progress, and once done a signed link that works 30 minutes', function (): void {
     Queue::fake();
-    $export = requestTestExport(['type' => 'assessments', 'format' => 'csv', 'filter' => Q2_2026]);
+    $export = requestTestExport(['type' => 'facility_scores', 'format' => 'csv', 'filter' => Q2_2026]);
     $this->actingAs($this->admin)->getJson("/admin/api/exports/{$export->id}")->assertOk()
         ->assertJsonPath('data.status', 'queued')->assertJsonPath('data.status_label', 'Waiting to start')->assertJsonPath('data.url', null);
 
@@ -182,7 +187,7 @@ it('answers the progress, and once done a signed link that works 30 minutes', fu
 
 it('needs a signed-in administrator even with a valid signed link', function (): void {
     Queue::fake();
-    $export = runTestExport(requestTestExport(['type' => 'assessments', 'format' => 'csv']));
+    $export = runTestExport(requestTestExport(['type' => 'facility_scores', 'format' => 'csv']));
     $url = URL::temporarySignedRoute('admin.exports.download', now()->addMinutes(30), ['export' => $export->id], absolute: false);
 
     auth()->logout();
@@ -190,7 +195,7 @@ it('needs a signed-in administrator even with a valid signed link', function ():
 });
 
 it('marks a failed export with a plain message and keeps no partial file', function (): void {
-    $export = Export::query()->create(['type' => 'assessments', 'filter' => ['lga' => 'NOT-AN-LGA'], 'options' => ['format' => 'csv', 'include_private' => false], 'requested_by' => $this->admin->id]);
+    $export = Export::query()->create(['type' => 'facility_scores', 'filter' => ['lga' => 'NOT-AN-LGA'], 'options' => ['format' => 'csv', 'include_private' => false], 'requested_by' => $this->admin->id]);
 
     $export = runTestExport($export);
 
@@ -204,17 +209,17 @@ it('marks a failed export with a plain message and keeps no partial file', funct
 it('refuses an unknown type or format, and a download of an export not ready', function (): void {
     Queue::fake();
     $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'payloads', 'format' => 'csv'])->assertUnprocessable()->assertJsonValidationErrors('type');
-    $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'assessments', 'format' => 'pdf'])->assertUnprocessable()->assertJsonValidationErrors('format');
+    $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'facility_scores', 'format' => 'pdf'])->assertUnprocessable()->assertJsonValidationErrors('format');
 
-    $export = requestTestExport(['type' => 'assessments', 'format' => 'csv']);
+    $export = requestTestExport(['type' => 'facility_scores', 'format' => 'csv']);
     $this->actingAs($this->admin)->get(URL::temporarySignedRoute('admin.exports.download', now()->addMinutes(30), ['export' => $export->id], absolute: false))
         ->assertStatus(409)->assertJsonPath('code', 'not_ready');
 });
 
 it('deletes files older than 7 days and marks them expired, daily, audited', function (): void {
     Queue::fake();
-    $old = runTestExport(requestTestExport(['type' => 'assessments', 'format' => 'csv']));
-    $fresh = runTestExport(requestTestExport(['type' => 'assessments', 'format' => 'csv']));
+    $old = runTestExport(requestTestExport(['type' => 'facility_scores', 'format' => 'csv']));
+    $fresh = runTestExport(requestTestExport(['type' => 'facility_scores', 'format' => 'csv']));
     $old->update(['expires_at' => now()->subMinute()]);
 
     expect(app(ExpireExports::class)->execute())->toBe(1);
@@ -236,7 +241,7 @@ it('deletes files older than 7 days and marks them expired, daily, audited', fun
 
 it('expires a done export written more than 7 days ago even without an expiry date', function (): void {
     Queue::fake();
-    $export = runTestExport(requestTestExport(['type' => 'assessments', 'format' => 'csv']));
+    $export = runTestExport(requestTestExport(['type' => 'facility_scores', 'format' => 'csv']));
     $export->forceFill(['expires_at' => null])->save();
     CarbonImmutable::setTestNow(now()->addDays(8));
 
@@ -248,11 +253,11 @@ it('expires a done export written more than 7 days ago even without an expiry da
 it('allows 10 exports a minute per administrator', function (): void {
     Queue::fake();
     foreach (range(1, 10) as $_) {
-        $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'assessments', 'format' => 'csv'])->assertStatus(202);
+        $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'facility_scores', 'format' => 'csv'])->assertStatus(202);
     }
-    $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'assessments', 'format' => 'csv'])->assertStatus(429);
+    $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'facility_scores', 'format' => 'csv'])->assertStatus(429);
 
     // Another administrator has their own ten.
     $other = activity()->withoutLogs(fn () => User::factory()->create());
-    $this->actingAs($other)->postJson('/admin/api/exports', ['type' => 'assessments', 'format' => 'csv'])->assertStatus(202);
+    $this->actingAs($other)->postJson('/admin/api/exports', ['type' => 'facility_scores', 'format' => 'csv'])->assertStatus(202);
 });

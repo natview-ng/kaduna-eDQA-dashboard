@@ -4,32 +4,56 @@ declare(strict_types=1);
 
 namespace App\Domain\Export\Types;
 
-use App\Domain\Reporting\DTOs\ReportFilter;
+use App\Domain\Export\Support\Column;
+use Illuminate\Validation\ValidationException;
 
 /**
- * One kind of export (Phase 6 step 0, D-96): what it holds for a dashboard filter, as rows of
- * plain cells. Figures come from Reporting (every aggregate is computed there, hard rule 5); the
- * private columns (assessor, device, visit GPS, source details and attachment links) are added
- * only when the requester chose "Include assessor and source details", and only by a type that
- * offers them.
+ * One kind of export (Phase 6 steps 0–1, D-96, D-97). Each mirrors a page and reads its numbers
+ * from that page's own aggregator or query, never from SQL of its own. The filter is the page's:
+ * the dashboard's (year, quarter, month, LGA, level, owner, for the admin audience) for the report
+ * types, the page's own for data issues, pull history and the audit log.
  */
 interface ExportType
 {
-    /** The key asked for in POST /admin/api/exports: "assessments". */
+    /** The key asked for in POST /admin/api/exports: "facility_scores". */
     public function key(): string;
 
-    /** Whether the "Include assessor and source details" option applies to this type. */
+    /** Whether "Include assessor and source details" applies to this type. */
     public function offersPrivate(): bool;
 
-    /** @return list<string> the column headings, in order */
-    public function headings(bool $private): array;
-
-    public function count(ReportFilter $filter): int;
+    /**
+     * The filter as asked for, checked and in its stored form.
+     *
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     *
+     * @throws ValidationException
+     */
+    public function filter(array $input): array;
 
     /**
-     * The rows in chunks of about $size, each row one cell per heading.
+     * @param  array<string, mixed>  $filter
+     * @return list<Column>
+     */
+    public function columns(array $filter, bool $private): array;
+
+    /** @param  array<string, mixed>  $filter */
+    public function count(array $filter): int;
+
+    /**
+     * The rows in chunks of about $size, one cell per column.
      *
+     * @param  array<string, mixed>  $filter
      * @return iterable<list<list<string|int|float|null>>>
      */
-    public function chunks(ReportFilter $filter, bool $private, int $size): iterable;
+    public function chunks(array $filter, bool $private, int $size): iterable;
+
+    /**
+     * Lines for "About this file" that belong to this type: its filter in words, the rule
+     * versions read.
+     *
+     * @param  array<string, mixed>  $filter
+     * @return list<array{0: string, 1: string}>
+     */
+    public function describe(array $filter): array;
 }

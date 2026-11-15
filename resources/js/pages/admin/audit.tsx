@@ -2,12 +2,12 @@ import { router } from '@inertiajs/react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useAnnounce } from '@/components/Announcer';
 import AuditLogTable, { type AuditEntry } from '@/components/AuditLogTable';
+import ExportButton from '@/components/ExportButton';
 import Labelled from '@/components/Labelled';
 import Panel from '@/components/Panel';
 import PanelHeader from '@/components/PanelHeader';
-import { formatCount, formatDateTime } from '@/lib/format';
-import { useTranslate, useTranslationList } from '@/lib/i18n';
-import { useApiAction } from '@/lib/useApiAction';
+import { formatCount } from '@/lib/format';
+import { useTranslate } from '@/lib/i18n';
 import type { Paginated } from '@/types/admin';
 
 export type AuditFilters = { actor: number | null; type: string | null; source: string | null; event: string | null; from: string | null; to: string | null; q: string | null; page: number };
@@ -19,27 +19,21 @@ export type AdminAuditProps = {
     events: string[];
     types: string[];
     sources: { key: string; name: string }[];
-    exports: { file: string; rows: number; at: string; url: string }[];
 };
-
-type ExportResult = { queued: boolean; file?: string; rows?: number; url?: string };
 
 const DEBOUNCE_MS = 300;
 
 /**
  * The Audit log page (SECURITY.md §4, Phase 5 step 7, D-93): every audited write and sign-in
  * event, filtered on the server (who, subject, source, event, dates, reason), 50 a page. Read
- * only: nothing can be changed or removed, and viewing is not recorded. Export writes a CSV of the
- * filtered entries (queued over 5,000 rows); every export is audited.
+ * only: nothing can be changed or removed, and viewing is not recorded. Export goes through the export
+ * plumbing (Phase 6 step 1): the filtered entries as CSV or Excel, queued, every export audited.
  */
-export default function AdminAudit({ entries, auditFilters: filters, actors, events, types, sources, exports }: AdminAuditProps) {
+export default function AdminAudit({ entries, auditFilters: filters, actors, events, types, sources }: AdminAuditProps) {
     const t = useTranslate();
     const announce = useAnnounce();
-    const months = useTranslationList('common.months_short');
     const ids = { actor: useId(), type: useId(), source: useId(), event: useId(), from: useId(), to: useId(), q: useId() };
-    const api = useApiAction<{ data: ExportResult }>();
     const [q, setQ] = useState(filters.q ?? '');
-    const [result, setResult] = useState<ExportResult | null>(null);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const anySet = [filters.actor, filters.type, filters.source, filters.event, filters.from, filters.to, filters.q].some((value) => value !== null && value !== '');
 
@@ -72,17 +66,8 @@ export default function AdminAudit({ entries, auditFilters: filters, actors, eve
         return label === `admin.audit.events.${event}` ? event : label;
     };
 
-    const exportCsv = async () => {
-        setResult(null);
-        const body = Object.fromEntries(Object.entries(filters).filter(([key, value]) => key !== 'page' && value !== null && value !== ''));
-        const response = await api.run('POST', '/admin/api/audit/export', body);
-        if (response.ok) {
-            setResult(response.data.data);
-            if (!response.data.data.queued) {
-                router.reload({ only: ['exports'] });
-            }
-        }
-    };
+    // The export takes the filters in view, by the page's URL names; never the page number.
+    const exportFilter = Object.fromEntries(Object.entries(filters).filter(([key]) => key !== 'page')) as Record<string, string | number | null>;
     const all = <option value="">{t('admin.audit.filters.all')}</option>;
 
     return (
@@ -161,60 +146,9 @@ export default function AdminAudit({ entries, auditFilters: filters, actors, eve
             </Panel>
 
             <Panel labelledBy="audit-export-title">
-                <PanelHeader
-                    id="audit-export-title"
-                    title={t('admin.audit.export.title')}
-                    description={t('admin.audit.export.description')}
-                    actions={
-                        <button type="button" className="btn btn-secondary self-center" disabled={api.pending} onClick={() => void exportCsv()}>
-                            {api.pending ? t('admin.audit.export.working') : t('admin.audit.export.button')}
-                        </button>
-                    }
-                />
-                <div className="flex flex-col gap-3 px-5 pt-2 pb-5 text-sm">
-                    {api.error !== null && (
-                        <p role="alert" className="notice notice-bad text-bad">
-                            {api.error}
-                        </p>
-                    )}
-                    {result !== null && (
-                        <div role="status" className="notice notice-ok">
-                            {result.queued ? (
-                                <p>{t('admin.audit.export.queued')}</p>
-                            ) : (
-                                <>
-                                    <p>{t('admin.audit.export.ready', { rows: formatCount(result.rows ?? 0) })}</p>
-                                    {result.url !== undefined && (
-                                        <a href={result.url} className="font-medium text-deep underline underline-offset-2">
-                                            {t('admin.audit.export.download', { file: result.file ?? '' })}
-                                        </a>
-                                    )}
-                                </>
-                            )}
-                        </div>
-                    )}
-                    <section aria-labelledby="audit-exports-recent">
-                        <h3 id="audit-exports-recent" className="font-semibold">
-                            {t('admin.audit.export.recent')}
-                        </h3>
-                        {exports.length === 0 ? (
-                            <p className="mt-1 text-ink-2">{t('admin.audit.export.none')}</p>
-                        ) : (
-                            <>
-                                <ul className="mt-1 flex flex-col gap-1">
-                                    {exports.map((file) => (
-                                        <li key={file.file}>
-                                            <a href={file.url} className="text-deep underline underline-offset-2">
-                                                {t('admin.audit.export.recent_item', { file: file.file, rows: formatCount(file.rows) })}
-                                            </a>
-                                            <span className="ml-2 text-xs text-ink-2">{months.length === 12 ? formatDateTime(file.at, months) : file.at}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                                <p className="mt-1 text-xs text-ink-2">{t('admin.audit.export.expiry')}</p>
-                            </>
-                        )}
-                    </section>
+                <PanelHeader id="audit-export-title" title={t('admin.audit.export.title')} description={t('admin.audit.export.description')} />
+                <div className="px-5 pt-2 pb-5">
+                    <ExportButton types={[{ key: 'audit_log', offersPrivate: false }]} filter={exportFilter} />
                 </div>
             </Panel>
         </div>

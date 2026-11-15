@@ -12,12 +12,13 @@ use Illuminate\Support\Facades\Storage;
 use Tests\Support\ReportingFixture;
 use Tests\Support\Rows;
 
-// ARCHITECTURE.md §10: a 10,000-row CSV export in under 30 s, queued with progress (Phase 6 step 0).
+// ARCHITECTURE.md §10: a 10,000-row CSV export in under 30 s, queued with progress: the facility
+// scores export, every page of the Facility view (Phase 6 step 1).
 // Run with `make test-slow`; the default suite leaves the slow group out.
 
 const EXPORT_PERF_ROWS = 10_000;
 
-it('writes a 10,000-row CSV export in under 30 seconds', function (): void {
+it('writes a 10,000-row facility scores export in under 30 seconds', function (): void {
     $this->seed(LgaSeeder::class);
     $f = ReportingFixture::build();
     Storage::fake('exports');
@@ -52,14 +53,14 @@ it('writes a 10,000-row CSV export in under 30 seconds', function (): void {
     DB::statement('ANALYZE facilities, assessments, assessment_scores');
 
     $admin = activity()->withoutLogs(fn () => User::factory()->create());
-    $export = Export::query()->create(['type' => 'assessments', 'filter' => ['year' => 2026, 'quarter' => 2], 'options' => ['format' => 'csv', 'include_private' => false], 'requested_by' => $admin->id]);
+    $export = Export::query()->create(['type' => 'facility_scores', 'filter' => ['year' => 2026, 'quarter' => 2, 'metric' => 'overall'], 'options' => ['format' => 'csv', 'include_private' => false], 'requested_by' => $admin->id]);
 
     $started = hrtime(true);
     app(GenerateExport::class)->execute($export->id);
     $seconds = (hrtime(true) - $started) / 1e9;
     $export->refresh();
 
-    fwrite(STDERR, sprintf("\n  Export of %d rows as CSV: %.1f s\n", (int) $export->row_count, $seconds));
+    fwrite(STDERR, sprintf("\n  Facility scores export of %d rows as CSV: %.1f s\n", (int) $export->row_count, $seconds));
 
     expect($export->status)->toBe(ExportStatus::Done)
         ->and($export->row_count)->toBe(EXPORT_PERF_ROWS + 7)

@@ -17,7 +17,7 @@ const translations = {
     },
     admin: {
         exports: {
-            button: 'Export…', format: 'Format', formats: { csv: 'CSV', xlsx: 'Excel' },
+            button: 'Export…', what: 'What to export', types: { facility_scores: 'Facility scores', item_responses: 'Item responses', lga_table: 'LGA table' }, format: 'Format', formats: { csv: 'CSV', xlsx: 'Excel' },
             private: 'Include assessor and source details', private_help: 'Adds assessor names, device IDs, visit GPS, source links and attachment links.',
             start: 'Start export', starting: 'Starting…', progress: 'Export', percent: ':progress% done', download: 'Download :file', expiry: 'The link works for 30 minutes.',
         },
@@ -46,7 +46,7 @@ const filter = { year: 2026, quarter: 2, month: null, lga: 'ZAR', level: null, o
 describe('ExportButton', () => {
     it('asks for the export with the format, the privacy option and the filter in view, then offers the download', async () => {
         const fetch = stubFetch({ status: 202, body: { data: { export_id: 5 } } });
-        const { container } = renderUi(<ExportButton type="assessments" filter={filter} offersPrivate />, translations);
+        const { container } = renderUi(<ExportButton types={[{ key: 'item_responses', offersPrivate: true }]} filter={filter} />, translations);
         const toggle = screen.getByRole('button', { name: 'Export…' });
 
         await userEvent.click(toggle);
@@ -63,7 +63,7 @@ describe('ExportButton', () => {
 
         const post = fetch.mock.calls.find(([, init]) => init?.method === 'POST');
         expect(post?.[0]).toBe('/admin/api/exports');
-        expect(JSON.parse(String(post?.[1]?.body))).toEqual({ type: 'assessments', format: 'xlsx', include_private: true, filter: { year: 2026, quarter: 2, lga: 'ZAR' } });
+        expect(JSON.parse(String(post?.[1]?.body))).toEqual({ type: 'item_responses', format: 'xlsx', include_private: true, filter: { year: 2026, quarter: 2, lga: 'ZAR' } });
 
         const link = await screen.findByRole('link', { name: 'Download assessments-20261115-0930.csv' });
         expect(link.getAttribute('href')).toBe(done.url);
@@ -73,7 +73,7 @@ describe('ExportButton', () => {
 
     it('never sends the privacy option for a type that has none, and shows no checkbox', async () => {
         const fetch = stubFetch({ status: 202, body: { data: { export_id: 5 } } });
-        renderUi(<ExportButton type="plan" filter={filter} offersPrivate={false} />, translations);
+        renderUi(<ExportButton types={[{ key: 'lga_table', offersPrivate: false }]} filter={filter} />, translations);
 
         await userEvent.click(screen.getByRole('button', { name: 'Export…' }));
         expect(screen.queryByRole('checkbox')).toBeNull();
@@ -84,9 +84,28 @@ describe('ExportButton', () => {
         expect(JSON.parse(String(post?.[1]?.body)).include_private).toBe(false);
     });
 
+    it('offers a choice when a page has several exports, and the privacy option only for the type that has one', async () => {
+        const fetch = stubFetch({ status: 202, body: { data: { export_id: 5 } } });
+        renderUi(<ExportButton types={[{ key: 'facility_scores', offersPrivate: false }, { key: 'item_responses', offersPrivate: true }]} filter={filter} />, translations);
+
+        await userEvent.click(screen.getByRole('button', { name: 'Export…' }));
+        expect(screen.getByRole('group', { name: 'What to export' })).toBeTruthy();
+        expect((screen.getByRole('radio', { name: 'Facility scores' }) as HTMLInputElement).checked).toBe(true);
+        expect(screen.queryByRole('checkbox')).toBeNull();
+
+        await userEvent.click(screen.getByRole('radio', { name: 'Item responses' }));
+        expect(screen.getByRole('checkbox', { name: 'Include assessor and source details' })).toBeTruthy();
+        await userEvent.click(screen.getByRole('radio', { name: 'Facility scores' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Start export' }));
+
+        await waitFor(() => expect(fetch).toHaveBeenCalled());
+        const post = fetch.mock.calls.find(([, init]) => init?.method === 'POST');
+        expect(JSON.parse(String(post?.[1]?.body))).toMatchObject({ type: 'facility_scores', include_private: false });
+    });
+
     it('says why an export was refused, in words, and stays on the form', async () => {
         stubFetch({ status: 429, body: { message: 'Too Many Attempts.' } });
-        renderUi(<ExportButton type="assessments" filter={filter} offersPrivate />, translations);
+        renderUi(<ExportButton types={[{ key: 'item_responses', offersPrivate: true }]} filter={filter} />, translations);
 
         await userEvent.click(screen.getByRole('button', { name: 'Export…' }));
         await userEvent.click(screen.getByRole('button', { name: 'Start export' }));

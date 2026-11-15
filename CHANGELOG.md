@@ -9,6 +9,32 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **CSV and Excel exports reconciled with the dashboard (Phase 6 step 1, D-97).** Seven exports,
+  each holding exactly what its page shows, from the same calculations:
+  - state summary, LGA table and facility scores (every page, the metric in view and all four);
+  - item responses (one row per facility, round, dimension, month and item);
+  - data issues, pull history and the audit log.
+
+  What the files contain:
+  - Every score appears three ways: at full precision, as displayed (one decimal place), and its
+    band.
+  - Open-round rows are marked "Provisional — round not closed".
+  - A source column (ODK Central or KoboToolbox) appears wherever submissions are involved.
+  - Excel files have a bold, frozen, filterable header row, number formats and column widths,
+    and an "About this file" sheet: filters, when and by whom, rule version, rounding,
+    aggregation, data sources, personal details, and that open-round figures are provisional.
+  - CSV files open correctly in Excel: UTF-8 with a byte-order mark, standard quoting, and cells
+    that would run as formulas made safe.
+
+  Where to find them:
+  - In the admin preview bar on each dashboard page, and on Data issues, Data sources and the
+    Audit log.
+
+  How they're checked:
+  - Tests compare every exported number with the page's own figure, for each type and five filter
+    combinations.
+  - A 10,000-row facility export takes about 9 seconds.
+
 - **Queued exports (Phase 6 step 0, D-96).** Administrators export the assessments in view from the
   admin preview bar, as CSV or Excel:
   - The export is prepared in the background (the `exports` queue). The page follows its progress
@@ -27,8 +53,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - **New dependency:** `maatwebsite/excel` 4.0, for Excel files.
-- The audit log export and the new exports share one rule for cells a spreadsheet would read as a
-  formula.
+- **Audit log export:** it now goes through the same export as everything else. CSV or Excel,
+  always prepared in the background, with a download link in the panel. The "Recent exports"
+  list and the direct `/admin/api/audit/export` route are gone.
+- The step-0 "assessments" export is replaced by facility scores and item responses.
+- Facility view: rows with the same score and name are now always listed in the same order.
 
 ## [0.8.0] - 2026-11-15
 

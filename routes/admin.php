@@ -8,7 +8,6 @@ use App\Http\Controllers\Admin\AdminFacilityListController;
 use App\Http\Controllers\Admin\AdminRoundsController;
 use App\Http\Controllers\Admin\AdminScoringRulesController;
 use App\Http\Controllers\Admin\AdminSourcesController;
-use App\Http\Controllers\Admin\AuditExportController;
 use App\Http\Controllers\Assessments\AssessmentStatusController;
 use App\Http\Controllers\Assessments\CorrectAssessmentController;
 use App\Http\Controllers\Attachments\ShowAttachmentController;
@@ -98,12 +97,6 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::get('pulls/{run}', PullRunController::class)->whereNumber('run')->name('pulls.show');
     Route::get('backfill-reports/{file}', BackfillReportDownloadController::class)
         ->middleware('signed')->where('file', '[A-Za-z0-9.-]+')->name('backfill-reports.show');
-
-    // The audit log as CSV (step 7): written (or queued over 5,000 rows), fetched through a signed
-    // link; both audited. No route changes or removes an audit entry.
-    Route::post('audit/export', [AuditExportController::class, 'store'])->middleware('throttle:6,1')->name('audit.export');
-    Route::get('audit/exports/{file}', [AuditExportController::class, 'download'])
-        ->middleware('signed')->where('file', '[A-Za-z0-9.-]+')->name('audit.exports.show');
 
     // Queued exports (Phase 6 step 0, D-96): asked for (10 a minute per administrator, SECURITY.md
     // §8), then followed to the end; written on the exports queue, never in the request.

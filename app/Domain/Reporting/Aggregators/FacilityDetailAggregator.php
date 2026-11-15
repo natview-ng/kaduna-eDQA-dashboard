@@ -14,6 +14,7 @@ use App\Domain\Reporting\DTOs\FacilityDetail;
 use App\Domain\Reporting\DTOs\ReportFilter;
 use App\Domain\Reporting\Queries\FacilityRoundOverallsQuery;
 use App\Domain\Reporting\Support\FacilityScoresSql;
+use App\Domain\Reporting\Support\ItemResult;
 use App\Domain\Reporting\Support\PublicScope;
 use App\Domain\Reporting\Support\RoundSelection;
 use App\Domain\Reporting\Support\Scores;
@@ -197,21 +198,14 @@ final class FacilityDetailAggregator
                 $items = $responses->filter(fn (ItemResponse $r): bool => $r->dimension === $dimension && $r->month_slot === $slot)
                     ->groupBy(fn (ItemResponse $r): string => (string) $r->item_code)
                     ->map(function (Collection $checks, string $code) use ($dimension, $slot, $rules): array {
-                        $results = $checks->map(fn (ItemResponse $r): ?string => self::result((string) $r->value, $r->is_applicable, $rules));
-                        $single = $checks->count() === 1;
-                        $passed = $results->filter(fn (?string $r): bool => $r === 'pass')->count();
+                        $item = ItemResult::ofChecks($checks->map(fn (ItemResponse $r): array => [(string) $r->value, (bool) $r->is_applicable])->values()->all(), $rules);
 
                         return [
                             'code' => $code,
                             'key' => ItemKey::make($dimension, $slot, $code),
-                            'label' => self::itemLabel($dimension, $code),
-                            'result' => match (true) {
-                                $single => $results->first(),
-                                $results->contains(null) => null,
-                                $results->every(fn (?string $r): bool => $r === 'na') => 'na',
-                                default => (string) $passed,
-                            },
-                            'checks' => $single ? null : ['passed' => $passed, 'total' => $checks->count()],
+                            'label' => ItemResult::label($dimension, $code),
+                            'result' => $item['result'],
+                            'checks' => $item['checks'],
                         ];
                     })->values()->all();
                 if ($items === []) {
@@ -230,25 +224,6 @@ final class FacilityDetailAggregator
         }
 
         return $groups;
-    }
-
-    private static function result(string $value, bool $applicable, ?RuleConfig $rules): ?string
-    {
-        if (! $applicable) {
-            return 'na';
-        }
-        $outcome = $rules?->outcome($value);
-
-        return in_array($outcome, ['pass', 'fail', 'na'], true) ? $outcome : null;
-    }
-
-    /** lang/en/items.php, when the form's labels are known (Q-02); null rather than the key. */
-    private static function itemLabel(Dimension $dimension, string $code): ?string
-    {
-        $key = "items.{$dimension->value}.{$code}";
-        $label = __($key);
-
-        return is_string($label) && $label !== $key ? $label : null;
     }
 
     /**

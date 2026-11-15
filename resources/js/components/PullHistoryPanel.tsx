@@ -6,6 +6,7 @@ import Panel from '@/components/Panel';
 import SourceTag from '@/components/SourceTag';
 import StateMark from '@/components/StateMark';
 
+import ExportButton from '@/components/ExportButton';
 import PanelHeader from '@/components/PanelHeader';
 import { formatCount, formatDateTime } from '@/lib/format';
 import { useTranslate, useTranslationList } from '@/lib/i18n';
@@ -79,6 +80,9 @@ export default function PullHistoryPanel({ history, filters, sources }: PullHist
     return (
         <Panel labelledBy="sources-history-title">
             <PanelHeader id="sources-history-title" title={t('admin.sources.history.title')} />
+            <div className="px-5 pb-2">
+                <ExportButton types={[{ key: 'pull_history', offersPrivate: false }]} filter={{ source: filters.source, trigger: filters.trigger, outcome: filters.outcome }} />
+            </div>
             <div className="flex flex-wrap gap-2 px-5 pt-1 pb-4">
                 <div className="field">
                     <label htmlFor={ids.source}>

@@ -40,10 +40,11 @@ const translations = {
                 empty: '(none)', diff_caption: 'Changes in entry :id', none: 'No entry matches these filters.', showing: 'Showing :from–:to of :total entries', showing_none: 'No entries', pages: 'Audit log pages',
             },
             events: { lockout: 'Lockout', facility_deactivated: 'Facility deactivated', 'login-failed': 'Failed login' },
-            export: {
-                title: 'Export', description: 'A CSV of the entries matching the filters.', button: 'Export CSV', working: 'Exporting…', ready: ':rows row(s) written.', download: 'Download :file',
-                queued: 'The export is being prepared: it will appear below when it is ready.', recent: 'Recent exports', recent_item: ':file (:rows rows)', expiry: 'The links work for 30 minutes.', none: 'No export yet.',
-            },
+            export: { title: 'Export', description: 'The entries matching the filters, as CSV or Excel.' },
+        },
+        exports: {
+            button: 'Export…', what: 'What to export', types: { audit_log: 'Audit log' }, format: 'Format', formats: { csv: 'CSV', xlsx: 'Excel' },
+            private: 'Include assessor and source details', private_help: 'Adds personal data.', start: 'Start export', starting: 'Starting…', progress: 'Export', percent: ':progress% done', download: 'Download :file', expiry: 'The link works for 30 minutes.',
         },
         account: {
             logins: { title: 'Your recent sign-ins', description: 'If you do not recognise one, change your password.', caption: 'Recent sign-ins', when: 'When (WAT)', browser: 'Browser', ip: 'Address (range)', new_device: 'New device', yes: 'Yes', no: 'No', unknown: 'Unknown', none: 'No sign-in recorded yet.' },
@@ -116,7 +117,7 @@ describe('AuditLogTable', () => {
 });
 
 describe('AdminAudit', () => {
-    const props = { entries: page(entries), auditFilters: filters, actors: [{ id: 3, name: 'Musa Garba' }], events: ['facility_deactivated', 'lockout'], types: ['facility', 'round', 'auth'], sources: [{ key: 'kobo', name: 'KoboToolbox' }], exports: [] };
+    const props = { entries: page(entries), auditFilters: filters, actors: [{ id: 3, name: 'Musa Garba' }], events: ['facility_deactivated', 'lockout'], types: ['facility', 'round', 'auth'], sources: [{ key: 'kobo', name: 'KoboToolbox' }] };
 
     it('filters on the server, keeping the filters in the URL', async () => {
         const { container } = renderUi(<AdminAudit {...props} />, translations);
@@ -130,19 +131,18 @@ describe('AdminAudit', () => {
         expect(await axeCheck(container)).toHaveNoViolations();
     });
 
-    it('exports the filtered entries and links the file, or says it is queued', async () => {
-        const fetch = stubFetch(() => ({ status: 201, body: { data: { queued: false, file: 'audit-log-20261110-080000-abcdef.csv', rows: 2, url: '/download' } } }));
-        renderUi(<AdminAudit {...props} auditFilters={{ ...filters, type: 'round' }} />, translations);
+    it('exports the filtered entries through the export plumbing, never the page number', async () => {
+        const fetch = stubFetch(() => ({ status: 202, body: { data: { export_id: 9 } } }));
+        renderUi(<AdminAudit {...props} auditFilters={{ ...filters, type: 'round', page: 3 }} />, translations);
 
-        await userEvent.click(screen.getByRole('button', { name: 'Export CSV' }));
+        await userEvent.click(screen.getByRole('button', { name: 'Export…' }));
+        expect(screen.queryByRole('checkbox')).toBeNull(); // no personal details to include
+        await userEvent.click(screen.getByRole('button', { name: 'Start export' }));
 
-        await waitFor(() => expect(screen.getByRole('status').textContent).toContain('2 row(s) written.'));
-        expect(screen.getByRole('link', { name: 'Download audit-log-20261110-080000-abcdef.csv' }).getAttribute('href')).toBe('/download');
-        expect(JSON.parse(String((fetch.mock.calls[0] as unknown as [string, RequestInit])[1].body))).toEqual({ type: 'round' });
-
-        stubFetch(() => ({ status: 202, body: { data: { queued: true } } }));
-        await userEvent.click(screen.getByRole('button', { name: 'Export CSV' }));
-        await waitFor(() => expect(screen.getByRole('status').textContent).toBe('The export is being prepared: it will appear below when it is ready.'));
+        await waitFor(() => expect(fetch).toHaveBeenCalled());
+        const [url, init] = fetch.mock.calls[0] as unknown as [string, RequestInit];
+        expect(url).toBe('/admin/api/exports');
+        expect(JSON.parse(String(init.body))).toEqual({ type: 'audit_log', format: 'csv', include_private: false, filter: { type: 'round' } });
     });
 });
 

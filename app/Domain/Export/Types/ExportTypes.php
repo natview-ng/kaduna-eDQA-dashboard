@@ -8,14 +8,21 @@ use App\Domain\Export\Exceptions\UnknownExportType;
 use Illuminate\Contracts\Container\Container;
 
 /**
- * The kinds of export there are (Phase 6 step 0). A new one is a class implementing ExportType,
- * listed here, with its strings in lang/en/exports.php.
+ * The kinds of export there are (Phase 6 steps 0–1). A new one is a class implementing ExportType
+ * that reads its page's own aggregator or query, listed here, with its strings in
+ * lang/en/exports.php.
  */
 final class ExportTypes
 {
     /** @var array<string, class-string<ExportType>> */
     private const TYPES = [
-        'assessments' => AssessmentsExport::class,
+        'state_summary' => StateSummaryExport::class,
+        'lga_table' => LgaTableExport::class,
+        'facility_scores' => FacilityScoresExport::class,
+        'item_responses' => ItemResponsesExport::class,
+        'data_issues' => DataIssuesExport::class,
+        'pull_history' => PullHistoryExport::class,
+        'audit_log' => AuditLogExport::class,
     ];
 
     public function __construct(

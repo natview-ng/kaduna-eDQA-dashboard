@@ -5,21 +5,32 @@ declare(strict_types=1);
 namespace App\Domain\Export\Support;
 
 use App\Domain\Export\Models\Export;
+use App\Domain\Export\Types\ExportType;
 use App\Domain\Facility\Enums\FacilityLevel;
 use App\Domain\Facility\Enums\Ownership;
+use App\Domain\Reporting\Enums\Metric;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The words that go with an export: its filter in plain language and the "About this export"
- * rows (Excel), including whether assessor and source details are in it.
+ * The words that go with an export: a dashboard filter in plain language, and the "About this file"
+ * sheet (Phase 6 step 1): what it is, its filters, when (WAT) and by whom it was generated, the
+ * rule versions, rounding mode, aggregation method, data sources, whether personal details are in
+ * it, and that open-round figures are provisional.
  */
 final class ExportDescription
 {
-    /** "Year 2026 · Q3 · LGA Zaria · Primary · Public", or "Latest round" with no filter. */
-    public static function filter(Export $export): string
+    public function __construct(
+        private readonly SourceNames $sources,
+    ) {}
+
+    /**
+     * "Year 2026 · Q3 · LGA Zaria · Primary · Public · Metric: Availability", or "Latest round".
+     *
+     * @param  array<string, mixed>  $filter
+     */
+    public static function reportFilter(array $filter): string
     {
-        $filter = $export->filter;
         $parts = [];
         if (isset($filter['year'])) {
             $parts[] = (string) __('exports.filter.year', ['year' => (int) $filter['year']]);
@@ -39,24 +50,36 @@ final class ExportDescription
         if (isset($filter['owner'])) {
             $parts[] = Ownership::from((string) $filter['owner'])->label();
         }
+        $where = $parts === [] ? (string) __('exports.filter.latest') : implode(' · ', $parts);
+        $metric = Metric::tryFrom(is_string($filter['metric'] ?? null) ? $filter['metric'] : '');
 
-        return $parts === [] ? (string) __('exports.filter.latest') : implode(' · ', $parts);
+        return $metric === null ? $where : $where.' · '.(string) __('exports.filter.metric', ['metric' => (string) __('exports.dimensions.'.$metric->value)]);
     }
 
     /** @return list<array{0: string, 1: string|int}> */
-    public static function about(Export $export, int $rows): array
+    public function about(Export $export, ExportType $type, int $rows): array
     {
         $requester = $export->requester()->value('name');
-        $at = ($export->created_at ?? CarbonImmutable::now())->setTimezone((string) config('app.timezone'));
+        $typeRows = $type->describe($export->filter);
+        $byLabel = [];
+        foreach ($typeRows as [$label, $value]) {
+            $byLabel[$label] = $value;
+        }
+        $filterLabel = (string) __('exports.about.filter');
+        $versionLabel = (string) __('exports.about.rule_version');
 
         return [
             [(string) __('exports.about.type'), (string) __("exports.types.{$export->type}.title")],
-            [(string) __('exports.about.filter'), self::filter($export)],
-            [(string) __('exports.about.requested_by'), is_string($requester) ? $requester : ''],
-            [(string) __('exports.about.requested_at'), $at->format('j M Y, H:i').' WAT'],
+            [$filterLabel, $byLabel[$filterLabel] ?? (string) __('exports.filter.all')],
+            [(string) __('exports.about.generated_at'), CarbonImmutable::now()->setTimezone((string) config('app.timezone'))->format('j M Y, H:i').' WAT'],
+            [(string) __('exports.about.generated_by'), is_string($requester) ? $requester : ''],
             [(string) __('exports.about.rows'), $rows],
+            [$versionLabel, $byLabel[$versionLabel] ?? (string) __('exports.about.not_applicable')],
+            [(string) __('exports.about.rounding'), (string) __('exports.about.rounding_modes.'.config('edqa.presentation.rounding'))],
+            [(string) __('exports.about.aggregation'), (string) __('exports.about.aggregation_methods.'.config('edqa.aggregation.weighting'))],
+            [(string) __('exports.about.sources'), $this->sources->configured()],
             [(string) __('exports.about.private'), (string) __($export->includesPrivate() ? 'exports.about.private_yes' : 'exports.about.private_no')],
-            [(string) __('exports.about.scores'), (string) __('exports.about.scores_note')],
+            [(string) __('exports.about.published'), (string) __('exports.about.published_line')],
         ];
     }
 }

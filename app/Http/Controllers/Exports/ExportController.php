@@ -30,7 +30,7 @@ final class ExportController extends Controller
 {
     public function store(StoreExportRequest $request, RequestExport $action): JsonResponse
     {
-        $export = $action->execute($request->string('type')->toString(), $request->reportFilter(), $request->exportFormat(), $request->includePrivate(), self::actor($request));
+        $export = $action->execute($request->string('type')->toString(), $request->exportFilter(), $request->exportFormat(), $request->includePrivate(), self::actor($request));
 
         return response()->json(['data' => ['export_id' => $export->id]], 202);
     }

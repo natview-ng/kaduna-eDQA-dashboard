@@ -8,6 +8,7 @@ import FlaggedTable from '@/components/FlaggedTable';
 import IssueBulkBar from '@/components/IssueBulkBar';
 import IssueFilters from '@/components/IssueFilters';
 import Panel from '@/components/Panel';
+import ExportButton from '@/components/ExportButton';
 import PanelHeader from '@/components/PanelHeader';
 import QuarantineTable from '@/components/QuarantineTable';
 import RuleSummary from '@/components/RuleSummary';
@@ -166,6 +167,11 @@ export default function AdminDataIssues({ issueFilters: filters, rules, records,
                     title={filters.tab === 'deleted' ? t('admin.issues.deleted.caption') : t(filters.tab === 'hard' ? 'admin.issues.tabs.hard' : 'admin.issues.tabs.soft')}
                 />
                 <IssueFilters filters={filters} rules={rules} lgas={lgas} rounds={rounds} sources={sources} onChange={visit} />
+                {filters.tab === 'hard' && (
+                    <div className="px-5 pb-3">
+                        <ExportButton types={[{ key: 'data_issues', offersPrivate: false }]} filter={{ state: filters.state, rule: filters.rule, lga: filters.lga, round: filters.round, source: filters.source }} />
+                    </div>
+                )}
 
                 {outcome !== null && (
                     <div role="status" className="notice notice-ok mx-5 mb-3">

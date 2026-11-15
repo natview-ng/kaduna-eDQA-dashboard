@@ -250,12 +250,6 @@ return [
         'rounding' => 'half_up',
     ],
 
-    // The Audit log page (Phase 5 step 7, D-93): an export of up to this many rows is written at
-    // once; a larger one is queued (exports queue) and listed on the page when ready.
-    'audit' => [
-        'export_sync_rows' => 5000,
-    ],
-
     // Queued exports (Phase 6 step 0, D-96): written on the exports queue in chunks of
     // chunk_rows, downloaded through a signed link that works link_minutes, and deleted with
     // their row marked expired retention_days after they were written (the daily job).
