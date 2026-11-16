@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Export\Excel;
 
 use App\Domain\Export\Support\Column;
+use Carbon\CarbonImmutable;
 use Closure;
 use Generator;
 use Maatwebsite\Excel\Concerns\FromGenerator;
@@ -15,6 +16,9 @@ use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 
 /**
  * The export's rows, streamed chunk by chunk from the export type, then formatted (Phase 6 step 1):
@@ -33,11 +37,27 @@ final class DataSheet implements FromGenerator, WithCustomValueBinder, WithEvent
         private readonly string $title,
         private readonly array $columns,
         private readonly Closure $rows,
+        /** @var array<int, list<string>> column index (0-based) => its choices */
+        private readonly array $dropdowns = [],
+        private readonly bool $printLandscape = false,
     ) {}
 
     public function generator(): Generator
     {
-        yield from ($this->rows)();
+        // A date column's Y-m-d text becomes a real Excel date, so its number format applies.
+        $dates = array_keys(array_filter($this->columns, fn (Column $column): bool => $column->kind->isDate()));
+        foreach (($this->rows)() as $row) {
+            foreach ($dates as $i) {
+                $value = $row[$i] ?? null;
+                if (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) === 1) {
+                    $date = CarbonImmutable::createFromFormat('!Y-m-d', $value, 'UTC');
+                    if ($date !== null) {
+                        $row[$i] = ExcelDate::PHPToExcel($date);
+                    }
+                }
+            }
+            yield $row;
+        }
     }
 
     /** @return list<string> */
@@ -72,6 +92,23 @@ final class DataSheet implements FromGenerator, WithCustomValueBinder, WithEvent
                     if ($format !== null && $rows >= 2) {
                         $sheet->getStyle("{$letter}2:{$letter}{$rows}")->getNumberFormat()->setFormatCode($format);
                     }
+                }
+                // A list Excel offers in each cell of the column, so a shared or printed plan is
+                // filled in with the portal's own words.
+                foreach ($this->dropdowns as $i => $choices) {
+                    $letter = Coordinate::stringFromColumnIndex($i + 1);
+                    $validation = new DataValidation;
+                    $validation->setType(DataValidation::TYPE_LIST)
+                        ->setErrorStyle(DataValidation::STYLE_STOP)
+                        ->setAllowBlank(true)
+                        ->setShowDropDown(true)
+                        ->setShowErrorMessage(true)
+                        ->setFormula1('"'.implode(',', $choices).'"');
+                    $sheet->setDataValidation("{$letter}2:{$letter}".max(2, $rows), $validation);
+                }
+                if ($this->printLandscape) {
+                    $sheet->getPageSetup()->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)->setPaperSize(PageSetup::PAPERSIZE_A4)
+                        ->setFitToWidth(1)->setFitToHeight(0)->setRowsToRepeatAtTopByStartAndEnd(1, 1);
                 }
             },
         ];

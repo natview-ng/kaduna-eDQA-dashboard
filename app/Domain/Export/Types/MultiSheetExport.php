@@ -16,5 +16,5 @@ interface MultiSheetExport extends ExportType
      * @param  array<string, mixed>  $filter
      * @return list<Sheet>
      */
-    public function sheets(array $filter): array;
+    public function sheets(array $filter, bool $private = false): array;
 }

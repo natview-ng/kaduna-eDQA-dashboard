@@ -17,7 +17,8 @@ const translations = {
     },
     admin: {
         exports: {
-            button: 'Export…', what: 'What to export', types: { facility_scores: 'Facility scores', item_responses: 'Item responses', lga_table: 'LGA table', backfill_report: 'Backfill report (Excel)' }, format: 'Format', only_format: 'Format: :format', formats: { csv: 'CSV', xlsx: 'Excel' },
+            button: 'Export…', what: 'What to export', types: { facility_scores: 'Facility scores', item_responses: 'Item responses', lga_table: 'LGA table', backfill_report: 'Backfill report (Excel)', workplan: 'Implementation workplan (Excel)' }, format: 'Format', only_format: 'Format: :format',
+            private_plan: 'Include private plan fields', private_plan_help: 'Adds each row\'s contact and notes.', formats: { csv: 'CSV', xlsx: 'Excel' },
             private: 'Include assessor and source details', private_help: 'Adds assessor names, device IDs, visit GPS, source links and attachment links.',
             start: 'Start export', starting: 'Starting…', progress: 'Export', percent: ':progress% done', download: 'Download :file', expiry: 'The link works for 30 minutes.',
         },
@@ -115,6 +116,27 @@ describe('ExportButton', () => {
         await waitFor(() => expect(fetch).toHaveBeenCalled());
         const post = fetch.mock.calls.find(([, init]) => init?.method === 'POST');
         expect(JSON.parse(String(post?.[1]?.body))).toEqual({ type: 'backfill_report', format: 'xlsx', include_private: false, filter: { source: 'kobo' } });
+    });
+
+    it('words the privacy option the type\'s own way: the workplan\'s private plan fields', async () => {
+        const fetch = stubFetch({ status: 202, body: { data: { export_id: 5 } } });
+        renderUi(
+            <ExportButton
+                types={[{ key: 'workplan', offersPrivate: true, formats: ['xlsx'], privateLabel: 'admin.exports.private_plan', privateHelp: 'admin.exports.private_plan_help' }]}
+                filter={{ round: 7 }}
+            />,
+            translations,
+        );
+
+        await userEvent.click(screen.getByRole('button', { name: 'Export…' }));
+        expect(screen.queryByRole('checkbox', { name: 'Include assessor and source details' })).toBeNull();
+        await userEvent.click(screen.getByRole('checkbox', { name: 'Include private plan fields' }));
+        expect(screen.getByText('Adds each row\'s contact and notes.')).toBeTruthy();
+        await userEvent.click(screen.getByRole('button', { name: 'Start export' }));
+
+        await waitFor(() => expect(fetch).toHaveBeenCalled());
+        const post = fetch.mock.calls.find(([, init]) => init?.method === 'POST');
+        expect(JSON.parse(String(post?.[1]?.body))).toEqual({ type: 'workplan', format: 'xlsx', include_private: true, filter: { round: 7 } });
     });
 
     it('says why an export was refused, in words, and stays on the form', async () => {

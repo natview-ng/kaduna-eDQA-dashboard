@@ -90,7 +90,8 @@ final class ExportDescription
             [(string) __('exports.about.rounding'), (string) __('exports.about.rounding_modes.'.config('edqa.presentation.rounding'))],
             [(string) __('exports.about.aggregation'), (string) __('exports.about.aggregation_methods.'.config('edqa.aggregation.weighting'))],
             [(string) __('exports.about.sources'), $this->sources->configured()],
-            [(string) __('exports.about.private'), (string) __($private ? 'exports.about.private_yes' : 'exports.about.private_no')],
+            // A type may say what its personal details are (the workplan: contact and notes).
+            [(string) __('exports.about.private'), $private ? ($byLabel[(string) __('exports.about.private')] ?? (string) __('exports.about.private_yes')) : (string) __('exports.about.private_no')],
             [(string) __('exports.about.published'), (string) __('exports.about.published_line')],
         ];
     }

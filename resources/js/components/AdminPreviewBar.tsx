@@ -16,7 +16,10 @@ const EXPORTS: Record<string, ExportChoice[]> = {
         { key: 'state_summary', offersPrivate: false },
         { key: 'lga_table', offersPrivate: false },
     ],
-    'dashboard/plan': [{ key: 'lga_table', offersPrivate: false }],
+    'dashboard/plan': [
+        { key: 'workplan', offersPrivate: true, formats: ['xlsx'], privateLabel: 'admin.exports.private_plan', privateHelp: 'admin.exports.private_plan_help' },
+        { key: 'lga_table', offersPrivate: false },
+    ],
 };
 
 /**

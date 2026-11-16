@@ -21,6 +21,9 @@ export type ExportChoice = {
     offersPrivate: boolean;
     /** The formats it comes in; both unless said (a workbook of several sheets is Excel only). */
     formats?: ('csv' | 'xlsx')[];
+    /** The privacy option's label and help, as translation keys, when the type words it its own way (the workplan: private plan fields). */
+    privateLabel?: string;
+    privateHelp?: string;
 };
 
 export type ExportButtonProps = {
@@ -106,10 +109,10 @@ export default function ExportButton({ types, filter }: ExportButtonProps) {
                                 <div>
                                     <label className="inline-flex items-start gap-2 text-sm">
                                         <input type="checkbox" className="mt-1" checked={includePrivate} aria-describedby={`${id}-private-help`} onChange={(event) => setIncludePrivate(event.target.checked)} />
-                                        <span className="font-medium">{t('admin.exports.private')}</span>
+                                        <span className="font-medium">{t(chosen?.privateLabel ?? 'admin.exports.private')}</span>
                                     </label>
                                     <p id={`${id}-private-help`} className="mt-1 pl-6 text-xs text-ink-2">
-                                        {t('admin.exports.private_help')}
+                                        {t(chosen?.privateHelp ?? 'admin.exports.private_help')}
                                     </p>
                                 </div>
                             )}

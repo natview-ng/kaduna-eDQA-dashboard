@@ -283,7 +283,9 @@ Excel, and the file holds exactly what the page shows, for the filters in view.
 |---|---|
 | Admin preview bar, Home and Monitor | State summary: the headline, the three dimensions, public and private, coverage |
 | Admin preview bar, Facility view | Facility scores (every page, every metric), or item responses (one row per item) |
-| Admin preview bar, LGA view and Implementation plan | The LGA table |
+| Admin preview bar, LGA view | The LGA table |
+| Admin preview bar, Implementation plan; and the Implementation plan page | The implementation workplan (Excel only): the plan, a summary by type and status, what each action means. Its Status column offers a dropdown and it prints A4 landscape. Tick **Include private plan fields** to add the contacts and notes |
+| Admin preview bar, Implementation plan | Also the LGA table |
 | Admin preview bar, Visuals | State summary or LGA table |
 | Data issues (hard rules tab) | The held-back records, with rule codes and details |
 | Data sources | The pull history; and, per source, the backfill report (Excel only: what each source's history became, by round, by rule, by form version, examples, and the facilities that did not match the master list) |

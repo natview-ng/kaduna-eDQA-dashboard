@@ -24,6 +24,7 @@ final class ExportTypes
         'pull_history' => PullHistoryExport::class,
         'audit_log' => AuditLogExport::class,
         'backfill_report' => BackfillReportExport::class,
+        'workplan' => WorkplanExport::class,
     ];
 
     public function __construct(

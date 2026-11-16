@@ -105,7 +105,7 @@ final class ExportWriter
                     $progress($through);
                 }
                 yield from $sheet->rows;
-            });
+            }, $sheet->dropdowns, $sheet->printLandscape);
             $before = $through;
         }
 

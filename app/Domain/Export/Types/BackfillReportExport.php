@@ -39,7 +39,7 @@ final class BackfillReportExport implements MultiSheetExport
         return isset($data['source']) ? ['source' => (string) $data['source']] : [];
     }
 
-    public function sheets(array $filter): array
+    public function sheets(array $filter, bool $private = false): array
     {
         return BackfillReportSheets::from($this->report->build(isset($filter['source']) ? (string) $filter['source'] : null));
     }

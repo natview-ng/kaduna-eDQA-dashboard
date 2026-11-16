@@ -9,6 +9,16 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Implementation workplan as Excel (Phase 6 step 4, D-100).** From the admin plan page and the
+  admin preview of the public plan.
+  - Sheets: Plan (LGA, overall, weakest dimension and score, recommended action, owner role,
+    review date, status), Summary (actions by type × status), Reference (what each action means),
+    and About this file.
+  - The Status column has a dropdown, dates read like "15 Jan 2027", and the Plan prints A4
+    landscape with its header on every page.
+  - "Include private plan fields" adds the contacts and notes. That choice is recorded in the
+    audit log and in the file.
+
 - **Implementation plan in the admin area (Phase 6 step 3, D-99).** `/admin/plan` shows, for any
   round, every LGA below the threshold.
   - "Generate plan for this round" saves a row for each LGA without one; running it again changes
@@ -80,6 +90,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 
 - **Excel exports:** a count of zero was written as an empty cell. Zeros now show as 0.
+- **Excel exports:** dates were written as text, so their date format did not apply. They are now
+  real dates.
 
 ## [0.8.0] - 2026-11-15
 

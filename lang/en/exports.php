@@ -221,6 +221,33 @@ return [
                 'blank' => '(blank)',
             ],
         ],
+        'workplan' => [
+            'title' => 'Implementation workplan',
+            'round' => ':round (:status)',
+            'no_round' => 'There is no round to make a workplan for.',
+            'private_yes' => 'Included: each row\'s contact and notes, which are never public. Keep the file inside the team.',
+            'sheets' => [
+                'plan' => 'Plan',
+                'summary' => 'Summary',
+                'reference' => 'Reference',
+            ],
+            'columns' => [
+                'lga' => 'LGA',
+                'overall' => 'Overall',
+                'weakest' => 'Weakest dimension',
+                'score' => 'Score',
+                'action' => 'Recommended action',
+                'owner' => 'Owner role',
+                'review' => 'Review date',
+                'status' => 'Status',
+                'contact' => 'Contact (private)',
+                'notes' => 'Notes (private)',
+                'type' => 'Type',
+                'total' => 'Actions',
+                'meaning' => 'What it means',
+                'usual_owner' => 'Usually owned by',
+            ],
+        ],
         'audit_log' => [
             'title' => 'Audit log',
             'columns' => [

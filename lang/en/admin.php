@@ -77,7 +77,11 @@ return [
             'pull_history' => 'Pull history',
             'audit_log' => 'Audit log',
             'backfill_report' => 'Backfill report (Excel)',
+            'workplan' => 'Implementation workplan (Excel)',
         ],
+        // The workplan's own privacy option (Phase 6 step 4).
+        'private_plan' => 'Include private plan fields',
+        'private_plan_help' => 'Adds each row\'s contact and notes, which are never public. Keep the file inside the team. Your choice is recorded in the audit log and in the file.',
         'format' => 'Format',
         'only_format' => 'Format: :format',
         'formats' => [

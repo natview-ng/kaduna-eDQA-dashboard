@@ -54,7 +54,7 @@ final class GenerateExport
             };
             $about = fn (int $count): array => $this->description->about($export, $type, $count);
             $rows = $type instanceof MultiSheetExport
-                ? $this->writer->writeSheets($type->sheets($filter), $path, $about, $progress)
+                ? $this->writer->writeSheets($type->sheets($filter, $export->includesPrivate()), $path, $about, $progress)
                 : $this->writer->write($type, $filter, $export->includesPrivate(), $format, $path, max(1, (int) config('edqa.exports.chunk_rows')), $progress, $about);
         } catch (Throwable $e) {
             report($e);

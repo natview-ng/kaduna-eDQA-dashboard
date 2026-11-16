@@ -1,6 +1,7 @@
 import { router } from '@inertiajs/react';
 import { useId, useState } from 'react';
 import { useAnnounce } from '@/components/Announcer';
+import ExportButton from '@/components/ExportButton';
 import Panel from '@/components/Panel';
 import PanelHeader from '@/components/PanelHeader';
 import PlanRowEditor, { type AdminPlanRow, type PlanRole } from '@/components/PlanRowEditor';
@@ -75,6 +76,13 @@ export default function AdminPlan({ rounds, round, plan, roles, today }: AdminPl
                     </select>
                 </div>
                 <p className="text-sm text-ink-2">{t(`admin.plan.round_status.${round.status}`)}</p>
+                {/* The round's workplan as Excel (Phase 6 step 4): to share and print. */}
+                <div className="w-full sm:ml-auto sm:w-auto">
+                    <ExportButton
+                        types={[{ key: 'workplan', offersPrivate: true, formats: ['xlsx'], privateLabel: 'admin.exports.private_plan', privateHelp: 'admin.exports.private_plan_help' }]}
+                        filter={{ round: round.id }}
+                    />
+                </div>
             </div>
 
             {plan.unsaved > 0 && (
