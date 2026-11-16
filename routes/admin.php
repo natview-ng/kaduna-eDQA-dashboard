@@ -19,6 +19,8 @@ use App\Http\Controllers\Facilities\FacilityDetailController;
 use App\Http\Controllers\Facilities\FacilityOptionsController;
 use App\Http\Controllers\Facilities\WardController;
 use App\Http\Controllers\Odk\BackfillReportDownloadController;
+use App\Http\Controllers\Plan\AdminPlanController;
+use App\Http\Controllers\Plan\PlanActionController;
 use App\Http\Controllers\Quarantine\BulkResolveQuarantineController;
 use App\Http\Controllers\Quarantine\DataIssuesPageController;
 use App\Http\Controllers\Quarantine\OverrideSoftFlagController;
@@ -54,6 +56,8 @@ Route::get('facilities', AdminFacilityListController::class)->name('facilities')
 // trail, the source and its link, and corrections. ?round= picks the round.
 Route::get('facilities/{facility}', AdminFacilityController::class)->whereNumber('facility')->name('facilities.show');
 Route::get('scoring-rules', AdminScoringRulesController::class)->name('scoring-rules');
+// The implementation plan (Phase 6 step 3): ?round= picks the round, open or closed.
+Route::get('plan', AdminPlanController::class)->name('plan');
 // The audit log (SECURITY.md §4, D-93): read only, filtered on the server; views are not audited.
 Route::get('audit', AdminAuditController::class)->name('audit');
 
@@ -126,6 +130,10 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::post('assessments/{assessment}/corrections', CorrectAssessmentController::class)->whereNumber('assessment')->name('assessments.corrections.store');
     Route::post('assessments/{assessment}/flags/{code}/override', OverrideSoftFlagController::class)
         ->whereNumber('assessment')->name('assessments.flags.override');
+
+    // The plan (Phase 6 step 3): generate a round's rows (idempotent), save one row; both audited.
+    Route::post('plan/{round}/generate', [PlanActionController::class, 'generate'])->whereNumber('round')->name('plan.generate');
+    Route::patch('plan-actions/{planAction}', [PlanActionController::class, 'update'])->whereNumber('planAction')->name('plan-actions.update');
 
     Route::get('scoring-rules', [ScoringRuleController::class, 'index'])->name('scoring-rules.index');
     Route::post('scoring-rules', [ScoringRuleController::class, 'store'])->name('scoring-rules.store');

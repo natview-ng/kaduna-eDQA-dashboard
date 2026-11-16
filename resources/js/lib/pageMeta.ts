@@ -21,6 +21,7 @@ const META: Record<string, PageMeta> = {
     'admin/facilities': { title: 'admin.pages.facilities.title', subtitle: 'admin.pages.facilities.subtitle', dashboard: false },
     'admin/facility': { title: 'admin.pages.facility.title', subtitle: 'admin.pages.facility.subtitle', dashboard: false },
     'admin/scoring-rules': { title: 'admin.pages.scoring_rules.title', subtitle: 'admin.pages.scoring_rules.subtitle', dashboard: false },
+    'admin/plan': { title: 'admin.pages.plan.title', subtitle: 'admin.pages.plan.subtitle', dashboard: false },
     'admin/audit': { title: 'admin.pages.audit.title', subtitle: 'admin.pages.audit.subtitle', dashboard: false },
     'admin/account': { title: 'admin.pages.account.title', subtitle: 'admin.pages.account.subtitle', dashboard: false },
     'dev/components': { title: 'common.pages.dev.title', dashboard: false },
@@ -37,6 +38,7 @@ export const ADMIN_PAGES = [
     { page: 'rounds', key: 'rounds' },
     { page: 'facilities', key: 'facilities' },
     { page: 'scoring-rules', key: 'scoring_rules' },
+    { page: 'plan', key: 'plan' },
     { page: 'audit', key: 'audit' },
 ] as const;
 

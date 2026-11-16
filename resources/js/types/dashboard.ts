@@ -373,6 +373,8 @@ export type PlanRow = {
     /** A generated row reviews "after" this round. */
     reviewRound: string | null;
     stored: boolean;
+    /** Its follow-up status (Phase 6 step 3); a generated row has not started. */
+    status: 'not_started' | 'in_progress' | 'done';
 };
 
 export type PlanSummary = {
@@ -381,6 +383,8 @@ export type PlanSummary = {
     meaning: string;
     owner: string;
     count: number;
+    /** How many of the type stand at each status (Phase 6 step 3). */
+    statuses: { not_started: number; in_progress: number; done: number };
 };
 
 export type Plan = {

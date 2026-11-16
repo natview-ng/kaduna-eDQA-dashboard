@@ -14,6 +14,56 @@ return [
         'back' => 'Back to admin',
     ],
 
+    // The admin implementation plan (Phase 6 step 3).
+    'plan' => [
+        'round' => 'Round',
+        'round_status' => [
+            'open' => 'Open — the plan can be drafted now',
+            'closed' => 'Closed — plans stay editable: they are follow-up, not figures',
+        ],
+        'none' => 'No round yet: create one on the Rounds page first.',
+        'threshold' => 'LGAs with an overall below :band (:value) get an action.',
+        'generate' => 'Generate plan for this round',
+        'generating' => 'Generating…',
+        'generate_help' => ':count LGA(s) have a proposed action that is not saved yet. Generating saves them so they can be edited. LGAs already planned are left as they are.',
+        'generated' => ':count plan row(s) created.',
+        'generated_none' => 'Every LGA in the plan already has a saved row.',
+        'empty' => 'No LGA is below the threshold in this round: nothing to plan.',
+        'table' => [
+            'caption' => 'Implementation plan for :round',
+            'lga' => 'LGA',
+            'overall' => 'Overall',
+            'weakest' => 'Weakest dimension',
+            'action' => 'Recommended action',
+            'follow_up' => 'Follow-up',
+        ],
+        'unsaved' => 'Proposed: generate the plan to edit this row.',
+        'owner' => 'Owner',
+        'owner_for' => 'Owner for :lga',
+        'other' => 'Other role…',
+        'other_label' => 'Other role or unit',
+        'owner_hint' => 'A role or unit, not a person\'s name. This shows on the public plan.',
+        'contact' => 'Contact (admin only)',
+        'contact_hint' => 'Optional. Never shown publicly.',
+        'review' => 'Review date',
+        'review_past' => 'This review date has passed.',
+        'status' => 'Status',
+        'notes' => 'Notes (admin only)',
+        'save' => 'Save',
+        'saving' => 'Saving…',
+        'saved' => 'Saved: :lga, :dimension.',
+        'summary' => [
+            'title' => 'Actions by type',
+            'caption' => 'Actions by type and status',
+            'type' => 'Type',
+            'total' => 'Actions',
+        ],
+        'meanings' => [
+            'title' => 'What each action means',
+            'default_owner' => 'Usually owned by: :owner',
+        ],
+    ],
+
     // The ExportButton (Phase 6 step 0, D-96): admin pages and the preview bar only.
     'exports' => [
         'button' => 'Export…',
@@ -87,6 +137,10 @@ return [
         'scoring_rules' => [
             'title' => 'Scoring rules',
             'subtitle' => 'Bands, item weights and the N/A policy, versioned.',
+        ],
+        'plan' => [
+            'title' => 'Implementation plan',
+            'subtitle' => 'Follow-up for the LGAs below the threshold: who acts, by when, and how far it has got.',
         ],
         'audit' => [
             'title' => 'Audit log',

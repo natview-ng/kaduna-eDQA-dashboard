@@ -9,6 +9,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Implementation plan in the admin area (Phase 6 step 3, D-99).** `/admin/plan` shows, for any
+  round, every LGA below the threshold.
+  - "Generate plan for this round" saves a row for each LGA without one; running it again changes
+    nothing.
+  - Each row's owner (a role, or "Other role…" written in), contact and notes (admin-only), review
+    date and status are saved inline. Every change is in the audit log.
+  - Plans for closed rounds stay editable.
+  - Two more owner roles: State HMIS team and LGA PHC coordinator.
+- **Public implementation plan:** each action now shows its status, and "Actions by type" counts
+  the actions by status. Contacts and notes are never shown.
+
 - **The backfill report as Excel (Phase 6 step 2, D-98).** `edqa:backfill-report --format=xlsx`
   (optionally `--source=kobo`), and a download per source on the Data sources page.
   - Sheets: Summary (per source and round: pulled, accepted, flagged, quarantined, rejected,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Reporting\Aggregators;
 
+use App\Domain\Plan\Enums\PlanActionStatus;
 use App\Domain\Reporting\DTOs\LgaRow;
 use App\Domain\Reporting\DTOs\LgaScore;
 use App\Domain\Reporting\DTOs\Plan;
@@ -67,7 +68,7 @@ final class ImplementationPlanAggregator
             if (isset($stored[$lga->lgaId])) {
                 foreach ($stored[$lga->lgaId] as $row) {
                     $actions[] = new PlanRow($lga->lgaId, $lga->code, $lga->name, $lga->overall, $row['dimension'], $lga->{$row['dimension']->value},
-                        $row['action'], $row['owner'], $row['due'], null, stored: true);
+                        $row['action'], $row['owner'], $row['due'], null, stored: true, status: $row['status'], ownerOther: $row['other']);
                 }
 
                 continue;
@@ -121,20 +122,24 @@ final class ImplementationPlanAggregator
     /**
      * Stored plan rows for the round, by LGA, in dimension order.
      *
-     * @return array<int, list<array{dimension: Dimension, action: string, owner: string, due: string}>>
+     * @return array<int, list<array{dimension: Dimension, action: string, owner: string, other: bool, due: string, status: PlanActionStatus}>>
      */
     private function stored(int $roundId): array
     {
         $byLga = [];
         $rows = DB::table('plan_actions')->where('round_id', $roundId)->orderBy('lga_id')->orderBy('dimension')
-            ->get(['lga_id', 'dimension', 'action_text', 'owner_role', 'due_date']);
+            ->get(['lga_id', 'dimension', 'action_text', 'owner_role', 'owner_role_other', 'due_date', 'status']);
         foreach ($rows as $row) {
+            $other = $row->owner_role === 'other';
             $byLga[(int) $row->lga_id][] = [
                 'dimension' => Dimension::from((string) $row->dimension),
                 'action' => (string) $row->action_text,
-                // The role's label (D-79). owner_contact is admin-only and never read here.
-                'owner' => (string) __('plan.owners.'.$row->owner_role),
+                // The role's label, or the role or unit written under "Other role…" (D-79).
+                // owner_contact and notes are admin-only and never read here.
+                'owner' => $other ? trim((string) $row->owner_role_other) : (string) __('plan.owners.'.$row->owner_role),
+                'other' => $other,
                 'due' => substr((string) $row->due_date, 0, 10),
+                'status' => PlanActionStatus::from((string) $row->status),
             ];
         }
 
@@ -147,13 +152,13 @@ final class ImplementationPlanAggregator
      */
     private function summary(array $actions): array
     {
-        return array_map(fn (Dimension $dimension): PlanSummary => new PlanSummary(
-            $dimension,
-            self::action($dimension),
-            (string) __("plan.meanings.{$dimension->value}"),
-            $this->owner($dimension),
-            count(array_filter($actions, fn (PlanRow $row): bool => $row->dimension === $dimension)),
-        ), Dimension::cases());
+        return array_map(function (Dimension $dimension) use ($actions): PlanSummary {
+            $ofType = array_filter($actions, fn (PlanRow $row): bool => $row->dimension === $dimension);
+            $at = fn (PlanActionStatus $status): int => count(array_filter($ofType, fn (PlanRow $row): bool => $row->status === $status));
+            $statuses = ['not_started' => $at(PlanActionStatus::NotStarted), 'in_progress' => $at(PlanActionStatus::InProgress), 'done' => $at(PlanActionStatus::Done)];
+
+            return new PlanSummary($dimension, self::action($dimension), (string) __("plan.meanings.{$dimension->value}"), $this->owner($dimension), count($ofType), $statuses);
+        }, Dimension::cases());
     }
 
     private static function action(Dimension $dimension): string

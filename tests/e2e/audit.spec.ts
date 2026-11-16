@@ -26,6 +26,7 @@ const PAGES: { name: string; path: string; heading: string }[] = [
     { name: 'admin-rounds', path: '/admin/rounds', heading: 'Rounds' },
     { name: 'admin-facilities', path: '/admin/facilities', heading: 'Facility list' },
     { name: 'admin-scoring-rules', path: '/admin/scoring-rules', heading: 'Scoring rules' },
+    { name: 'admin-plan', path: '/admin/plan', heading: 'Implementation plan' },
     { name: 'account', path: '/admin/account', heading: 'My account' },
 ];
 

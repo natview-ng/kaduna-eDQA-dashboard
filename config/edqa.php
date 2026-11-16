@@ -234,7 +234,11 @@ return [
         // D-79: who owns a plan action is a role (a unit), never a person: plan_actions.owner_role is
         // one of these (a CHECK holds the same list), labelled in lang/en/plan.php owners. A personal
         // contact, if any, is plan_actions.owner_contact: admin-only, never on the public plan.
-        'roles' => ['lga_me_officer', 'state_me_team', 'programme_manager'],
+        'roles' => ['lga_me_officer', 'state_me_team', 'programme_manager', 'state_hmis_team', 'lga_phc_coordinator'],
+
+        // Phase 6 step 3: a generated plan row is reviewed this many days after it is generated, and a
+        // review date an administrator sets is never before today.
+        'review_days' => 30,
 
         'default_owners' => [
             'availability' => 'lga_me_officer',

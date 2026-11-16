@@ -11,6 +11,7 @@ const PAGES = [
     { path: '/admin/rounds', heading: 'Rounds' },
     { path: '/admin/facilities', heading: 'Facility list' },
     { path: '/admin/scoring-rules', heading: 'Scoring rules' },
+    { path: '/admin/plan', heading: 'Implementation plan' },
     { path: '/admin/audit', heading: 'Audit log' },
 ];
 
@@ -42,7 +43,7 @@ test.describe('Administration shell', () => {
         await ready(page, 'Data sources');
         const tabs = page.getByRole('navigation', { name: 'Administration pages' });
 
-        await expect(tabs.getByRole('link')).toHaveCount(8); // six pages, My account and the public dashboard
+        await expect(tabs.getByRole('link')).toHaveCount(9); // seven pages, My account and the public dashboard
         await expect(tabs.getByRole('link', { name: 'My account' })).toHaveAttribute('href', '/admin/account');
         await expect(tabs.getByRole('button', { name: 'Log out' })).toBeVisible(); // not pressed: the session is shared
         await expect(tabs.getByRole('link', { name: /^Data issues, \d+ open$/ })).toBeVisible();

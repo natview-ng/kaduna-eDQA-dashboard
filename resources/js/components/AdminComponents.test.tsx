@@ -292,6 +292,7 @@ const shellTranslations = {
             rounds: { title: 'Rounds' },
             facilities: { title: 'Facility list' },
             scoring_rules: { title: 'Scoring rules' },
+            plan: { title: 'Implementation plan' },
             audit: { title: 'Audit log' },
         },
         stale: {
@@ -305,12 +306,12 @@ const shellTranslations = {
 };
 
 describe('AdminRail', () => {
-    it('lists the six pages, My account and the public dashboard, then Log out; the current one marked, the open count in the Data issues name', async () => {
+    it('lists the seven pages, My account and the public dashboard, then Log out; the current one marked, the open count in the Data issues name', async () => {
         const { container } = renderUi(<AdminRail current="rounds" openIssueCount={12} assessments={2184} />, shellTranslations);
 
         const nav = screen.getByRole('navigation', { name: 'Administration pages' });
         expect(within(nav).getAllByRole('link').map((link) => link.getAttribute('href'))).toEqual([
-            '/admin/sources', '/admin/data-issues', '/admin/rounds', '/admin/facilities', '/admin/scoring-rules', '/admin/audit',
+            '/admin/sources', '/admin/data-issues', '/admin/rounds', '/admin/facilities', '/admin/scoring-rules', '/admin/plan', '/admin/audit',
             '/admin/account', '/',
         ]);
         expect(within(nav).getByRole('link', { name: 'Audit log' })).toBeTruthy();

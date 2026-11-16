@@ -39,15 +39,23 @@ it('rejects an unknown dimension on plan actions', function (): void {
 
 it('stores an owner as one of the configured roles, never free text (D-79)', function (string $role): void {
     expect(Rows::planAction(['owner_role' => $role]))->toBeInt();
-})->with(['lga_me_officer', 'state_me_team', 'programme_manager']);
+})->with(['lga_me_officer', 'state_me_team', 'programme_manager', 'state_hmis_team', 'lga_phc_coordinator']);
 
 it('lists the same roles in config as the CHECK holds', function (): void {
-    expect(config('edqa.plan.roles'))->toBe(['lga_me_officer', 'state_me_team', 'programme_manager'])
+    expect(config('edqa.plan.roles'))->toBe(['lga_me_officer', 'state_me_team', 'programme_manager', 'state_hmis_team', 'lga_phc_coordinator'])
         ->and(array_keys((array) __('plan.owners')))->toBe(config('edqa.plan.roles'));
 });
 
 it('rejects an owner role that is not a role', function (): void {
     expectCheckViolation(fn () => Rows::planAction(['owner_role' => 'Dr A. Bello']), 'plan_actions_owner_role_valid');
+});
+
+it('takes "other" with its role or unit written out, and only then (Phase 6 step 3)', function (): void {
+    expect(Rows::planAction(['owner_role' => 'other', 'owner_role_other' => 'Zonal M&E unit']))->toBeInt();
+
+    expectCheckViolation(fn () => Rows::planAction(['lga_id' => Rows::lga(), 'owner_role' => 'other']), 'plan_actions_owner_role_other');
+    expectCheckViolation(fn () => Rows::planAction(['lga_id' => Rows::lga(), 'owner_role' => 'other', 'owner_role_other' => '   ']), 'plan_actions_owner_role_other');
+    expectCheckViolation(fn () => Rows::planAction(['lga_id' => Rows::lga(), 'owner_role' => 'lga_me_officer', 'owner_role_other' => 'Zonal M&E unit']), 'plan_actions_owner_role_other');
 });
 
 it('keeps a personal contact apart, optional and admin-only', function (): void {

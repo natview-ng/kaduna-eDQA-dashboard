@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace App\Domain\Reporting\DTOs;
 
+use App\Domain\Plan\Enums\PlanActionStatus;
 use App\Domain\Scoring\DTOs\ScoreValue;
 use App\Domain\Scoring\Enums\Dimension;
 
 /**
  * One implementation-plan action (§9.2.6): an LGA, the dimension acted on (its weakest, or the
  * stored row's), that dimension's score, the action and owner, and when to review it: a stored
- * row's date, else "after" the latest round in view. stored marks a plan_actions row.
+ * row's date, else "after" the latest round in view. stored marks a plan_actions row; its status is
+ * the stored one (a generated row has not started). The owner is a role's label, or the role or unit
+ * an administrator wrote under "Other role…" (ownerOther). Never the contact or the notes.
  */
 final readonly class PlanRow
 {
@@ -26,5 +29,7 @@ final readonly class PlanRow
         public ?string $reviewDate,
         public ?string $reviewRound,
         public bool $stored,
+        public PlanActionStatus $status = PlanActionStatus::NotStarted,
+        public bool $ownerOther = false,
     ) {}
 }

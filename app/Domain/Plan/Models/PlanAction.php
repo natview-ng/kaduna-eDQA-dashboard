@@ -9,6 +9,7 @@ use App\Domain\Plan\Enums\PlanActionStatus;
 use App\Domain\Round\Models\Round;
 use App\Domain\Scoring\Enums\Dimension;
 use App\Support\Audit\Audited;
+use Carbon\CarbonImmutable;
 use Database\Factories\PlanActionFactory;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,7 +19,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * An implementation-plan row: one action per round, LGA and dimension, with an editable owner,
  * due date and status (D-10). The owner is a role (owner_role, config edqa.plan.roles, D-79); a
- * personal contact (owner_contact) is admin-only and never shown on the public plan.
+ * personal contact (owner_contact) is admin-only and never shown on the public plan; so are the notes.
+ * owner_role 'other' carries the role or unit written out in owner_role_other (Phase 6 step 3).
+ *
+ * @property int $id
+ * @property int $round_id
+ * @property int $lga_id
+ * @property Dimension $dimension
+ * @property string $action_text
+ * @property string $owner_role
+ * @property string|null $owner_role_other
+ * @property string|null $owner_contact
+ * @property CarbonImmutable $due_date
+ * @property PlanActionStatus $status
+ * @property string|null $notes
  */
 #[UseFactory(PlanActionFactory::class)]
 final class PlanAction extends Model
@@ -28,7 +42,7 @@ final class PlanAction extends Model
     /** @use HasFactory<PlanActionFactory> */
     use HasFactory;
 
-    protected $fillable = ['round_id', 'lga_id', 'dimension', 'action_text', 'owner_role', 'owner_contact', 'due_date', 'status', 'notes'];
+    protected $fillable = ['round_id', 'lga_id', 'dimension', 'action_text', 'owner_role', 'owner_role_other', 'owner_contact', 'due_date', 'status', 'notes'];
 
     /** Mirrors the column default, so a new model matches its stored row. */
     protected $attributes = ['status' => 'not_started'];
@@ -59,6 +73,6 @@ final class PlanAction extends Model
 
     protected function auditedAttributes(): array
     {
-        return ['action_text', 'owner_role', 'owner_contact', 'due_date', 'status', 'notes'];
+        return ['action_text', 'owner_role', 'owner_role_other', 'owner_contact', 'due_date', 'status', 'notes'];
     }
 }

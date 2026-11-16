@@ -25,7 +25,7 @@ use Tests\Support\Rows;
 /** Strings that exist only in private data. */
 const MARKERS = [
     'MARKER-ASSESSOR', 'MARKER-DEVICE', 'MARKER-ATTACH', 'MARKER-QUARANTINE', 'MARKER-DUPLICATE',
-    'MARKER-REASON', 'MARKER-ADMIN', 'MARKER-CONTACT', 'MARKER-EDIT', 'MARKER-OPENONLY',
+    'MARKER-REASON', 'MARKER-ADMIN', 'MARKER-CONTACT', 'MARKER-NOTES', 'MARKER-EDIT', 'MARKER-OPENONLY',
     // Facility master-list coordinates (Q-20: off by default).
     '10.98765', '7.65432',
 ];
@@ -35,7 +35,7 @@ const FORBIDDEN_KEYS = [
     'assessor', 'assessor_name', 'device_id', 'submitter', 'instance_id', 'external_id', 'submission_id',
     'form_version', 'form_ref', 'payload', 'attachments', 'flags', 'activity', 'source', 'source_url',
     'quarantine', 'quarantined', 'failures', 'duplicate_of', 'deletion', 'gps', 'lat', 'lng', 'email',
-    'owner_contact', 'reason', 'causer', 'corrected', 'shell', 'admin',
+    'owner_contact', 'owner_role_other', 'notes', 'reason', 'causer', 'corrected', 'shell', 'admin',
 ];
 
 /** The open round's year and its scores (13.57 everywhere): neither may show publicly (D-77). */
@@ -95,7 +95,9 @@ beforeEach(function (): void {
     $admin = User::factory()->create(['name' => 'MARKER-ADMIN-Amina', 'email' => 'marker-admin@edqa.test']);
     $this->adminEmail = $admin->email;
     AuditLog::record(Assessment::query()->findOrFail($openAssessment), $admin, 'corrected', ['times' => 'a'], ['times' => 'b'], 'MARKER-REASON supervisor re-checked');
-    Rows::planAction(['round_id' => $this->closed, 'lga_id' => array_values($lgas)[1], 'owner_role' => 'state_me_team', 'owner_contact' => 'MARKER-CONTACT 0803 000 0000']);
+    // The plan's contact and notes are admin-only (Phase 6 step 3); its role and status are public.
+    Rows::planAction(['round_id' => $this->closed, 'lga_id' => array_values($lgas)[1], 'owner_role' => 'state_me_team', 'owner_contact' => 'MARKER-CONTACT 0803 000 0000', 'notes' => 'MARKER-NOTES visited on 3 March, the M&E officer was away', 'status' => 'in_progress']);
+    Rows::planAction(['round_id' => $this->closed, 'lga_id' => array_values($lgas)[2], 'dimension' => 'validity', 'owner_role' => 'other', 'owner_role_other' => 'Zonal M&E unit', 'owner_contact' => 'MARKER-CONTACT zonal', 'notes' => 'MARKER-NOTES second row']);
     auth()->logout();
 });
 
@@ -261,6 +263,17 @@ it('does show the published figures, so the checks above are not vacuous', funct
     $admin = User::query()->where('email', $this->adminEmail)->firstOrFail();
     $adminView = (string) $this->actingAs($admin)->get("/admin/facilities/{$this->facilities[0]}?round={$this->closed}")->getContent();
     expect($adminView)->toContain('MARKER-ASSESSOR')->toContain('MARKER-ATTACH');
+
+    // The plan (Phase 6 step 3): its contact and notes are on the admin plan page, and its stored role
+    // and status on the public one.
+    $adminPlan = (string) $this->actingAs($admin)->get("/admin/plan?round={$this->closed}")->getContent();
+    expect($adminPlan)->toContain('MARKER-CONTACT')->toContain('MARKER-NOTES');
+    auth()->logout();
+    $version = (string) ($this->get('/plan')->viewData('page')['version'] ?? '');
+    $plan = $this->get('/plan', ['X-Inertia' => 'true', 'X-Inertia-Version' => $version, 'X-Inertia-Partial-Component' => 'dashboard/plan', 'X-Inertia-Partial-Data' => 'plan'])->json('props.plan');
+    $owners = array_column($plan['actions'], 'owner');
+    expect($owners)->toContain('State M&E team', 'Zonal M&E unit')
+        ->and(array_column($plan['actions'], 'status'))->toContain('in_progress');
 });
 
 it('reaches no export anonymously: no public export route, nothing on a public page, every export endpoint refusing a guest', function (): void {

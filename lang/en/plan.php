@@ -27,6 +27,15 @@ return [
         'lga_me_officer' => 'LGA M&E officer',
         'state_me_team' => 'State M&E team',
         'programme_manager' => 'Programme manager',
+        'state_hmis_team' => 'State HMIS team',
+        'lga_phc_coordinator' => 'LGA PHC coordinator',
+    ],
+
+    // The admin plan page's server messages (Phase 6 step 3).
+    'admin' => [
+        'errors' => [
+            'past_date' => 'Choose a review date on or after today.',
+        ],
     ],
 
 ];

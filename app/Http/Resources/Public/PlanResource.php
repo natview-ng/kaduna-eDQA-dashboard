@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 /**
  * The implementation plan, read-only (ARCHITECTURE.md §9.2.6). Owners are shown as roles, never a
  * personal name (D-79): a stored owner that is not one of the roles (lang/en/plan.php owners) is
- * shown as the dimension's default role.
+ * shown as the dimension's default role. Never the contact or the notes (Phase 6 step 3: admin-only).
  *
  * @property Plan $resource
  */
@@ -33,10 +33,12 @@ final class PlanResource extends PublicResource
                 'dimension' => $row->dimension->value,
                 'score' => self::score($row->score),
                 'action' => $row->action,
-                'owner' => self::role($row->owner, $row->dimension),
+                // A role or unit written under "Other role…" is shown as written (Phase 6 step 3).
+                'owner' => $row->ownerOther ? $row->owner : self::role($row->owner, $row->dimension),
                 'reviewDate' => $row->reviewDate,
                 'reviewRound' => $row->reviewRound,
                 'stored' => $row->stored,
+                'status' => $row->status->value,
             ], $this->resource->actions),
             'clear' => LgaScoreResource::many($this->resource->clear),
             'summary' => array_map(fn (PlanSummary $summary): array => [
@@ -45,6 +47,7 @@ final class PlanResource extends PublicResource
                 'meaning' => $summary->meaning,
                 'owner' => self::role($summary->owner, $summary->dimension),
                 'count' => $summary->count,
+                'statuses' => $summary->statuses,
             ], $this->resource->summary),
         ];
     }

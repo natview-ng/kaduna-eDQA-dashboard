@@ -29,6 +29,7 @@ const ADMIN_PAGES = [
     'rounds' => 'admin/rounds',
     'facilities' => 'admin/facilities',
     'scoring-rules' => 'admin/scoring-rules',
+    'plan' => 'admin/plan',
     'audit' => 'admin/audit',
 ];
 

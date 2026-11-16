@@ -13,7 +13,8 @@ import type { Plan, PlanProps } from '@/types/dashboard';
 /**
  * Implementation plan (ARCHITECTURE.md §9.2.6), read-only: an action for every local government
  * below the threshold, those needing none, the actions by type and what each means. Every figure,
- * count and text comes from ImplementationPlanAggregator. Editing arrives in Phase 6.
+ * count and text comes from ImplementationPlanAggregator. Each action's status is the one
+ * administrators keep in the admin plan (Phase 6 step 3); its contact and notes never come here.
  */
 export default function PlanPage({ plan }: PlanProps) {
     return (
@@ -35,6 +36,7 @@ function PlanView({ plan }: { plan: Plan }) {
         { key: 'action', header: t('dashboard.plan.action') },
         { key: 'owner', header: t('dashboard.plan.owner') },
         { key: 'review', header: t('dashboard.plan.review') },
+        { key: 'status', header: t('dashboard.plan.status') },
     ];
 
     return (
@@ -70,6 +72,7 @@ function PlanView({ plan }: { plan: Plan }) {
                                             : row.reviewDate
                                         : t('dashboard.plan.review_after', { round: row.reviewRound ?? '' })}
                                 </td>
+                                <td className="px-3 py-2 whitespace-nowrap">{t(`enums.plan_action_status.${row.status}`)}</td>
                             </tr>
                         ))}
                     </DataTable>
@@ -102,6 +105,9 @@ function PlanView({ plan }: { plan: Plan }) {
                             columns={[
                                 { key: 'type', header: t('dashboard.plan.type') },
                                 { key: 'count', header: t('dashboard.plan.count'), align: 'end' },
+                                { key: 'not_started', header: t('enums.plan_action_status.not_started'), align: 'end' },
+                                { key: 'in_progress', header: t('enums.plan_action_status.in_progress'), align: 'end' },
+                                { key: 'done', header: t('enums.plan_action_status.done'), align: 'end' },
                                 { key: 'owner', header: t('dashboard.plan.owner') },
                             ]}
                         >
@@ -112,6 +118,9 @@ function PlanView({ plan }: { plan: Plan }) {
                                         <span className="block text-2xs text-ink-2">{t('dashboard.plan.for_dimension', { dimension: t(`enums.dimension.${type.dimension}`) })}</span>
                                     </th>
                                     <td className="px-3 py-2 text-right font-semibold tabular-nums">{formatCount(type.count)}</td>
+                                    <td className="px-3 py-2 text-right tabular-nums">{formatCount(type.statuses.not_started)}</td>
+                                    <td className="px-3 py-2 text-right tabular-nums">{formatCount(type.statuses.in_progress)}</td>
+                                    <td className="px-3 py-2 text-right tabular-nums">{formatCount(type.statuses.done)}</td>
                                     <td className="px-3 py-2 whitespace-nowrap">{type.owner}</td>
                                 </tr>
                             ))}

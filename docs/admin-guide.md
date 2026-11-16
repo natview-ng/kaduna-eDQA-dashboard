@@ -233,6 +233,27 @@ action), item weights, and what N/A means. Rules are kept in **versions**.
    at once. Closed rounds keep the version they were closed with**, so published figures do not
    move. The public dashboard only changes when an open round is closed.
 
+### Implementation plan
+
+The follow-up for the local governments below the threshold (Acceptable, by default): who acts,
+by when, and how far it has got. Choose the round at the top, open or closed.
+
+- **Generate plan for this round** saves a row for every LGA that needs one: its weakest dimension,
+  the standard action, the usual owner, and a review date 30 days ahead. Rows you have already saved
+  are never changed, so running it again is safe.
+- For each row you can set:
+  - **Owner:** a role from the list, or **Other role…** to write one in. Write a role or unit,
+    never a person's name: the owner shows on the public plan.
+  - **Contact** (optional) and **Notes:** for administrators only. They never appear publicly.
+  - **Review date:** a new date must be today or later. A date that has passed is pointed out.
+  - **Status:** Not started, In progress or Done.
+
+  Press **Save** on the row. No reason is needed, but every change is in the audit log.
+- Plans for closed rounds stay editable: they are follow-up, not published figures.
+- **Actions by type** counts the actions of each kind by status.
+- The public Implementation plan page shows, for closed rounds only, each LGA's overall, weakest
+  dimension and score, the recommended action, the owner role, the review date and the status.
+
 ### Audit log
 
 ![The audit log, filtered to "Round closed"](images/admin-guide/audit-log.png)
