@@ -14,13 +14,15 @@ export type ExportStatus = {
     url: string | null;
 };
 
+export type ExportFormat = 'csv' | 'xlsx' | 'pdf';
+
 export type ExportChoice = {
     /** The export type: "facility_scores". Its label is admin.exports.types.{key}. */
     key: string;
     /** Whether "Include assessor and source details" applies to this type. */
     offersPrivate: boolean;
-    /** The formats it comes in; both unless said (a workbook of several sheets is Excel only). */
-    formats?: ('csv' | 'xlsx')[];
+    /** The formats it comes in; CSV and Excel unless said (a workbook of several sheets is Excel only, the round report PDF only). */
+    formats?: ExportFormat[];
     /** The privacy option's label and help, as translation keys, when the type words it its own way (the workplan: private plan fields). */
     privateLabel?: string;
     privateHelp?: string;
@@ -46,13 +48,13 @@ export default function ExportButton({ types, filter }: ExportButtonProps) {
     const action = useApiAction<{ data: { export_id: number } }>();
     const [open, setOpen] = useState(false);
     const [type, setType] = useState(types[0]?.key ?? '');
-    const [format, setFormat] = useState<'csv' | 'xlsx'>('csv');
+    const [format, setFormat] = useState<ExportFormat>('csv');
     const [includePrivate, setIncludePrivate] = useState(false);
     const [exportId, setExportId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
     const chosen = types.find((choice) => choice.key === type);
     const offersPrivate = chosen?.offersPrivate ?? false;
-    const formats = chosen?.formats ?? (['csv', 'xlsx'] as const);
+    const formats: readonly ExportFormat[] = chosen?.formats ?? ['csv', 'xlsx'];
     // A format the chosen type does not come in falls back to its first.
     const sendFormat = formats.includes(format) ? format : (formats[0] ?? 'csv');
 

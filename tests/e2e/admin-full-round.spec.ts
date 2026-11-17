@@ -13,8 +13,9 @@ import { E2E_EMAIL, E2E_PASSWORD } from './support/credentials';
 //   at the sources: one accepted Kobo visit is deleted (and the reconcile finds it), and the two
 //     staged ODK edits become visible.
 //   part 2 (E2E_FULL_ROUND=2): e. Data issues; f. correct an assessment; g. edit and deactivate
-//     a facility; h. publish a band change; i. reconcile and close; j. the audit log; k. log out,
-//     and the visitor's view again, with the leak checks.
+//     a facility; h. publish a band change; i. reconcile and close; j. the audit log; l. (Phase 6)
+//     export the closed round from the admin area and download each file; k. log out, and the
+//     visitor's view again, with the leak checks and no way to an export.
 // The screenshots for docs/admin-guide.md are taken on the way.
 
 const part = process.env.E2E_FULL_ROUND ?? '';
@@ -22,6 +23,7 @@ const ROUND = 'Q3 2026';
 const STATE = 'storage/e2e/full-round.json';
 const NOTES = 'storage/e2e/full-round-notes.json';
 const SHOTS = 'docs/images/admin-guide';
+const DOWNLOADS = 'storage/e2e/downloads';
 
 /** The mocks' assessors (App\Support\OdkMock\MockSubmissionGenerator::ASSESSORS): never public. */
 const ASSESSORS = ['Hauwa Ibrahim', 'Musa Abdullahi', 'Grace Danjuma', 'Aisha Bello', 'John Gambo', 'Fatima Yusuf', 'Peter Auta', 'Zainab Lawal', 'Daniel Kure', 'Halima Sani', 'Samuel Bako', 'Rahila Ishaya', 'Ibrahim Tanko', 'Esther Musa', 'Yakubu Garba'];
@@ -55,7 +57,8 @@ const REASONS = {
     close: 'All issues reviewed; Q3 2026 ready to publish',
 };
 
-type Notes = { updatedAt: string | null; correctedFacility?: number; correctedName?: string };
+type ExportNote = { label: string; file: string; href: string; id: number; seconds: number };
+type Notes = { updatedAt: string | null; correctedFacility?: number; correctedName?: string; exports?: ExportNote[] };
 type Held = { id: number; instance_id: string; facility_ref: string | null; lga_ref: string | null; failures: { code: string; detail: string }[] };
 
 // ---------------------------------------------------------------- helpers
@@ -581,6 +584,81 @@ test.describe('Full round, part 2: Data issues to the published round', () => {
         await shot(page, 'my-account');
     });
 
+    test('l. export the closed round from the admin area: facility scores (Excel), LGA table (CSV), the workplan, the PDF report', async ({ page }) => {
+        test.setTimeout(900_000);
+        mkdirSync(DOWNLOADS, { recursive: true });
+        const done: ExportNote[] = [];
+
+        /**
+         * One export, from the keyboard: Export…, the type and format where there is a choice,
+         * Start export; then wait for the download link (the worker writes it), follow it and
+         * check the file's first bytes.
+         */
+        const exportAndDownload = async (scope: Locator, label: string, choices: string[], file: RegExp, magic: Buffer): Promise<void> => {
+            await press(page, scope.getByRole('button', { name: 'Export…' }));
+            for (const choice of choices) {
+                const radio = scope.getByRole('radio', { name: choice, exact: true });
+                await radio.focus();
+                await page.keyboard.press('Space');
+                await expect(radio).toBeChecked();
+            }
+            const started = Date.now();
+            await focusAndPress(page, scope.getByRole('button', { name: 'Start export' }));
+            const link = scope.getByRole('link', { name: /^Download / });
+            await expect(link).toBeVisible({ timeout: 600_000 });
+            const seconds = (Date.now() - started) / 1000;
+            const href = (await link.getAttribute('href')) ?? '';
+            expect(href, `${label}: a relative signed link`).toMatch(/^\/admin\/exports\/\d+\/download\?.*signature=/);
+
+            const downloading = page.waitForEvent('download');
+            await link.focus();
+            await page.keyboard.press('Enter');
+            const download = await downloading;
+            const name = download.suggestedFilename();
+            expect(name, `${label}: file name`).toMatch(file);
+            const path = `${DOWNLOADS}/${name}`;
+            await download.saveAs(path);
+            expect(readFileSync(path).subarray(0, magic.length).equals(magic), `${label}: ${name} starts like a ${file.source.split('.').pop()} file`).toBe(true);
+            done.push({ label, file: name, href, id: Number(/\/admin\/exports\/(\d+)\//.exec(href)?.[1]), seconds });
+        };
+
+        // Facility scores, Excel: the admin preview of the Facility view, for the closed round.
+        await page.goto('/facilities?year=2026&quarter=3');
+        await heading(page, 'Facility view');
+        const preview = page.getByRole('region', { name: 'Admin preview' });
+        await exportAndDownload(preview, 'Facility scores (Excel)', ['Facility scores (every page, every metric)', 'Excel'], /^facility_scores-\d{8}-\d{4}\.xlsx$/, Buffer.from('PK'));
+
+        // The LGA table, CSV (the default format): the admin preview of the LGA view.
+        await page.goto('/lgas?year=2026&quarter=3');
+        await heading(page, 'LGA view');
+        await exportAndDownload(page.getByRole('region', { name: 'Admin preview' }), 'LGA table (CSV)', [], /^lga_table-\d{8}-\d{4}\.csv$/, Buffer.from([0xef, 0xbb, 0xbf]));
+
+        // The workplan, Excel only: the admin Implementation plan page, for the closed round.
+        await page.goto('/admin/plan');
+        const round = await page.getByRole('option', { name: ROUND, exact: true }).getAttribute('value');
+        await page.goto(`/admin/plan?round=${round}`);
+        await heading(page, 'Implementation plan');
+        await exportAndDownload(page.locator('main'), 'Workplan (Excel)', [], /^workplan-\d{8}-\d{4}\.xlsx$/, Buffer.from('PK'));
+
+        // The PDF round report: the Rounds page panel, which offers the latest closed round first.
+        await page.goto('/admin/rounds');
+        await heading(page, 'Rounds');
+        const report = page.getByRole('region', { name: 'Round report (PDF)' });
+        await expect(report.getByRole('combobox', { name: 'Round' })).toHaveValue(round ?? '');
+        await exportAndDownload(report, 'Round report (PDF)', [], /^round-report-2026-Q3\.pdf$/, Buffer.from('%PDF-'));
+
+        saveNotes({ ...notes(), exports: done });
+        writeFileSync('storage/e2e/export-timings.json', JSON.stringify(done, null, 2));
+        process.stdout.write(`Export timings (request to download link): ${done.map((e) => `${e.label} ${e.seconds.toFixed(1)} s`).join('; ')}\n`);
+
+        // Each export is in the audit log: asked for, completed, downloaded.
+        for (const event of ['export_requested', 'export_completed', 'export_downloaded']) {
+            await page.goto(`/admin/audit?event=${event}`);
+            await heading(page, /Audit log/);
+            await expect(page.getByRole('row').filter({ hasText: 'E2E Administrator' }), event).toHaveCount(4, { timeout: 30_000 });
+        }
+    });
+
     test('k. log out to the public dashboard: Q3 2026 is published, the date moved, nothing private shows', async ({ page }) => {
         test.setTimeout(600_000);
         await page.goto('/admin/rounds');
@@ -604,6 +682,7 @@ test.describe('Full round, part 2: Data issues to the published round', () => {
             await page.goto(path);
             await heading(page, name);
             await expect(page.getByRole('region', { name: 'Admin preview' })).toHaveCount(0);
+            await expect(page.getByRole('button', { name: 'Export…' }), `${path} offers an export`).toHaveCount(0);
             const hrefs = await page.locator('a[href]').evaluateAll((links) => links.map((link) => link.getAttribute('href') ?? ''));
             expect(hrefs.filter((href) => /^\/(login|admin)(\/|$|\?)/.test(href)), `${path} links to the admin area`).toEqual([]);
             assertNothingLeaks(`${path} (rendered)`, await page.content(), null);
@@ -618,5 +697,23 @@ test.describe('Full round, part 2: Data issues to the published round', () => {
         const detail = await page.request.get(`/api/public/facilities/${corrected}?year=2026&quarter=3`, { headers: { Accept: 'application/json' } });
         expect(detail.status()).toBe(200);
         assertNothingLeaks(`/api/public/facilities/${corrected}`, await detail.text(), await detail.json());
+
+        // No export reaches a visitor (Phase 6): not the signed download links made in step l (still
+        // within their 30 minutes), not their progress, not a new request.
+        const made = notes().exports ?? [];
+        expect(made, 'the four exports of step l').toHaveLength(4);
+        for (const done of made) {
+            const download = await page.request.get(done.href, { maxRedirects: 0 });
+            expect(download.status(), `${done.label}: signed link, signed out`).toBe(302);
+            expect(download.headers().location ?? '').toMatch(/\/login$/);
+            const progress = await page.request.get(`/admin/api/exports/${done.id}`, { maxRedirects: 0, headers: { Accept: 'application/json' } });
+            expect(progress.status(), `${done.label}: progress, signed out`).toBe(401);
+        }
+        const ask = await page.request.post('/admin/api/exports', {
+            maxRedirects: 0,
+            headers: { Accept: 'application/json' },
+            data: { type: 'round_report', format: 'pdf', filter: {} },
+        });
+        expect([401, 419], 'a new export, signed out').toContain(ask.status());
     });
 });

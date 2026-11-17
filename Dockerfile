@@ -1,14 +1,15 @@
 # syntax=docker/dockerfile:1.7
 #
-# Kaduna eDQA: one Dockerfile, eight targets (DEPLOY.md §6.1).
+# Kaduna eDQA: one Dockerfile, nine targets (DEPLOY.md §6.1).
 #   base    PHP-FPM 8.3 + extensions, non-root user, production ini          (internal)
 #   vendor  base + Composer: production vendor/ and Wayfinder route files    (internal)
 #   assets  Node: npm ci + vite build, precompressed .br/.gz                 (internal)
 #   app     code + vendor + public/build; runs app, workers, scheduler, migrate
-#   worker  app + Node, Chromium, fonts, Puppeteer (PDF exports)
+#   worker  app + Node, Chromium, fonts, Puppeteer, pdftotext (PDF exports)
 #   web     Caddy + public/ only (no PHP)
 #   ci      app + dev Composer deps and tests (Pest, Larastan, Pint)
 #   dev     base + Composer + Xdebug; source is bind-mounted, not copied
+#   dev-worker  dev + the worker image's PDF tools (local worker, `make pdf`)
 #
 # Base images are pinned by digest; the tag is in the comment. Renovate keeps them current.
 
@@ -95,10 +96,11 @@ FROM app AS worker
 USER 0
 # Fonts are pinned. Chromium is deliberately not: Debian drops superseded Chromium builds from
 # its mirrors every few weeks, so a pin would break builds and hold back security fixes.
+# poppler-utils gives pdftotext: edqa:pdf-smoke reads back the PDF it renders (Phase 6 step 5).
 # hadolint ignore=DL3008
 RUN apt-get update \
  && apt-get install -y --no-install-recommends chromium \
-      fonts-liberation=1:1.07.4-11 fonts-noto-core=20201225-1 \
+      fonts-liberation=1:1.07.4-11 fonts-noto-core=20201225-1 poppler-utils=22.12.0-2+deb12u3 \
  && rm -rf /var/lib/apt/lists/*
 COPY --from=puppeteer /usr/local/bin/node /usr/local/bin/node
 COPY --from=puppeteer /usr/local/lib/node_modules /usr/local/lib/node_modules
@@ -148,3 +150,25 @@ USER ${EDQA_UID}:${EDQA_GID}
 EXPOSE 9000
 ENTRYPOINT ["edqa-entrypoint"]
 CMD ["app"]
+
+# ------------------------------------------------------------------------------ dev-worker
+# The local queue worker: dev plus exactly the worker image's PDF tools (Chromium, fonts, Node and
+# Puppeteer, pdftotext), so queued PDFs render locally and `make pdf` tests them (DEPLOY.md §12).
+FROM dev AS dev-worker
+USER 0
+# hadolint ignore=DL3008
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends chromium \
+      fonts-liberation=1:1.07.4-11 fonts-noto-core=20201225-1 poppler-utils=22.12.0-2+deb12u3 \
+ && rm -rf /var/lib/apt/lists/*
+COPY --from=puppeteer /usr/local/bin/node /usr/local/bin/node
+COPY --from=puppeteer /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/bin/node /usr/bin/node \
+ && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
+ENV BROWSERSHOT_CHROME_PATH=/usr/bin/chromium \
+    BROWSERSHOT_NODE_BINARY=/usr/bin/node \
+    NODE_PATH=/usr/local/lib/node_modules
+# Numeric (the UID/GID build args); hadolint cannot expand variables.
+# hadolint ignore=DL3066
+USER ${EDQA_UID}:${EDQA_GID}
+CMD ["worker"]

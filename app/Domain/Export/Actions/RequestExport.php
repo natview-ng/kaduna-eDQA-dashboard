@@ -7,7 +7,9 @@ namespace App\Domain\Export\Actions;
 use App\Domain\Export\Enums\ExportFormat;
 use App\Domain\Export\Exceptions\ExportRefused;
 use App\Domain\Export\Jobs\GenerateExportJob;
+use App\Domain\Export\Jobs\GenerateRoundReport;
 use App\Domain\Export\Models\Export;
+use App\Domain\Export\Types\DocumentExport;
 use App\Domain\Export\Types\ExportTypes;
 use App\Domain\Export\Types\MultiSheetExport;
 use App\Models\User;
@@ -42,9 +44,13 @@ final class RequestExport
         if ($exporter instanceof MultiSheetExport && $format !== ExportFormat::Xlsx) {
             throw ExportRefused::excelOnly();
         }
+        // A document comes in its one format (the round report: PDF); nothing else is a PDF.
+        if ($exporter instanceof DocumentExport ? $format !== $exporter->format() : $format === ExportFormat::Pdf) {
+            throw ExportRefused::wrongFormat();
+        }
         $filter = $exporter->filter($filter);
 
-        return DB::transaction(function () use ($type, $filter, $format, $includePrivate, $actor): Export {
+        return DB::transaction(function () use ($exporter, $type, $filter, $format, $includePrivate, $actor): Export {
             $export = Export::query()->create([
                 'type' => $type,
                 'filter' => (object) $filter,
@@ -57,7 +63,12 @@ final class RequestExport
                 'include_private' => $includePrivate,
                 'filter' => $filter,
             ]);
-            GenerateExportJob::dispatch($export->id)->afterCommit();
+            // The PDF round report has its own job, run where Chromium is (worker-exports).
+            if ($exporter instanceof DocumentExport) {
+                GenerateRoundReport::dispatch($export->id)->afterCommit();
+            } else {
+                GenerateExportJob::dispatch($export->id)->afterCommit();
+            }
 
             return $export;
         });

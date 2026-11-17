@@ -32,6 +32,12 @@ final class ExportRefused extends RuntimeException
         return new self('excel_only');
     }
 
+    /** A format the type does not come in: PDF for anything but the round report, or the report as CSV or Excel. */
+    public static function wrongFormat(): self
+    {
+        return new self('wrong_format');
+    }
+
     public static function notReady(): self
     {
         return new self('not_ready');

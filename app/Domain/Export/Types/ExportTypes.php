@@ -25,6 +25,7 @@ final class ExportTypes
         'audit_log' => AuditLogExport::class,
         'backfill_report' => BackfillReportExport::class,
         'workplan' => WorkplanExport::class,
+        'round_report' => RoundReportExport::class,
     ];
 
     public function __construct(

@@ -7,6 +7,7 @@ import CreateRoundForm from '@/components/CreateRoundForm';
 import Panel from '@/components/Panel';
 import PanelHeader from '@/components/PanelHeader';
 import ProgressPanel, { type ProgressStage } from '@/components/ProgressPanel';
+import RoundReportPanel from '@/components/RoundReportPanel';
 import RoundsTable, { type RoundAction } from '@/components/RoundsTable';
 import RoundWindowPanel from '@/components/RoundWindowPanel';
 import { formatCount, formatDate } from '@/lib/format';
@@ -38,7 +39,8 @@ type WindowErrors = Partial<Record<'window_start' | 'window_end', string>>;
  * goes through a close panel (what is still open, "Reconcile all sources now") and a reasoned
  * dialog with the public-impact note; reopening takes it back, also reasoned. An open round's
  * window can be edited and the round rescored, each with a reason. Create a round below the list.
- * Every action reloads only `rounds` (and the shell) and says what happened.
+ * Every action reloads only `rounds` (and the shell) and says what happened. The PDF round report
+ * (Phase 6 step 5) is asked for from its own panel.
  */
 export default function AdminRounds({ rounds, sources, graceDays }: AdminRoundsProps) {
     const t = useTranslate();
@@ -236,6 +238,8 @@ export default function AdminRounds({ rounds, sources, graceDays }: AdminRoundsP
                     </div>
                 </Panel>
             )}
+
+            <RoundReportPanel rounds={rounds} />
 
             <CreateRoundForm
                 graceDays={graceDays}

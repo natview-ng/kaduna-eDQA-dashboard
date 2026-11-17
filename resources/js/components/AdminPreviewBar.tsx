@@ -5,7 +5,11 @@ import type { Filters } from '@/types/shell';
 
 /** What each dashboard page exports (Phase 6 step 1): the figures it shows, from the same aggregators. */
 const EXPORTS: Record<string, ExportChoice[]> = {
-    'dashboard/home': [{ key: 'state_summary', offersPrivate: false }],
+    // The round report: the round in view (year and quarter), else the latest closed round (Phase 6 step 5).
+    'dashboard/home': [
+        { key: 'state_summary', offersPrivate: false },
+        { key: 'round_report', offersPrivate: false, formats: ['pdf'] },
+    ],
     'dashboard/facility': [
         { key: 'facility_scores', offersPrivate: false },
         { key: 'item_responses', offersPrivate: true },

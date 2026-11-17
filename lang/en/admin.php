@@ -78,6 +78,7 @@ return [
             'audit_log' => 'Audit log',
             'backfill_report' => 'Backfill report (Excel)',
             'workplan' => 'Implementation workplan (Excel)',
+            'round_report' => 'Round report (PDF)',
         ],
         // The workplan's own privacy option (Phase 6 step 4).
         'private_plan' => 'Include private plan fields',
@@ -87,6 +88,7 @@ return [
         'formats' => [
             'csv' => 'CSV',
             'xlsx' => 'Excel',
+            'pdf' => 'PDF',
         ],
         'private' => 'Include assessor and source details',
         'private_help' => 'Adds assessor names, device IDs, visit GPS, source links and attachment links. The file then holds personal data: keep it safe and share it only with people who need it. Your choice is recorded in the audit log and in the file.',
@@ -732,6 +734,15 @@ return [
 
     // The Rounds page (Phase 5 step 4). Closing a round publishes it (D-07, D-77).
     'rounds' => [
+        // Phase 6 step 5 (D-101): the PDF round report.
+        'report' => [
+            'title' => 'Round report (PDF)',
+            'description' => 'A printable report of one round: headline, dimensions, trends, every LGA, the plan, data quality and method. Closed rounds are the published ones.',
+            'round' => 'Round',
+            'open_option' => ':round (open: draft)',
+            'draft' => ':round is not closed. Its report is a draft: every page is marked "DRAFT — round not closed" and the file name says DRAFT.',
+            'none' => 'No round yet.',
+        ],
         'table' => [
             'title' => 'Rounds',
             'description' => 'Newest first. A round is public only while it is closed.',

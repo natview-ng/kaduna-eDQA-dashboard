@@ -155,3 +155,17 @@ arch('public controllers use public resources only')
         'App\Http\Resources\Sources',
         'App\Http\Resources\AssessmentFlagsResource',
     ]);
+
+// DEPLOY.md §12, Phase 6 step 5: Chromium runs without a sandbox, which is acceptable only because
+// it renders the app's own HTML. Browsershot and the PDF builder are reached through PdfRenderer
+// alone, which takes rendered HTML and never a URL.
+arch('only PdfRenderer drives Chromium')
+    ->expect(['Spatie\Browsershot\Browsershot', 'Spatie\LaravelPdf\Facades\Pdf', 'Spatie\LaravelPdf\PdfBuilder'])
+    ->toOnlyBeUsedIn(['App\Domain\Export\Report\PdfRenderer', 'Tests']);
+
+it('never gives Chromium a URL', function (): void {
+    $renderer = (string) file_get_contents(__DIR__.'/../../app/Domain/Export/Report/PdfRenderer.php');
+
+    expect($renderer)->toContain('Pdf::html(')
+        ->not->toMatch('/Browsershot::url|setUrl\(|->url\(|setContentUrl|setRemoteInstance|waitUntilNetworkIdle/');
+});

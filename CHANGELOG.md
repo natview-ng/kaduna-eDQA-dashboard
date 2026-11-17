@@ -9,6 +9,22 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **PDF round report (Phase 6 step 5, D-101).** From the Rounds page and Home's export in the
+  admin preview.
+  - One round on A4: cover ("Support: HSDF"), the state headline and three dimensions, public and
+    private, quality by quarter, month by month, every LGA with its band, the weakest LGAs, the
+    implementation plan (owner roles and statuses), a data quality note (accepted and quarantined
+    submissions, by rule and by source; counts only) and the method. Page numbers, a running
+    header, and table headers that repeat across pages.
+  - Every figure comes from the dashboard's own aggregators; charts are drawn on the server, each
+    next to its table. Nothing personal is in it.
+  - Closed rounds by default. An open round's report is marked "DRAFT — round not closed" on every
+    page, and its file name says DRAFT.
+  - Rendered by Chromium on the export worker, queued like every export, with progress, a signed
+    download and audit entries. The PDF is tagged and carries its title and language.
+  - `edqa:pdf-smoke` checks rendering after a deploy; `make pdf` runs it and the PDF tests
+    locally.
+
 - **Implementation workplan as Excel (Phase 6 step 4, D-100).** From the admin plan page and the
   admin preview of the public plan.
   - Sheets: Plan (LGA, overall, weakest dimension and score, recommended action, owner role,

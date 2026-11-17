@@ -209,7 +209,9 @@ it('marks a failed export with a plain message and keeps no partial file', funct
 it('refuses an unknown type or format, and a download of an export not ready', function (): void {
     Queue::fake();
     $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'payloads', 'format' => 'csv'])->assertUnprocessable()->assertJsonValidationErrors('type');
-    $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'facility_scores', 'format' => 'pdf'])->assertUnprocessable()->assertJsonValidationErrors('format');
+    $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'facility_scores', 'format' => 'docx'])->assertUnprocessable()->assertJsonValidationErrors('format');
+    // PDF is the round report's format alone (Phase 6 step 5).
+    $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'facility_scores', 'format' => 'pdf'])->assertStatus(409)->assertJsonPath('code', 'wrong_format');
 
     $export = requestTestExport(['type' => 'facility_scores', 'format' => 'csv']);
     $this->actingAs($this->admin)->get(URL::temporarySignedRoute('admin.exports.download', now()->addMinutes(30), ['export' => $export->id], absolute: false))

@@ -221,6 +221,12 @@ return [
                 'blank' => '(blank)',
             ],
         ],
+        // Phase 6 step 5 (D-101): the PDF; its own words are in report.php.
+        'round_report' => [
+            'title' => 'Round report',
+            'no_round' => 'There is no closed round to report on. Choose a round.',
+        ],
+
         'workplan' => [
             'title' => 'Implementation workplan',
             'round' => ':round (:status)',
@@ -322,6 +328,7 @@ return [
         'unknown_type' => 'There is no export called :type.',
         'private_not_offered' => 'This export has no assessor or source details to include.',
         'excel_only' => 'This export has several sheets, so it is only available as Excel.',
+        'wrong_format' => 'This export is not available in that format.',
         'not_ready' => 'This export is not ready to download yet.',
         'expired' => 'This export has expired: its file is deleted 7 days after it was made. Export it again.',
         'failed' => 'The export could not be prepared. Try again; if it fails again, tell the technical team.',

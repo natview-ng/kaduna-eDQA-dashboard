@@ -264,6 +264,17 @@ return [
         'per_minute' => 10,
     ],
 
+    // The PDF round report (Phase 6 step 5, D-101), rendered by Chromium through Browsershot on
+    // worker-exports only (DEPLOY.md §12). The worker image sets the paths; an empty key in .env
+    // falls back to them. Chromium gets the rendered HTML, never a URL.
+    'pdf' => [
+        'chrome_path' => env('BROWSERSHOT_CHROME_PATH') ?: '/usr/bin/chromium',
+        'node_binary' => env('BROWSERSHOT_NODE_BINARY') ?: '/usr/bin/node',
+        'node_modules' => env('NODE_PATH') ?: '/usr/local/lib/node_modules',
+        'pdftotext' => env('PDFTOTEXT_BINARY') ?: '/usr/bin/pdftotext',
+        'timeout' => 120,
+    ],
+
     'validation' => [
         // ARCHITECTURE.md §6, in catalogue order: the pipeline runs them in this order and
         // UNKNOWN_FORM_VERSION must come first. Strings, not ::class: the rule classes arrive

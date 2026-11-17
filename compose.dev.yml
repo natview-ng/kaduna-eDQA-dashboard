@@ -60,9 +60,24 @@ services:
       # Keep the container's Linux node_modules separate from the host's.
       - vite-node-modules:/app/node_modules
 
+  # The worker image's PDF tools on the dev image (Dockerfile target dev-worker): queued PDFs render
+  # here, and `make pdf` runs the PDF tests and edqa:pdf-smoke in it (DEPLOY.md §12).
   worker:
     <<: *php
+    build:
+      context: .
+      target: dev-worker
+      args:
+        UID: "${UID:-1000}"
+        GID: "${GID:-1000}"
+    image: edqa-dev-worker:local
     command: ["artisan", "queue:work", "--queue=default,rescore,exports,low", "--tries=1"]
+    shm_size: 256m                   # Chromium crashes with the 64 MB default
+    environment:
+      XDEBUG_MODE: "${XDEBUG_MODE:-off}"
+      # The image's paths, over the empty keys .env.example carries.
+      BROWSERSHOT_CHROME_PATH: /usr/bin/chromium
+      BROWSERSHOT_NODE_BINARY: /usr/bin/node
     depends_on: [app]
 
   scheduler:

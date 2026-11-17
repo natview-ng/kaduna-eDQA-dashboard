@@ -281,6 +281,41 @@ final class QuarantineQuery
     }
 
     /**
+     * The round report's data quality note (Phase 6 step 5, D-101): records of a round kept out of
+     * its figures (still open, or rejected), by hard-failure code and by source. Counts only:
+     * never a facility, an assessor or an ID. A record failing two rules counts under both rules
+     * and once in the total and by source.
+     *
+     * @return array{total: int, rules: list<array{code: string, count: int}>, sources: array<int, int>}
+     */
+    public function heldBackCounts(int $roundId): array
+    {
+        $held = fn (): Builder => QuarantinedRecord::query()->where('round_id', $roundId)
+            ->where(fn (Builder $q): Builder => $q->where('status', 'open')->orWhere('resolution', 'rejected'));
+
+        $rules = DB::table('quarantined_records as q')
+            ->crossJoin(DB::raw('jsonb_array_elements(q.failures) AS f(failure)'))
+            ->whereIn('q.id', $held()->select('id'))
+            ->whereRaw("f.failure->>'severity' = 'hard'")
+            ->selectRaw("f.failure->>'code' AS code, count(DISTINCT q.id) AS count")
+            ->groupBy('code')
+            ->orderByDesc('count')
+            ->orderBy('code')
+            ->get();
+
+        $sources = [];
+        foreach ($held()->groupBy('source_id')->orderBy('source_id')->selectRaw('source_id, COUNT(*) AS n')->get() as $row) {
+            $sources[(int) $row->getAttribute('source_id')] = (int) $row->getAttribute('n');
+        }
+
+        return [
+            'total' => $held()->count(),
+            'rules' => array_values($rules->map(fn (object $row): array => ['code' => (string) $row->code, 'count' => (int) $row->count])->all()),
+            'sources' => $sources,
+        ];
+    }
+
+    /**
      * How many records the data issues export holds (Phase 6 step 1): the page's filters, plus
      * any of a set of rounds (`rounds`, the export's year and quarter).
      *

@@ -9,6 +9,7 @@ use App\Domain\Export\Enums\ExportStatus;
 use App\Domain\Export\Models\Export;
 use App\Domain\Export\Support\ExportDescription;
 use App\Domain\Export\Support\ExportWriter;
+use App\Domain\Export\Types\DocumentExport;
 use App\Domain\Export\Types\ExportTypes;
 use App\Domain\Export\Types\MultiSheetExport;
 use App\Support\Audit\AuditLog;
@@ -45,6 +46,10 @@ final class GenerateExport
         try {
             $type = $this->types->get($export->type);
             $filter = $export->filter;
+            // A document (the PDF round report) names its own file: the round, DRAFT when open.
+            if ($type instanceof DocumentExport) {
+                $path = "{$export->id}/{$type->fileName($filter)}.{$format->extension()}";
+            }
             $total = $type->count($filter);
             $progress = function (int $written) use ($export, $total): void {
                 $percent = $total === 0 ? 99 : min(99, intdiv($written * 100, $total));
@@ -53,9 +58,15 @@ final class GenerateExport
                 }
             };
             $about = fn (int $count): array => $this->description->about($export, $type, $count);
-            $rows = $type instanceof MultiSheetExport
-                ? $this->writer->writeSheets($type->sheets($filter, $export->includesPrivate()), $path, $about, $progress)
-                : $this->writer->write($type, $filter, $export->includesPrivate(), $format, $path, max(1, (int) config('edqa.exports.chunk_rows')), $progress, $about);
+            $rows = match (true) {
+                $type instanceof DocumentExport => $this->document($type, $filter, $path, function (int $percent) use ($export): void {
+                    if (min(99, $percent) > $export->progress) {
+                        $export->update(['progress' => min(99, $percent)]);
+                    }
+                }),
+                $type instanceof MultiSheetExport => $this->writer->writeSheets($type->sheets($filter, $export->includesPrivate()), $path, $about, $progress),
+                default => $this->writer->write($type, $filter, $export->includesPrivate(), $format, $path, max(1, (int) config('edqa.exports.chunk_rows')), $progress, $about),
+            };
         } catch (Throwable $e) {
             report($e);
             Storage::disk(ExportWriter::DISK)->delete($path);
@@ -78,6 +89,21 @@ final class GenerateExport
             'file' => basename($path),
             'include_private' => $export->includesPrivate(),
         ]);
+    }
+
+    /**
+     * Writes a document on the exports disk, its progress in percent; its page count stands for
+     * the rows.
+     *
+     * @param  array<string, mixed>  $filter
+     * @param  \Closure(int): void  $progress
+     */
+    private function document(DocumentExport $type, array $filter, string $path, \Closure $progress): int
+    {
+        $disk = Storage::disk(ExportWriter::DISK);
+        $disk->makeDirectory(dirname($path));
+
+        return $type->write($filter, $disk->path($path), $progress);
     }
 
     /**

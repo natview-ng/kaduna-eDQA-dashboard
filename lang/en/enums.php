@@ -29,6 +29,7 @@ return [
     'export_format' => [
         'csv' => 'CSV',
         'xlsx' => 'Excel',
+        'pdf' => 'PDF',
     ],
     'round_status' => [
         'open' => 'Open',

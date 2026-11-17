@@ -13,7 +13,7 @@ APP_DB_USER     := edqa_app
 APP_DB_PASSWORD := edqa_app_dev
 
 .DEFAULT_GOAL := help
-.PHONY: help up down build sh logs artisan composer npm test test-slow lint check fresh routes prod-build grants-check e2e e2e-sources e2e-round e2e-issues size lighthouse load sources-mock-up sources-mock-seed
+.PHONY: help up down build sh logs artisan composer npm test test-slow pdf lint check fresh routes prod-build grants-check e2e e2e-sources e2e-round e2e-issues size lighthouse load sources-mock-up sources-mock-seed
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  %-13s %s\n", $$1, $$2}'
@@ -55,6 +55,11 @@ test: ## Pest against edqa_test (parallel)
 
 test-slow: ## The slow group only (rescore time, server p95 on the perf dataset: ARCHITECTURE.md §10)
 	$(EXEC) vendor/bin/pest --group=slow
+
+pdf: ## PDFs in the worker container (Chromium, pdftotext): edqa:pdf-smoke, then the pdf test group
+	$(COMPOSE) up -d worker
+	$(COMPOSE) exec -T worker php artisan edqa:pdf-smoke
+	$(COMPOSE) exec -T worker vendor/bin/pest --group=pdf
 
 lint: ## Pint (test mode) and Larastan
 	$(EXEC) composer lint

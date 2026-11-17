@@ -181,6 +181,15 @@ falls in its **window**.
 - **Edit window**: change the dates, with a reason.
 - **Close…**: publishes the round (section 4). **Reopen…**: takes it off the public dashboard
   again, with a reason. **Rescore…**: scores every assessment again from its answers.
+- **Round report (PDF)**: below the table, choose a round and press **Export…**, then
+  **Start export**. The latest closed round is chosen first. The PDF prints on A4: a cover, the
+  state headline and the three dimensions, public and private, quality by quarter, month by
+  month, every LGA with its band, the weakest LGAs, the implementation plan (owner roles and
+  statuses only), a data quality note (how many submissions were accepted and quarantined, by
+  rule and by platform; counts only) and the method. It holds no names, contacts or IDs.
+  - **An open round's report is a draft.** Every page says "DRAFT — round not closed" across it
+    and in the header, and the file name ends in -DRAFT. Do not circulate a draft as published
+    figures: close the round first, then export again.
 
 ### Facility list
 
@@ -282,6 +291,7 @@ Excel, and the file holds exactly what the page shows, for the filters in view.
 | Where | What you can export |
 |---|---|
 | Admin preview bar, Home and Monitor | State summary: the headline, the three dimensions, public and private, coverage |
+| Rounds page; and the admin preview bar, Home | The round report (PDF only, see Rounds above): on Home, the round in view, else the latest closed round |
 | Admin preview bar, Facility view | Facility scores (every page, every metric), or item responses (one row per item) |
 | Admin preview bar, LGA view | The LGA table |
 | Admin preview bar, Implementation plan; and the Implementation plan page | The implementation workplan (Excel only): the plan, a summary by type and status, what each action means. Its Status column offers a dropdown and it prints A4 landscape. Tick **Include private plan fields** to add the contacts and notes |
@@ -302,7 +312,12 @@ Excel, and the file holds exactly what the page shows, for the filters in view.
   personal details are in it.
 - **Personal details:** item responses can include assessor names, device IDs, visit GPS, source
   links and attachment links, but only if you tick **Include assessor and source details**. The
-  file then holds personal data: keep it safe. Your choice is recorded in the audit log.
+  file then holds personal data: keep it safe. Your choice is recorded in the audit log. The
+  workplan's own option, **Include private plan fields**, adds each row's contact and notes in the
+  same way. The PDF round report has no such option: it never holds personal details.
+- **Exports are for signed-in administrators only.** There is no export button on the public
+  dashboard, and a download link does not work for anyone who is not signed in, even before its
+  30 minutes are up.
 - Every export and download is in the audit log.
 
 ---
@@ -337,6 +352,8 @@ The usual order. The end-to-end test does exactly this on test data.
    "Figures last updated" at the foot of each page shows today's date.
 
    ![The public dashboard after closing](images/admin-guide/public-home-after.png)
+
+9. **Export the round report** (PDF) on Rounds for the round you just closed, and share it.
 
 ### What "closing publishes" means
 
