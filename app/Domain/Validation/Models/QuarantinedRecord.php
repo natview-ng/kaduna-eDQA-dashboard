@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * A submission that failed at least one hard rule, with every failure, hard and soft
  * ([{code, severity, detail, field}]), the parsed snapshot and any correction overlay.
- * Reporting never reads this (CLAUDE.md hard rule 6). The audit trail records corrections and
+ * Reporting never reads this (hard rule 6). The audit trail records corrections and
  * resolution, not the payload.
  *
  * @property int $source_id

@@ -14,7 +14,7 @@ use App\Models\User;
 use Spatie\Activitylog\Models\Activity;
 
 /**
- * The Scoring rules page's props (Phase 5 step 6): every version (newest first) with who
+ * The Scoring rules page's props: every version (newest first) with who
  * published it, when and why (from the audit log's `published` entry), the draft if there is one,
  * the item catalog the weights table lists (every scored item in the field maps, with the form's
  * wording), the open and closed rounds (closed ones keep their pinned version, D-32), and each open

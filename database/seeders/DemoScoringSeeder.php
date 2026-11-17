@@ -16,7 +16,7 @@ use RuntimeException;
 
 /**
  * DEMO only (local, staging, tests): scores the demo item responses with the real rescore, so
- * the dashboard has numbers derived exactly as production derives them (CLAUDE.md hard rule 2).
+ * the dashboard has numbers derived exactly as production derives them (hard rule 2).
  *
  * Rounds are scored oldest first, synchronously (the sync queue, whatever QUEUE_CONNECTION
  * says), so SCORE_JUMP finds each facility's earlier round already scored. A closed round cannot

@@ -31,7 +31,7 @@ const RECONCILE_COUNTERS: readonly RunCounter[] = ['fetched', 'parsed', 'accepte
  * fetched, this source's counts in each open round so far, where its cursor stands, the last
  * error in plain language ("KoboToolbox returned HTTP 503 at 14:02 WAT; last success 13:40
  * WAT"), and Pull now and Reconcile, each followed in its own ProgressPanel. Every state is said
- * in words, with a shape as well as a colour (CLAUDE.md hard rule 11).
+ * in words, with a shape as well as a colour (hard rule 11).
  */
 export default function SourcePanel({ source, runbookUrl, pull, reconcile, onPull, onReconcile, onFinished }: SourcePanelProps) {
     const t = useTranslate();

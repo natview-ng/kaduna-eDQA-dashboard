@@ -13,7 +13,7 @@ export type RuleVersionHistoryProps = {
 };
 
 /**
- * Every rule version, newest first (Phase 5 step 6): status, when and by whom it was published,
+ * Every rule version, newest first: status, when and by whom it was published,
  * and why; then any two versions compared, change by change (bands, weights, N/A policy, choice
  * map), in words.
  */

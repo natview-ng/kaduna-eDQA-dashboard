@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Runs an export the way the worker does (GenerateExport) and reads the file back, for the export
- * tests (Phase 6 step 1). Storage::fake('exports') first.
+ * tests. Storage::fake('exports') first.
  */
 final class ExportRunner
 {

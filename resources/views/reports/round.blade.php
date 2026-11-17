@@ -1,5 +1,5 @@
 {{--
-    The PDF round report (Phase 6 step 5, D-101). Print only: A4 portrait, rendered to HTML on the
+    The PDF round report (D-101). Print only: A4 portrait, rendered to HTML on the
     server and handed to Chromium (RoundReportView, RoundReportPdf), never served as a page. Charts
     are inline SVG drawn by SvgChart; each has its table (hard rule 11). Tokens come from app.css
     (ReportStyle), the font is the self-hosted IBM Plex Sans. Table header rows repeat on every

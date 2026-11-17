@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Export\Report;
 
 /**
- * Inline SVG charts for the PDF round report (Phase 6 step 5, D-101): drawn on the server, so the
+ * Inline SVG charts for the PDF round report (D-101): drawn on the server, so the
  * PDF never waits on JavaScript or hydration. Three kinds: horizontal bars, grouped bars and a
  * line. Scores only, so every axis runs 0 to 100. Colour comes from CSS classes the report view
  * maps to the design tokens (series-availability, series-overall, pub, priv…), never from hex

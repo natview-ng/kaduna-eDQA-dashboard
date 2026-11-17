@@ -14,7 +14,7 @@ use App\Domain\Scoring\DTOs\RuleConfig;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The item responses export (Phase 6 step 1), long format: one row per facility × round ×
+ * The item responses export, long format: one row per facility × round ×
  * dimension × month × item, for the accepted and flagged assessments in the rounds the filter
  * covers (the page's rounds), within its LGA, level and owner (and month, D-75). Each item's result
  * is ItemResult's, as the facility drawer shows it: pass, fail, N/A, or the checks passed for an

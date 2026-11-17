@@ -8,7 +8,7 @@ use App\Domain\Ingestion\DTOs\BackfillReport;
 use App\Domain\Round\Support\RoundLabel;
 
 /**
- * The backfill report as Excel sheets (ARCHITECTURE.md §5.6, Phase 6 step 2): Summary (per source ×
+ * The backfill report as Excel sheets (ARCHITECTURE.md §5.6): Summary (per source ×
  * round: pulled, accepted, flagged, quarantined, rejected, unprocessed, duplicates and duplicates
  * across sources; each source's total and the grand total), By rule × year, By rule × form version,
  * Examples (the most frequent details per hard rule), Unmatched facilities. It only lays out

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Export\Report;
 
 /**
- * The PDF's design tokens and fonts (Phase 6 step 5, D-101; CONVENTION.md §6). The colours are
+ * The PDF's design tokens and fonts (D-101; CONVENTION.md §6). The colours are
  * read from resources/css/app.css, where the tokens are defined once, and given to the print view
  * as the same custom properties (--color-ink, --color-series-availability…). IBM Plex Sans is the
  * app's self-hosted copy, embedded in the HTML as data: URIs, so Chromium fetches nothing: the

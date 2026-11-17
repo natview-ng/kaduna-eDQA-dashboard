@@ -28,7 +28,7 @@ const POLL_MS = 3000;
 const POLL_TRIES = 40;
 
 /**
- * The Scoring rules page (ARCHITECTURE.md §7, §9.3; Phase 5 step 6). The current version, read
+ * The Scoring rules page (ARCHITECTURE.md §7, §9.3). The current version, read
  * only with the configuration it depends on; one draft, edited and saved or discarded; its impact
  * previewed per open round (in memory, nothing saved), closed rounds listed as unaffected (D-32);
  * publish behind a reasoned dialog that repeats the preview, then each open round's rescore

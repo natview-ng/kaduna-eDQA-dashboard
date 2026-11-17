@@ -24,10 +24,10 @@ export type AdminAuditProps = {
 const DEBOUNCE_MS = 300;
 
 /**
- * The Audit log page (SECURITY.md §4, Phase 5 step 7, D-93): every audited write and sign-in
+ * The Audit log page (SECURITY.md §4, D-93): every audited write and sign-in
  * event, filtered on the server (who, subject, source, event, dates, reason), 50 a page. Read
  * only: nothing can be changed or removed, and viewing is not recorded. Export goes through the export
- * plumbing (Phase 6 step 1): the filtered entries as CSV or Excel, queued, every export audited.
+ * plumbing: the filtered entries as CSV or Excel, queued, every export audited.
  */
 export default function AdminAudit({ entries, auditFilters: filters, actors, events, types, sources }: AdminAuditProps) {
     const t = useTranslate();

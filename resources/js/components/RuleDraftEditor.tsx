@@ -20,7 +20,7 @@ export type RuleDraftEditorProps = {
 const NA_POLICIES = ['exclude'] as const;
 
 /**
- * The one draft (Phase 5 step 6): band thresholds (each the lowest score in its band, going down,
+ * The one draft: band thresholds (each the lowest score in its band, going down,
  * checked as typed), item weights (every scored item, searchable, 1 unless set), and the N/A
  * policy. Save keeps the draft; Discard asks once, in place. Weights that are 1 are not stored.
  */

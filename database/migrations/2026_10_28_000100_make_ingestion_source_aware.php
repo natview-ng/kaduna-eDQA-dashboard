@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Phase 2C step 1 (ARCHITECTURE.md §4, §5.0): ingestion becomes source-aware, so ODK Central and
+ * ARCHITECTURE.md §4, §5.0: Ingestion becomes source-aware, so ODK Central and
  * KoboToolbox can share one pipeline. Data-preserving and reversible:
  *
  * - submission_sources is created with the 'odk' row; every existing submission, quarantined

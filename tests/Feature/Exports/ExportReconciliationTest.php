@@ -29,7 +29,7 @@ use Tests\Support\ExportRunner;
 use Tests\Support\ReportingFixture;
 use Tests\Support\Rows;
 
-// Phase 6 step 1 (D-97): every export mirrors a page and reads its numbers from that page's own
+// D-97: Every export mirrors a page and reads its numbers from that page's own
 // aggregator or query. For each type and five filter combinations, every exported number equals
 // the aggregator's value: the full-precision column the value itself, the displayed column its
 // display, the band its band label. Q2 2026 is open (its rows are provisional), Q1 2026 closed.

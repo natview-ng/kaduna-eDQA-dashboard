@@ -21,7 +21,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 
 /**
- * The export's rows, streamed chunk by chunk from the export type, then formatted (Phase 6 step 1):
+ * The export's rows, streamed chunk by chunk from the export type, then formatted:
  * a bold header row frozen at the top with an autofilter, each column's number format (scores at
  * full precision and as displayed, counts, dates) and a width to suit it.
  */

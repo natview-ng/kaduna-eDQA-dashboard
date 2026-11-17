@@ -8,7 +8,7 @@ use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Foundation\Events\Dispatchable;
 
 /**
- * An administrator corrected an accepted assessment's item responses (Phase 5 corrections): its
+ * An administrator corrected an accepted assessment's item responses: its
  * round is rescored (ARCHITECTURE.md §7). Dispatched after the transaction commits.
  */
 final readonly class AssessmentCorrected implements ShouldDispatchAfterCommit

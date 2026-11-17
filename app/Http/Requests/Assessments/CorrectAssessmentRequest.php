@@ -16,7 +16,7 @@ use Illuminate\Validation\Validator;
 /**
  * POST /api/assessments/{assessment}/corrections (D-58): item results keyed as the form names
  * them, the visit start and end with their offset, and the reason. A score in any form is
- * refused (CLAUDE.md rule 2); every item key must be one of this assessment's items.
+ * refused (hard rule 2); every item key must be one of this assessment's items.
  */
 final class CorrectAssessmentRequest extends FormRequest
 {
@@ -38,7 +38,7 @@ final class CorrectAssessmentRequest extends FormRequest
             'items.*' => ['string', 'regex:/^(pass|fail|na|[0-9])$/'],
             'started_at' => ['nullable', 'string', self::OFFSET_TIME],
             'ended_at' => ['nullable', 'string', self::OFFSET_TIME, 'after_or_equal:started_at'],
-            // Scores are derived, never sent (CLAUDE.md rule 2).
+            // Scores are derived, never sent (hard rule 2).
             'scores' => ['prohibited'],
             'score' => ['prohibited'],
             'overall' => ['prohibited'],

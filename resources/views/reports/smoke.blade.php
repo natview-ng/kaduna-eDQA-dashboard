@@ -1,4 +1,4 @@
-{{-- edqa:pdf-smoke's one page (Phase 6 step 5): the round report's tokens and font, nothing else. --}}
+{{-- edqa:pdf-smoke's one page: the round report's tokens and font, nothing else. --}}
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>

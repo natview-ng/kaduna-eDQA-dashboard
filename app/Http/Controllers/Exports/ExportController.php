@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * Queued exports (Phase 6 step 0, D-96; ARCHITECTURE.md §8). POST queues one and answers its id
+ * Queued exports (D-96; ARCHITECTURE.md §8). POST queues one and answers its id
  * (202); GET follows it, with a signed link once done; the download is signed and needs a signed-in
  * administrator, streams from the private disk and is audited. Exports are admin-only (D-80): no
  * public route reaches any of this.

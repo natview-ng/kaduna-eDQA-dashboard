@@ -7,7 +7,7 @@ namespace App\Http\Requests\Admin;
 use App\Support\Audit\AuditLogQuery;
 use Illuminate\Foundation\Http\FormRequest;
 
-/** The Audit log's filters (Phase 5 step 7): GET /admin/audit; its export checks the same in AuditLogExport (Phase 6). */
+/** The Audit log's filters: GET /admin/audit; its export checks the same in AuditLogExport. */
 final class AuditLogRequest extends FormRequest
 {
     public function authorize(): bool

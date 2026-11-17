@@ -10,7 +10,7 @@ use App\Domain\Scoring\Enums\Dimension;
 /**
  * An item's result as the facility drawer shows it and ScoreCalculator counts it: N/A when not
  * applicable or when the round's choice map says so, else the mapped pass or fail; null only when
- * no rule version can be read. Shared by the drawer and the item responses export (Phase 6 step 1),
+ * no rule version can be read. Shared by the drawer and the item responses export,
  * so the two never disagree.
  */
 final class ItemResult

@@ -2,7 +2,7 @@ import { expect, test, type APIRequestContext, type Browser, type Locator, type 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { E2E_EMAIL, E2E_PASSWORD } from './support/credentials';
 
-// Phase 5 close-out: one administrator runs a whole round, keyboard first, from an empty quarter
+// One administrator runs a whole round, keyboard first, from an empty quarter
 // to a published one. `make e2e-round` sets it up on its own database (edqa_e2e, so the
 // developer's data is never touched): the demo seed with Q2 2026 closed in July, and both mocks
 // holding 300 submissions for Q3 2026 (ODK Central 100, KoboToolbox 200; 20 broken, 3 visits on
@@ -13,7 +13,7 @@ import { E2E_EMAIL, E2E_PASSWORD } from './support/credentials';
 //   at the sources: one accepted Kobo visit is deleted (and the reconcile finds it), and the two
 //     staged ODK edits become visible.
 //   part 2 (E2E_FULL_ROUND=2): e. Data issues; f. correct an assessment; g. edit and deactivate
-//     a facility; h. publish a band change; i. reconcile and close; j. the audit log; l. (Phase 6)
+//     a facility; h. publish a band change; i. reconcile and close; j. the audit log; l.
 //     export the closed round from the admin area and download each file; k. log out, and the
 //     visitor's view again, with the leak checks and no way to an export.
 // The screenshots for docs/admin-guide.md are taken on the way.
@@ -698,7 +698,7 @@ test.describe('Full round, part 2: Data issues to the published round', () => {
         expect(detail.status()).toBe(200);
         assertNothingLeaks(`/api/public/facilities/${corrected}`, await detail.text(), await detail.json());
 
-        // No export reaches a visitor (Phase 6): not the signed download links made in step l (still
+        // No export reaches a visitor: not the signed download links made in step l (still
         // within their 30 minutes), not their progress, not a new request.
         const made = notes().exports ?? [];
         expect(made, 'the four exports of step l').toHaveLength(4);

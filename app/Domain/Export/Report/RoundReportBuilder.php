@@ -27,7 +27,7 @@ use App\Domain\Validation\Queries\QuarantineQuery;
 use Carbon\CarbonImmutable;
 
 /**
- * Gathers the PDF round report (Phase 6 step 5, D-101) from the dashboard's aggregators for one
+ * Gathers the PDF round report (D-101) from the dashboard's aggregators for one
  * round: no figure is computed here (hard rule 5), only picked and put in order. A closed round is
  * read with the public audience, so the report is exactly what the public dashboard shows; an open
  * round (a draft) with the admin audience, as the admin preview shows it. The data quality note

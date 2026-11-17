@@ -13,7 +13,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Throwable;
 
 /**
- * Renders one PDF round report (Phase 6 step 5, D-101) on the exports queue, which in staging and
+ * Renders one PDF round report (D-101) on the exports queue, which in staging and
  * production only worker-exports serves: the one image with Chromium (DEPLOY.md §12). Same
  * lifecycle as any export (GenerateExport: running, progress, done or failed, audited); once only,
  * as a retry would render it again.

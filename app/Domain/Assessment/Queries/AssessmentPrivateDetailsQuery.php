@@ -8,7 +8,7 @@ use App\Domain\Assessment\Models\Assessment;
 
 /**
  * The assessor, device and visit GPS of assessments (SECURITY.md §3.1: never public). Read only
- * for an export whose requester chose "Include assessor and source details" (Phase 6 step 0), one
+ * for an export whose requester chose "Include assessor and source details", one
  * query per chunk; nothing else in an export ever selects these columns.
  */
 final class AssessmentPrivateDetailsQuery

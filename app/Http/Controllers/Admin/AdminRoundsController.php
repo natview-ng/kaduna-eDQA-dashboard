@@ -13,7 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * The Rounds page (ARCHITECTURE.md §9.3, Phase 5 step 4): every round with its counts, the sources
+ * The Rounds page (ARCHITECTURE.md §9.3): every round with its counts, the sources
  * that can be reconciled before a close (configured and switched on, with any reconcile already
  * running, so the page follows it), and the late-visit grace for the create form's hint. Closing a
  * round publishes it (D-07, D-77); the page acts through /api/rounds and reloads only `rounds`.

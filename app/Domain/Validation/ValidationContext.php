@@ -104,7 +104,7 @@ final class ValidationContext
 
     /**
      * The round, open or closed, whose window holds the visit date (D-28). Null when no window
-     * holds it, or when more than one does: an ambiguous round is never guessed (CLAUDE.md hard
+     * holds it, or when more than one does: an ambiguous round is never guessed (hard
      * rule 12).
      */
     public function roundFor(ParsedSubmission $submission): ?RoundSnapshot

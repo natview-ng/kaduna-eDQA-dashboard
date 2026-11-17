@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 /**
- * "Audit log" (the Audit log page, D-93), now on the export plumbing (Phase 6 step 1): every
+ * "Audit log" (the Audit log page, D-93), now on the export plumbing: every
  * matching entry, newest first, from AuditLogQuery::each with the page's filters (who, subject
  * type, source, event, dates, reason): when, who, what, the subject, the source, the reason and
  * before/after. Reading the log for an export changes nothing in it.

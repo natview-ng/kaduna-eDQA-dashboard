@@ -14,7 +14,7 @@ use Throwable;
 
 /**
  * Writes one export on the exports queue (DEPLOY.md: default, rescore, exports, low), never in the
- * request (Phase 6 step 0). Once only: a retry would write the file again; GenerateExport marks a
+ * request. Once only: a retry would write the file again; GenerateExport marks a
  * failure itself, and failed() covers a worker that dies mid-way.
  */
 final class GenerateExportJob implements ShouldBeUnique, ShouldQueue

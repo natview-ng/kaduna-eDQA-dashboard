@@ -20,14 +20,14 @@ arch('no debugging functions')
     ->expect(['dd', 'dump', 'ray', 'var_dump'])
     ->not->toBeUsed();
 
-// CLAUDE.md hard rule 6: no aggregate reads a table that can hold an unvalidated row.
+// hard rule 6: no aggregate reads a table that can hold an unvalidated row.
 // App\Domain\Reporting is still empty; the rule is in force before its first class exists.
 arch('reporting never reads quarantine or raw submissions')
     ->expect('App\Domain\Reporting')
     ->not->toUse([
         'App\Domain\Validation\Models\QuarantinedRecord',
         'App\Domain\Ingestion\Models\Submission',
-        // Phase 2C: the source rows and adapters are ingestion's; Reporting reads assessments only.
+        // The source rows and adapters are ingestion's; Reporting reads assessments only.
         'App\Domain\Ingestion\Models\SubmissionSource',
         'App\Domain\Ingestion\Contracts\SubmissionSource',
         'App\Domain\Ingestion\SourceRegistry',
@@ -52,7 +52,7 @@ arch('only ingestion, validation and the Data issues endpoints touch quarantine 
         'Tests',
     ]);
 
-// CLAUDE.md hard rule 5: no aggregate outside an Aggregator. Any AVG/SUM/COUNT in SQL (string
+// hard rule 5: no aggregate outside an Aggregator. Any AVG/SUM/COUNT in SQL (string
 // literals and heredocs: PHP's own count() and array_sum() are code, not SQL) or a query
 // builder ->avg()/->sum() call outside App\Domain\Reporting fails here.
 it('keeps AVG, SUM and COUNT in SQL inside App\Domain\Reporting', function (): void {
@@ -103,7 +103,7 @@ arch('payload normalisers are pure')
     ->toImplement('App\Domain\Ingestion\Contracts\PayloadNormalizer')
     ->not->toUse(['Illuminate\Support\Facades', 'Illuminate\Http', 'App\Domain\Ingestion\Odk\OdkCentralClient', 'App\Domain\Ingestion\Kobo\KoboClient', 'App\Domain\Ingestion\Models']);
 
-// CLAUDE.md hard rule 1: data enters only from the configured sources (ODK Central, KoboToolbox),
+// hard rule 1: data enters only from the configured sources (ODK Central, KoboToolbox),
 // through the shared pipeline.
 it('has no CSV import path', function (): void {
     // Arch tests don't boot Laravel, so no app_path() here.
@@ -156,7 +156,7 @@ arch('public controllers use public resources only')
         'App\Http\Resources\AssessmentFlagsResource',
     ]);
 
-// DEPLOY.md §12, Phase 6 step 5: Chromium runs without a sandbox, which is acceptable only because
+// DEPLOY.md §12: Chromium runs without a sandbox, which is acceptable only because
 // it renders the app's own HTML. Browsershot and the PDF builder are reached through PdfRenderer
 // alone, which takes rendered HTML and never a URL.
 arch('only PdfRenderer drives Chromium')

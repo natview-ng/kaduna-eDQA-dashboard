@@ -96,7 +96,7 @@ FROM app AS worker
 USER 0
 # Fonts are pinned. Chromium is deliberately not: Debian drops superseded Chromium builds from
 # its mirrors every few weeks, so a pin would break builds and hold back security fixes.
-# poppler-utils gives pdftotext: edqa:pdf-smoke reads back the PDF it renders (Phase 6 step 5).
+# poppler-utils gives pdftotext: edqa:pdf-smoke reads back the PDF it renders.
 # hadolint ignore=DL3008
 RUN apt-get update \
  && apt-get install -y --no-install-recommends chromium \

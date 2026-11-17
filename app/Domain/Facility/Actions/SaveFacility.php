@@ -13,7 +13,7 @@ use App\Support\Audit\AuditLog;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Adding a facility and editing one inline (ARCHITECTURE.md §9.3, Phase 5 step 5): the master
+ * Adding a facility and editing one inline (ARCHITECTURE.md §9.3): the master
  * list is the validation authority, so every change is audited old and new, with the reason when
  * one is given (the master-list import gives "master list import {file}").
  *

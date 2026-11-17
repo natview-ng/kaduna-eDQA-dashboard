@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
-// The client half of CLAUDE.md hard rule 5 (tests/Arch/ArchitectureTest.php is the server half):
+// The client half of hard rule 5 (tests/Arch/ArchitectureTest.php is the server half):
 // no number a person reads is rounded, summed or averaged in the browser. Every score arrives as a
 // ScoreValue with its display text; counts arrive as integers. Rounding and folding calls are
 // allowed only where they serve layout or text, each listed below with why.

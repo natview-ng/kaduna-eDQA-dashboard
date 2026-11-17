@@ -15,7 +15,7 @@
 -- Method: facility score first, then unweighted means of facility scores upward
 -- (D-04; edqa.aggregation.weighting = 'unweighted').
 --
--- ASSUMPTIONS to confirm against a real client round in Phase 3:
+-- ASSUMPTIONS to confirm against a real client round:
 --   A1  (v3) Only accepted assessments count: status 'accepted' or 'flagged' (soft flags still
 --       count, §6). Any other status is left out, as in the aggregators.
 --   A2  Month columns m1..m3 are the mean of the three dimensions' scores for that month slot,

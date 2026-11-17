@@ -18,7 +18,7 @@ use App\Domain\Validation\ValidationContext;
  * dimension needs at least one applicable item (a missing dimension cannot be averaged).
  *
  * A legacy form with typed scores and no items lands here too (Q-16): scores are only ever
- * derived from items (CLAUDE.md hard rule 2), so there is no path that accepts them.
+ * derived from items (hard rule 2), so there is no path that accepts them.
  */
 final class ItemsIncompleteRule implements ValidationRule
 {

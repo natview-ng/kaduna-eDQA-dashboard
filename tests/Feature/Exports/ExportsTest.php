@@ -20,7 +20,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use Tests\Support\ReportingFixture;
 use Tests\Support\Rows;
 
-// Phase 6 step 0 (D-96): queued exports. Asked for from the admin area, written on the exports
+// D-96: Queued exports. Asked for from the admin area, written on the exports
 // queue in chunks, downloaded through a signed link (30 minutes) by a signed-in administrator,
 // deleted after 7 days. The default columns never carry assessor names, device IDs, visit GPS or
 // attachment links; the option that adds them is recorded in the audit log and in the file.
@@ -210,7 +210,7 @@ it('refuses an unknown type or format, and a download of an export not ready', f
     Queue::fake();
     $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'payloads', 'format' => 'csv'])->assertUnprocessable()->assertJsonValidationErrors('type');
     $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'facility_scores', 'format' => 'docx'])->assertUnprocessable()->assertJsonValidationErrors('format');
-    // PDF is the round report's format alone (Phase 6 step 5).
+    // PDF is the round report's format alone.
     $this->actingAs($this->admin)->postJson('/admin/api/exports', ['type' => 'facility_scores', 'format' => 'pdf'])->assertStatus(409)->assertJsonPath('code', 'wrong_format');
 
     $export = requestTestExport(['type' => 'facility_scores', 'format' => 'csv']);

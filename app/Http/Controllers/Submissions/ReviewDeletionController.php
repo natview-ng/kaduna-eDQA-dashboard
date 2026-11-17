@@ -12,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 
 /**
  * "Mark reviewed" on a deletion at source (D-62): the Data sources page's deletions list. Takes the
- * submission's id only: raw submissions stay inside Ingestion (CLAUDE.md hard rule 6), which loads
+ * submission's id only: raw submissions stay inside Ingestion (hard rule 6), which loads
  * the row (an unknown id is a 404).
  */
 final class ReviewDeletionController extends Controller

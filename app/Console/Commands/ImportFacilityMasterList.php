@@ -12,7 +12,7 @@ use RuntimeException;
 /**
  * Loads the facility master list from the client's signed-off reconciliation workbook (D-91):
  * reference data, not assessment data, so it does not conflict with source-only ingestion
- * (CLAUDE.md hard rule 1). There is no upload route: the file is read from the server's disk.
+ * (hard rule 1). There is no upload route: the file is read from the server's disk.
  *
  * It prints what would change first (added, changed, synthetic facilities deactivated, wards
  * created); --dry-run stops there and writes nothing. Any bad row refuses the whole workbook with

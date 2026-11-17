@@ -78,7 +78,7 @@ it('quarantines a legacy form with typed scores and no items (Q-16)', function (
         ->and($failures[0]->detail)->toBe('no item responses: this form recorded typed scores, which the portal never accepts as scores');
 });
 
-// Phase 2B: an answer the form does not allow (the parser's 'invalid') is a missing answer. One
+// An answer the form does not allow (the parser's 'invalid') is a missing answer. One
 // among valid answers still fails: otherwise it would silently score as a fail.
 it('treats an answer the form does not allow as missing, even among valid answers', function (): void {
     $submission = ParsedSubmissionBuilder::new()->withItemValue(Dimension::Availability, 1, 'tally_sheet', 'invalid')->build();

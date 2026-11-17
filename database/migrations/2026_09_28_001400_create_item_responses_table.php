@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 // One scored question's answer. Scores are always derived from these, never accepted from
-// input (CLAUDE.md hard rule 2). dimension mirrors App\Domain\Scoring\Enums\Dimension.
+// input (hard rule 2). dimension mirrors App\Domain\Scoring\Enums\Dimension.
 return new class extends Migration
 {
     public function up(): void

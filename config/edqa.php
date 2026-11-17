@@ -38,7 +38,7 @@ return [
         // dashboard pages drop the X-Robots-Tag and the robots meta tag; /admin and /login never do.
         'indexable' => false,
 
-        // throttle:public, per IP, for the public pages (and the public JSON, Phase P step 3).
+        // throttle:public, per IP, for the public pages (and the public JSON).
         'per_minute' => 120,
 
         // public.cache: how long a visitor's browser may keep a public page or public JSON, in seconds
@@ -230,13 +230,13 @@ return [
         'action_below' => 'acceptable',
 
         // The default owner of each dimension's standard action: a key of lang/en/plan.php
-        // owners. Phase 6 makes the owner editable per row (plan_actions).
+        // owners. Each row's owner can be changed in the admin plan (plan_actions).
         // D-79: who owns a plan action is a role (a unit), never a person: plan_actions.owner_role is
         // one of these (a CHECK holds the same list), labelled in lang/en/plan.php owners. A personal
         // contact, if any, is plan_actions.owner_contact: admin-only, never on the public plan.
         'roles' => ['lga_me_officer', 'state_me_team', 'programme_manager', 'state_hmis_team', 'lga_phc_coordinator'],
 
-        // Phase 6 step 3: a generated plan row is reviewed this many days after it is generated, and a
+        // A generated plan row is reviewed this many days after it is generated, and a
         // review date an administrator sets is never before today.
         'review_days' => 30,
 
@@ -254,7 +254,7 @@ return [
         'rounding' => 'half_up',
     ],
 
-    // Queued exports (Phase 6 step 0, D-96): written on the exports queue in chunks of
+    // Queued exports (D-96): written on the exports queue in chunks of
     // chunk_rows, downloaded through a signed link that works link_minutes, and deleted with
     // their row marked expired retention_days after they were written (the daily job).
     'exports' => [
@@ -264,7 +264,7 @@ return [
         'per_minute' => 10,
     ],
 
-    // The PDF round report (Phase 6 step 5, D-101), rendered by Chromium through Browsershot on
+    // The PDF round report (D-101), rendered by Chromium through Browsershot on
     // worker-exports only (DEPLOY.md §12). The worker image sets the paths; an empty key in .env
     // falls back to them. Chromium gets the rendered HTML, never a URL.
     'pdf' => [

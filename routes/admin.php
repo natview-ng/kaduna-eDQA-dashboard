@@ -56,7 +56,7 @@ Route::get('facilities', AdminFacilityListController::class)->name('facilities')
 // trail, the source and its link, and corrections. ?round= picks the round.
 Route::get('facilities/{facility}', AdminFacilityController::class)->whereNumber('facility')->name('facilities.show');
 Route::get('scoring-rules', AdminScoringRulesController::class)->name('scoring-rules');
-// The implementation plan (Phase 6 step 3): ?round= picks the round, open or closed.
+// The implementation plan: ?round= picks the round, open or closed.
 Route::get('plan', AdminPlanController::class)->name('plan');
 // The audit log (SECURITY.md §4, D-93): read only, filtered on the server; views are not audited.
 Route::get('audit', AdminAuditController::class)->name('audit');
@@ -72,7 +72,7 @@ Route::put('settings/password', [SecurityController::class, 'update'])
     ->middleware('throttle:6,1')
     ->name('user-password.update');
 
-// A queued export's file (Phase 6 step 0, D-96): a signed link (30 minutes) from GET
+// A queued export's file (D-96): a signed link (30 minutes) from GET
 // /admin/api/exports/{id}, and a signed-in administrator too; streamed from the private disk,
 // audited. Not under /admin/api: it is a file, not JSON.
 Route::get('exports/{export}/download', [ExportController::class, 'download'])
@@ -102,7 +102,7 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::get('backfill-reports/{file}', BackfillReportDownloadController::class)
         ->middleware('signed')->where('file', '[A-Za-z0-9.-]+')->name('backfill-reports.show');
 
-    // Queued exports (Phase 6 step 0, D-96): asked for (10 a minute per administrator, SECURITY.md
+    // Queued exports (D-96): asked for (10 a minute per administrator, SECURITY.md
     // §8), then followed to the end; written on the exports queue, never in the request.
     Route::post('exports', [ExportController::class, 'store'])->middleware('throttle:exports')->name('exports.store');
     Route::get('exports/{export}', [ExportController::class, 'show'])->whereNumber('export')->name('exports.show');
@@ -114,7 +114,7 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::get('quarantine', QuarantineIndexController::class)->name('quarantine.index');
     Route::get('quarantine/{record}', ShowQuarantinedRecordController::class)->whereNumber('record')->name('quarantine.show');
     Route::get('facility-options', FacilityOptionsController::class)->name('facility-options');
-    // The master list (Phase 5 step 5): add, edit inline, deactivate/reactivate; never delete.
+    // The master list: add, edit inline, deactivate/reactivate; never delete.
     // Wards are added and renamed within an LGA; the 23 LGAs have no route (hard rule 9).
     Route::post('facilities', [FacilityController::class, 'store'])->name('facilities.store');
     Route::patch('facilities/{facility}', [FacilityController::class, 'update'])->whereNumber('facility')->name('facilities.update');
@@ -131,7 +131,7 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::post('assessments/{assessment}/flags/{code}/override', OverrideSoftFlagController::class)
         ->whereNumber('assessment')->name('assessments.flags.override');
 
-    // The plan (Phase 6 step 3): generate a round's rows (idempotent), save one row; both audited.
+    // The plan: generate a round's rows (idempotent), save one row; both audited.
     Route::post('plan/{round}/generate', [PlanActionController::class, 'generate'])->whereNumber('round')->name('plan.generate');
     Route::patch('plan-actions/{planAction}', [PlanActionController::class, 'update'])->whereNumber('planAction')->name('plan-actions.update');
 

@@ -13,7 +13,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The Facility list page (Phase 5 step 5): the master list, searched on name, code, ward and LGA
+ * The Facility list page: the master list, searched on name, code, ward and LGA
  * (ILIKE, served by the pg_trgm indexes) and filtered by LGA, ward, level, ownership and active,
  * 25 a page from the server. Each row carries its visits (accepted and flagged assessments), the
  * ones in an open round (what deactivating would strand), whether any assessment at all holds its

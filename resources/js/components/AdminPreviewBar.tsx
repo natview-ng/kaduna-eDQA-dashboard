@@ -3,9 +3,9 @@ import ExportButton, { type ExportChoice } from '@/components/ExportButton';
 import { useTranslate } from '@/lib/i18n';
 import type { Filters } from '@/types/shell';
 
-/** What each dashboard page exports (Phase 6 step 1): the figures it shows, from the same aggregators. */
+/** What each dashboard page exports: the figures it shows, from the same aggregators. */
 const EXPORTS: Record<string, ExportChoice[]> = {
-    // The round report: the round in view (year and quarter), else the latest closed round (Phase 6 step 5).
+    // The round report: the round in view (year and quarter), else the latest closed round.
     'dashboard/home': [
         { key: 'state_summary', offersPrivate: false },
         { key: 'round_report', offersPrivate: false, formats: ['pdf'] },
@@ -29,7 +29,7 @@ const EXPORTS: Record<string, ExportChoice[]> = {
 /**
  * Shown above the public pages to a signed-in administrator only (ARCHITECTURE.md §9.0, D-77):
  * these figures include the open round, which visitors do not see. A labelled region before <main>,
- * with the way back to the admin area and the export of what the page shows (Phase 6, D-80:
+ * with the way back to the admin area and the export of what the page shows (D-80:
  * exports exist in the admin area and here, never on the public site).
  */
 export default function AdminPreviewBar() {

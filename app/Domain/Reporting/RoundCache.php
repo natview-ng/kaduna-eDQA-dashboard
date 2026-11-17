@@ -58,9 +58,9 @@ final class RoundCache
     /**
      * Bump when a cached DTO changes shape (a property added or renamed). Every key carries it,
      * so a deploy never serves an object cached by the previous code: an older StateSummary
-     * would unserialize without its new properties (seen in Phase 4 step 2 as "NaN" thresholds).
+     * would unserialize without its new properties (once seen as "NaN" thresholds).
      */
-    public const SCHEMA = 7; // 7: FacilityRow gains the three dimensions and round id (Phase 6 step 1); 6: StateSummary::strongGap (D-89)
+    public const SCHEMA = 7; // 7: FacilityRow gains the three dimensions and round id; 6: StateSummary::strongGap (D-89)
 
     private const PREFIX = 'edqa:reporting:v'.self::SCHEMA.':';
 

@@ -14,7 +14,7 @@ use Inertia\Response;
 use Spatie\Activitylog\Models\Activity;
 
 /**
- * My account (/admin/account, Phase 5 step 7): change the password (SECURITY.md §2, through
+ * My account (/admin/account): change the password (SECURITY.md §2, through
  * SecurityController::update) and see this user's recent sign-ins: when (WAT), the browser, the
  * address only as its /24 range (/48 for IPv6), and whether it was a new device. Unlocking an
  * account stays a console command; the page names it.

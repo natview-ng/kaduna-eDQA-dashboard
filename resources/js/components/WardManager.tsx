@@ -12,7 +12,7 @@ export type WardManagerProps = {
 };
 
 /**
- * Wards within an LGA (Phase 5 step 5): choose one of the 23 LGAs, rename any of its wards or add
+ * Wards within an LGA: choose one of the 23 LGAs, rename any of its wards or add
  * one, each audited on the server. The LGAs themselves are fixed, and the page says so beside
  * this panel. A refusal (a name the LGA already has) shows beside its field.
  */

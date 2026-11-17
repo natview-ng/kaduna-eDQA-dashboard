@@ -16,7 +16,7 @@ use App\Domain\Ingestion\SourceRegistry;
  * that source (SourceLinks), and its attachments (the facility drawer, ARCHITECTURE.md §9.2.7), each fetched one
  * with the authenticated route that serves it (SECURITY.md §7).
  *
- * Lives in Ingestion because it reads submissions, which Reporting may not (CLAUDE.md hard rule 6).
+ * Lives in Ingestion because it reads submissions, which Reporting may not (hard rule 6).
  * It reads only the submission an assessment points at, which passed every hard rule: never a
  * quarantined one, and never the payload.
  */
@@ -33,7 +33,7 @@ final class AssessmentSourceQuery
     }
 
     /**
-     * The same for many submissions at once, two queries in all: an export's chunk (Phase 6 step 0).
+     * The same for many submissions at once, two queries in all: an export's chunk.
      * $absolute gives attachment links with the portal's address, for a file that leaves it.
      *
      * @param  list<int>  $submissionIds

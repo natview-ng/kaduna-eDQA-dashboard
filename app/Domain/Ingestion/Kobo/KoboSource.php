@@ -22,7 +22,7 @@ use Carbon\CarbonImmutable;
  *   second, as Kobo writes the field), sorted by _submission_time then _id, paged with start and
  *   limit (at most 1000).
  * - changedSince: nothing. The KPI API exposes no filterable last-edited field for submissions
- *   (KoboClient), so no query can find edits; ReconcileSourceJob (Phase 2C step 5) is Kobo's edit
+ *   (KoboClient), so no query can find edits; ReconcileSourceJob is Kobo's edit
  *   path. Returning none (with no request) keeps the pull's second pass a no-op here.
  * - attachmentList / downloadAttachment: from the submission's own _attachments, found by its
  *   logical ID (_id, the same through edits: the current version's files, as Central lists them

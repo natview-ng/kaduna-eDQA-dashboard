@@ -12,9 +12,9 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * The Audit log page (SECURITY.md §4, Phase 5 step 7, D-93): every audited write and sign-in
+ * The Audit log page (SECURITY.md §4, D-93): every audited write and sign-in
  * event, newest first, 50 a page, filtered on the server. Read only: there is no edit or delete,
- * and a view is not itself audited. Its export is the "audit_log" export type (Phase 6 step 1).
+ * and a view is not itself audited. Its export is the "audit_log" export type.
  */
 final class AdminAuditController extends Controller
 {

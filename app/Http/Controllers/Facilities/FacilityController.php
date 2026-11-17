@@ -16,7 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * /api/facilities (Phase 5 step 5): add a facility, edit it inline, deactivate and reactivate it
+ * /api/facilities: add a facility, edit it inline, deactivate and reactivate it
  * with a reason. Never a delete. Each change is audited by its action; a refusal is 409.
  */
 final class FacilityController extends Controller

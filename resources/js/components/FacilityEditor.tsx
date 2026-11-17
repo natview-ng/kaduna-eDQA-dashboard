@@ -25,7 +25,7 @@ export type FacilityEditorProps = {
 };
 
 /**
- * The facility fields (Phase 5 step 5), for the inline editor and the add form: name, code
+ * The facility fields, for the inline editor and the add form: name, code
  * (locked once assessed), LGA then one of its wards (the LGA follows the ward on the server),
  * level, ownership and coordinates. Field errors sit beside their field.
  */

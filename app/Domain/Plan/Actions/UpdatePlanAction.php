@@ -7,7 +7,7 @@ namespace App\Domain\Plan\Actions;
 use App\Domain\Plan\Models\PlanAction;
 
 /**
- * Saves one plan row from the admin plan page (Phase 6 step 3): its owner (a role, or "Other role…"
+ * Saves one plan row from the admin plan page: its owner (a role, or "Other role…"
  * written out), contact and notes (admin-only), review date and status. No reason needed: a plan is
  * follow-up, not a figure, and stays editable for closed rounds. The model's audit records each
  * change, old and new, with who made it (PlanAction is Audited).

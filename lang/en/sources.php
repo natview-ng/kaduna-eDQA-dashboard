@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-// Field-collection sources (ARCHITECTURE.md §5.0, Phase 2C).
+// Field-collection sources (ARCHITECTURE.md §5.0).
 
 return [
     'errors' => [

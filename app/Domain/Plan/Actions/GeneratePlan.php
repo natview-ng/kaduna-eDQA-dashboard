@@ -16,7 +16,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * "Generate plan for this round" (Phase 6 step 3): a plan_actions row for every LGA the plan
+ * "Generate plan for this round": a plan_actions row for every LGA the plan
  * proposes an action for and that has none yet (ImplementationPlanAggregator's generated rows: below
  * the threshold, its weakest dimension, the standard action and the dimension's default role),
  * reviewed edqa.plan.review_days after today. Idempotent: an LGA with a stored row keeps it, and a

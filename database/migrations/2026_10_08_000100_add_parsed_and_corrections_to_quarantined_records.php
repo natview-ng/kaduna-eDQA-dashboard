@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 /*
  * parsed: the ParsedSubmission snapshot at quarantine time (null for records created before
  * this column). corrections: an administrator's overlay of mapped fields, applied on
- * reprocessing, so submissions.payload is never mutated (CLAUDE.md hard rule 8).
+ * reprocessing, so submissions.payload is never mutated (hard rule 8).
  */
 return new class extends Migration
 {

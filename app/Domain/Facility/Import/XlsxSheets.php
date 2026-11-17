@@ -13,7 +13,7 @@ use ZipArchive;
  * the spreadsheet shows it (D-91). Just enough of Office Open XML for the reconciliation workbook
  * (facility_reconcile.py writes it with openpyxl; the client edits it in Excel): shared strings,
  * inline strings, numbers and booleans. Formulas give their cached value. No import library is
- * used (CLAUDE.md: none is wanted), and this reads files on the server's disk only: there is no
+ * used (none is wanted), and this reads files on the server's disk only: there is no
  * upload route.
  */
 final class XlsxSheets

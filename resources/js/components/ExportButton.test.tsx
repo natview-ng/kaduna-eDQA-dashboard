@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import ExportButton from '@/components/ExportButton';
 import { axeCheck, renderUi, testTranslations } from '@/test/render';
 
-// Phase 6 step 0 (D-96): the ExportButton. Format, the privacy option where it applies, then the
+// D-96: The ExportButton. Format, the privacy option where it applies, then the
 // queued export followed to its download link.
 
 const translations = {

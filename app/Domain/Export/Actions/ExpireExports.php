@@ -12,7 +12,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Retention (Phase 6 step 0): an export's file is deleted edqa.exports.retention_days (7) after it
+ * Retention: an export's file is deleted edqa.exports.retention_days (7) after it
  * was written, and its row marked expired, so files that left the system do not also pile up in
  * it. Run daily by ExpireExportsJob. Each expiry is in the audit log.
  */

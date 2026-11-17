@@ -17,7 +17,7 @@ use RuntimeException;
  *
  * One accepted assessment per sampled facility per round, each with a synthetic submission
  * and item responses only. Scores are never seeded: DemoScoringSeeder derives them from these
- * items with the real rescore (CLAUDE.md hard rule 2).
+ * items with the real rescore (hard rule 2).
  *
  * Items are tuned so pass rates approximate the published state means (CONVENTION.md §8):
  * Public ≈ 92 / 79 / 92, Private ≈ 75 / 62 / 84 (availability / consistency / validity). Each

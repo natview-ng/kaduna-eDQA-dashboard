@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * An implementation-plan row: one action per round, LGA and dimension, with an editable owner,
  * due date and status (D-10). The owner is a role (owner_role, config edqa.plan.roles, D-79); a
  * personal contact (owner_contact) is admin-only and never shown on the public plan; so are the notes.
- * owner_role 'other' carries the role or unit written out in owner_role_other (Phase 6 step 3).
+ * owner_role 'other' carries the role or unit written out in owner_role_other.
  *
  * @property int $id
  * @property int $round_id

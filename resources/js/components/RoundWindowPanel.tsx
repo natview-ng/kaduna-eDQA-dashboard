@@ -13,7 +13,7 @@ export type RoundWindowPanelProps = {
 };
 
 /**
- * "Edit window" for an open round (Phase 5 step 4): two dates, then a reason in the dialog, since
+ * "Edit window" for an open round: two dates, then a reason in the dialog, since
  * the window decides which visits count. The server's refusals show beside the field they concern.
  */
 export default function RoundWindowPanel({ round, errors, onSave, onCancel }: RoundWindowPanelProps) {

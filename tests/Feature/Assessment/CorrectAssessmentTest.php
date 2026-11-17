@@ -24,7 +24,7 @@ use Tests\Support\ParsedSubmissionBuilder;
 
 // Correcting an accepted assessment (SECURITY.md §4, ARCHITECTURE.md §7, D-58): item results and
 // visit times only, with a reason; scores are always recomputed by ScoreCalculator, never taken
-// from input (CLAUDE.md rule 2).
+// from input (hard rule 2).
 
 beforeEach(function (): void {
     $this->version = ScoringRuleVersion::factory()->published()->create();

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * The words that go with an export: a dashboard filter in plain language, and the "About this file"
- * sheet (Phase 6 step 1): what it is, its filters, when (WAT) and by whom it was generated, the
+ * sheet: what it is, its filters, when (WAT) and by whom it was generated, the
  * rule versions, rounding mode, aggregation method, data sources, whether personal details are in
  * it, and that open-round figures are provisional.
  */

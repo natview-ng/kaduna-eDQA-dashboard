@@ -34,7 +34,7 @@ type Fields = { owner_role: string; owner_role_other: string; owner_contact: str
 const STATUSES: PlanStatus[] = ['not_started', 'in_progress', 'done'];
 
 /**
- * One LGA's row of the admin plan (Phase 6 step 3): its figures and recommended action, and, once
+ * One LGA's row of the admin plan: its figures and recommended action, and, once
  * stored, its follow-up saved inline: the owner (a role, or "Other role…" written out: a role or
  * unit, never a person), the contact and notes (admin-only, never public), the review date (on or
  * after today; a passed one is said in words) and the status. Each save is audited on the server.

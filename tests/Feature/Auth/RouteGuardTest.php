@@ -238,7 +238,7 @@ it('keeps the source webhooks switched off (404) while no secret is configured',
     $this->postJson('/webhooks/kobo', [])->assertNotFound();
 });
 
-// ---- No upload route (CLAUDE.md hard rule 1, D-91): data enters from the sources; the facility
+// ---- No upload route (hard rule 1, D-91): data enters from the sources; the facility
 // master list only through the console (edqa:facilities:import-master-list).
 
 it('has no route that takes a file: no upload or import URI, and nothing in app/Http reads an uploaded file', function (): void {

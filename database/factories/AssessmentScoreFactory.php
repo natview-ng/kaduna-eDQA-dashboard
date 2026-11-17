@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * A score derived from the assessment's item responses for that dimension and month slot:
  * passed / applicable × 100, N/A excluded from both, null if nothing is applicable. There is
- * no way to type a score (CLAUDE.md hard rule 2); use AssessmentFactory::withScores() to get
+ * no way to type a score (hard rule 2); use AssessmentFactory::withScores() to get
  * items that produce a given one.
  *
  * @extends Factory<AssessmentScore>

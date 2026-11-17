@@ -19,7 +19,7 @@ const TONE: Record<SyncState, string> = {
     auth_failed: 'text-bad',
 };
 
-// A shape per state as well as a colour and the words (CLAUDE.md hard rule 11); decorative.
+// A shape per state as well as a colour and the words (hard rule 11); decorative.
 const MARK: Record<SyncState, string> = { not_configured: '○', disabled: '○', not_connected: '○', healthy: '●', stale: '▲', failed: '■', auth_failed: '■' };
 
 /**

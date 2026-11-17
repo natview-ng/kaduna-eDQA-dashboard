@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Inertia\Testing\AssertableInertia as Assert;
 
-// Phase 5 step 7 (D-93): the read-only audit log. With one role, administrators need to see each
+// D-93: The read-only audit log. With one role, administrators need to see each
 // other's actions (SECURITY.md §4). Views are not audited; exports are.
 
 beforeEach(function (): void {
@@ -96,7 +96,7 @@ it('does not audit a view of the log', function (): void {
 it('has no route that changes or removes the audit log', function (): void {
     $routes = collect(Route::getRoutes()->getRoutes())->filter(fn (RoutingRoute $route): bool => str_contains($route->uri(), 'audit'));
     $writes = $routes->filter(fn (RoutingRoute $route): bool => array_diff($route->methods(), ['GET', 'HEAD']) !== [])->map(fn (RoutingRoute $route): string => $route->uri())->values()->all();
-    // Its export is the audit_log export type (Phase 6 step 1), under /admin/api/exports: no audit route writes.
+    // Its export is the audit_log export type, under /admin/api/exports: no audit route writes.
     expect($writes)->toBe([]);
 
     // Nothing in the app updates, deletes or truncates activity_log, by query builder, model or SQL.

@@ -15,7 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * The admin plan's writes (Phase 6 step 3): generate a round's plan (idempotent), and save one row.
+ * The admin plan's writes: generate a round's plan (idempotent), and save one row.
  * Both audited; no reason asked: a plan is follow-up, not a figure.
  */
 final class PlanActionController extends Controller

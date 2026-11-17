@@ -5,7 +5,7 @@ import type { AdminPlanRow } from '@/components/PlanRowEditor';
 import AdminPlan, { type AdminPlanProps } from '@/pages/admin/plan';
 import { axeCheck, renderUi, testTranslations } from '@/test/render';
 
-// Phase 6 step 3: the admin implementation plan, keyboard first and axe clean.
+// The admin implementation plan, keyboard first and axe clean.
 
 const routerReload = vi.fn();
 const routerGet = vi.fn();

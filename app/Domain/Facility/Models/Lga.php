@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * One of the 23 LGAs. Seeded only; the app role cannot insert (CLAUDE.md hard rule 9), so it
+ * One of the 23 LGAs. Seeded only; the app role cannot insert (hard rule 9), so it
  * is not audited.
  */
 #[UseFactory(LgaFactory::class)]

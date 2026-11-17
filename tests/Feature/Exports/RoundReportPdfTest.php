@@ -16,7 +16,7 @@ use Tests\Support\ExportRunner;
 use Tests\Support\ReportingFixture;
 use Tests\Support\Rows;
 
-// Phase 6 step 5 (D-101): the PDF round report rendered for real by Chromium and read back with
+// D-101: The PDF round report rendered for real by Chromium and read back with
 // pdftotext. Needs the worker image's tools, so it is the pdf group, outside the default suite:
 // `make pdf` runs it (and edqa:pdf-smoke) in the worker container. The 23 real LGAs; facilities
 // in four of them. Q1 2026 closed, Q2 2026 open. Elsewhere (the app and CI images, which have

@@ -1,5 +1,5 @@
 /**
- * Calendar helpers for the Rounds page (Phase 5 step 4). Dates are the "YYYY-MM-DD" strings the
+ * Calendar helpers for the Rounds page. Dates are the "YYYY-MM-DD" strings the
  * API takes; nothing here is a score, and no figure is computed (lib/architecture.test.ts).
  */
 

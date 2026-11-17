@@ -70,7 +70,7 @@ final class HandleInertiaRequests extends Middleware
                     'staleIngestion' => app(SourceStatusAggregator::class)->staleIngestion($sourceStatuses()),
                 ],
             ] : []),
-            // UI strings, read in React with t() (CONVENTION.md §7, CLAUDE.md hard rule 10): each page
+            // UI strings, read in React with t() (CONVENTION.md §7, hard rule 10): each page
             // gets the groups it needs, so a visitor never receives the admin strings.
             'translations' => fn (): array => collect(['common', ...$this->pageGroups($request)])
                 ->mapWithKeys(fn (string $group): array => [$group => __($group)])

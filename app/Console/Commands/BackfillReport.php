@@ -16,8 +16,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * The backfill report (ARCHITECTURE.md §5.6): per round, what was pulled, accepted, flagged and
  * quarantined, then the quarantined ones by rule and year, by rule and form version, and the most
- * frequent details of each rule. Written to storage/app/exports as Markdown, CSV, or (Phase 6
- * step 2) Excel: Summary, By rule × year, By rule × form version, Examples, Unmatched facilities
+ * frequent details of each rule. Written to storage/app/exports as Markdown, CSV, or Excel: Summary, By rule × year, By rule × form version, Examples, Unmatched facilities
  * and About this file, the same workbook as the Data sources page's download.
  */
 final class BackfillReport extends Command

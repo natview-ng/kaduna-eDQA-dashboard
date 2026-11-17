@@ -9,7 +9,7 @@ use RuntimeException;
 
 /**
  * Reads a PDF back with poppler (pdftotext, pdfinfo; worker image only): edqa:pdf-smoke checks
- * the text of what it rendered, and the export records the page count (Phase 6 step 5).
+ * the text of what it rendered, and the export records the page count.
  */
 final class PdfText
 {

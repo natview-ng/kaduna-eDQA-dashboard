@@ -7,7 +7,7 @@ namespace App\Http\Requests\Facilities;
 use App\Domain\Facility\Actions\SetFacilityActive;
 use Illuminate\Foundation\Http\FormRequest;
 
-/** Deactivate or reactivate a facility: a reason of at least 10 characters (Phase 5 step 5). */
+/** Deactivate or reactivate a facility: a reason of at least 10 characters. */
 final class FacilityReasonRequest extends FormRequest
 {
     public function authorize(): bool

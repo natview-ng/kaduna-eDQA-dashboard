@@ -30,7 +30,7 @@ use InvalidArgumentException;
  * far, and it runs through the full pipeline again. The parsed snapshot on the record is kept for
  * audit and debugging only; for the same payload the two agree (CorrectAndReprocessTest).
  *
- * The raw payload and the parsed snapshot are never touched (CLAUDE.md hard rule 8). Only the
+ * The raw payload and the parsed snapshot are never touched (hard rule 8). Only the
  * fields in CORRECTABLE can change: never items or scores (hard rule 2). Accepted or flagged →
  * the record is resolved as reprocessed; still failing → it stays open with its new failures.
  */

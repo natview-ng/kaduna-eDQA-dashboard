@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Wards within one of the 23 LGAs (Phase 5 step 5): add and rename, audited, a name unique in
+ * Wards within one of the 23 LGAs: add and rename, audited, a name unique in
  * its LGA whatever the case. Wards are in the form's cascading lists, so every change dates the
- * facility media file. There is no LGA add or edit anywhere (CLAUDE.md hard rule 9).
+ * facility media file. There is no LGA add or edit anywhere (hard rule 9).
  */
 final class SaveWard
 {

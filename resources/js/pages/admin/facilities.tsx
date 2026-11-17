@@ -39,7 +39,7 @@ const body = (fields: FacilityFields, includeCode: boolean) => ({
 });
 
 /**
- * The Facility list page (ARCHITECTURE.md §9.3, Phase 5 step 5): the master list, which every
+ * The Facility list page (ARCHITECTURE.md §9.3): the master list, which every
  * submission is validated against. Search and filter it (server-side, in the URL), edit a facility
  * inline (the public-impact note says names and places show publicly, published rounds included),
  * add one, deactivate or reactivate it with a reason (never delete), and manage the wards of an

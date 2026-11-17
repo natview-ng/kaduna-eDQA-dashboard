@@ -7,8 +7,8 @@ namespace App\Domain\Export\Enums;
 use App\Support\Enums\HasLabel;
 
 /**
- * The file an export is written as (Phase 6 step 0): CSV, or Excel with an "About" sheet; PDF for
- * the round report alone (Phase 6 step 5, D-101).
+ * The file an export is written as: CSV, or Excel with an "About" sheet; PDF for
+ * the round report alone (D-101).
  */
 enum ExportFormat: string
 {

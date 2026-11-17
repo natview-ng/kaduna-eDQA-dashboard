@@ -14,7 +14,7 @@ use InvalidArgumentException;
  * (storage/app/exports) as Markdown, to read, or CSV, to open in a spreadsheet: one long table,
  * one figure a row (section, source, rule, round, year, version, measure, value, detail). The
  * Markdown has a section per source, then all sources, then the duplicates between them. It only lays
- * out the query's figures; the totals come from the query too. Excel follows in Phase 6.
+ * out the query's figures; the totals come from the query too. The Excel workbook is BackfillReportExport's.
  */
 final class BackfillReportWriter
 {

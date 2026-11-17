@@ -8,7 +8,7 @@ use App\Domain\Export\Exceptions\UnknownExportType;
 use Illuminate\Contracts\Container\Container;
 
 /**
- * The kinds of export there are (Phase 6 steps 0–1). A new one is a class implementing ExportType
+ * The kinds of export there are. A new one is a class implementing ExportType
  * that reads its page's own aggregator or query, listed here, with its strings in
  * lang/en/exports.php.
  */

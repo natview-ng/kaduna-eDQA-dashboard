@@ -280,7 +280,7 @@ it('names no rescore while the record is still failing', function (): void {
         ->assertJsonPath('data.failures.0.code', 'FACILITY_LGA_MISMATCH');
 });
 
-// ---- Sources (Phase 2C step 7)
+// ---- Sources
 
 it('filters both tabs by source, offers every configured source, and names the soft row\'s source', function (): void {
     $odk = issuesNullLga($this->facility, $this->round);

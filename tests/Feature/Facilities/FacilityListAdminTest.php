@@ -13,7 +13,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\ReportingFixture;
 use Tests\Support\Rows;
 
-// Phase 5 step 5: the Facility list page (ARCHITECTURE.md §9.3) and its API. The master list is
+// The Facility list page (ARCHITECTURE.md §9.3) and its API. The master list is
 // the validation authority: edited inline, deactivated with a reason, never deleted.
 
 beforeEach(function (): void {

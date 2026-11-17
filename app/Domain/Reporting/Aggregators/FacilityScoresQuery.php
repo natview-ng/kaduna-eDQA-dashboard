@@ -55,7 +55,7 @@ final class FacilityScoresQuery
 
     /**
      * Every row of the view, in the page's order, a chunk at a time and not cached: the facility
-     * scores export (Phase 6 step 1). The same SELECT as paginate(), so an export never computes a
+     * scores export. The same SELECT as paginate(), so an export never computes a
      * number the page does not.
      *
      * @return iterable<list<FacilityRow>>

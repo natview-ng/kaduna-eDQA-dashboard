@@ -19,7 +19,7 @@ use RuntimeException;
  * For the client demo (`edqa:demo:quarantine`, docs/demo-script.md): the old report's broken row
  * (no LGA, ward "Quarterly", facility "2019.00", a typed score of 347.66), stored as a raw
  * submission and sent through the real validation pipeline, so it can be shown held in quarantine
- * before the Data issues page exists (Phase 5). The ODK parser waits for credentials, so the row
+ * before the Data issues page exists. The ODK parser waits for credentials, so the row
  * is given as the parser would read it. Local and testing only; once (the instance ID is fixed).
  */
 final class SendDemoRowToQuarantine

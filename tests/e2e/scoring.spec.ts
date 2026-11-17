@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { checkA11y } from './support/a11y';
 
-// Phase 5 step 6: the Scoring rules page end to end. It PUBLISHES a rule version in the dev
+// The Scoring rules page end to end. It PUBLISHES a rule version in the dev
 // database (Strong 90 → 85), which cannot be undone short of `make fresh`, so it runs only when
 // asked: E2E_SCORING=1 make e2e c="tests/e2e/scoring.spec.ts --project=desktop". Needs an open
 // round with scored assessments (the demo seed has one) and the worker running for the rescore.

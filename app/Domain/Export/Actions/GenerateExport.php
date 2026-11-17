@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 /**
- * Writes a queued export (Phase 6 step 0, D-96), on the exports queue only (GenerateExportJob):
+ * Writes a queued export (D-96), on the exports queue only (GenerateExportJob):
  * running, then the file in chunks with the progress kept on the row (0–99 while writing, 100
  * when done), then done with its row count, path and expiry, or failed with a plain message (the
  * detail goes to the log, never to the page). Both outcomes are in the audit log. The figures

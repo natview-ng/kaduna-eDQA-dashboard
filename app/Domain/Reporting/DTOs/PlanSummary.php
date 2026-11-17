@@ -8,7 +8,7 @@ use App\Domain\Scoring\Enums\Dimension;
 
 /**
  * "Actions by type" and "What each action means" (§9.2.6): one per dimension, in fixed order, with
- * how many actions of that type there are and how many stand at each status (Phase 6 step 3).
+ * how many actions of that type there are and how many stand at each status.
  */
 final readonly class PlanSummary
 {

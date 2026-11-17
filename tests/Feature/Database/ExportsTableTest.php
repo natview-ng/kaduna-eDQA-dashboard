@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Domain\Export\Enums\ExportStatus;
 use Tests\Support\Rows;
 
-// Phase 6 step 0: the exports table. A queued export moves queued → running → done or failed, and
+// The exports table. A queued export moves queued → running → done or failed, and
 // a done one becomes expired when the retention job deletes its file (7 days).
 
 it('accepts every ExportStatus the app defines', function (ExportStatus $status): void {

@@ -8,7 +8,7 @@ use App\Domain\Ingestion\Models\Submission;
 use LogicException;
 
 /**
- * Raw ODK payloads are never mutated (CLAUDE.md hard rule 8). Corrections go in an overlay
+ * Raw ODK payloads are never mutated (hard rule 8). Corrections go in an overlay
  * (D-08); reprocessing reads the stored payload.
  */
 final class SubmissionPayloadIsImmutable extends LogicException

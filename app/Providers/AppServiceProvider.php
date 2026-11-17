@@ -76,7 +76,7 @@ final class AppServiceProvider extends ServiceProvider
 
         // Domain listeners live outside app/Listeners, so they are registered here.
         Event::listen(QuarantineResolved::class, RescoreAfterQuarantineResolved::class);
-        // The Data issues badge: open records and unreviewed deletions at source (Phase 5).
+        // The Data issues badge: open records and unreviewed deletions at source.
         Event::listen([SubmissionQuarantined::class, QuarantineResolved::class, SourceDeletionDetected::class, DeletionReviewed::class], FlushOpenQuarantineCount::class);
         Event::listen(RuleVersionPublished::class, RescoreOpenRoundsAfterPublish::class);
         Event::listen(AssessmentCorrected::class, RescoreAfterAssessmentCorrected::class);

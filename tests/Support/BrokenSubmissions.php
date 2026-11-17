@@ -13,7 +13,7 @@ use App\Domain\Scoring\Enums\Dimension;
 use Carbon\CarbonImmutable;
 
 /**
- * The broken-submission fixtures (CLAUDE.md §6 step 6): one named case per live-report defect
+ * The broken-submission fixtures (build step 6): one named case per live-report defect
  * and per rule, each with exactly the codes it must produce. Hard cases quarantine; soft cases
  * are accepted with exactly those flags. Each build() sets up whatever the database needs.
  */

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\DB;
 use Tests\Support\Rows;
 
-// submission_sources and the source-aware counters (ARCHITECTURE.md §4, §5.0, Phase 2C step 1).
+// submission_sources and the source-aware counters (ARCHITECTURE.md §4, §5.0).
 
 function sourceRow(array $overrides = []): array
 {

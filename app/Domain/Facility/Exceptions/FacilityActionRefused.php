@@ -7,7 +7,7 @@ namespace App\Domain\Facility\Exceptions;
 use RuntimeException;
 
 /**
- * A master-list change the domain refuses (Phase 5 step 5), rendered as 409 { code, message }.
+ * A master-list change the domain refuses, rendered as 409 { code, message }.
  * The message comes from lang/en/facilities.php errors.{code}.
  */
 final class FacilityActionRefused extends RuntimeException

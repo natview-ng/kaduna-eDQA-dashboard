@@ -14,7 +14,7 @@ use Tests\Support\Rows;
 
 // The golden ODK fixtures (tests/Fixtures/README.md). Every raw ODK entry, through ODK's
 // normaliser and then the parser (odkParse, as the pipeline reads it), is exactly its parsed fixture, and, run through the parser and the real pipeline against FixtureWorld, ends
-// with exactly the outcome Phase 2A expects of it.
+// with exactly the outcome its case expects.
 
 beforeEach(function (): void {
     FixtureWorld::build();

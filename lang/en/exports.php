@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * Exports (Phase 6 steps 0–1, D-96, D-97): the files' own words (headings, statuses, the "About this
+ * Exports (D-96, D-97): the files' own words (headings, statuses, the "About this
  * file" sheet) and the refusals. The ExportButton's words are in admin.php under exports.
  */
 
@@ -221,7 +221,7 @@ return [
                 'blank' => '(blank)',
             ],
         ],
-        // Phase 6 step 5 (D-101): the PDF; its own words are in report.php.
+        // D-101: The PDF; its own words are in report.php.
         'round_report' => [
             'title' => 'Round report',
             'no_round' => 'There is no closed round to report on. Choose a round.',

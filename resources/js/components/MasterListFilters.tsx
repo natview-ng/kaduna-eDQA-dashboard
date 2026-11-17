@@ -12,7 +12,7 @@ export type MasterListFiltersProps = {
 const DEBOUNCE_MS = 300;
 
 /**
- * The Facility list's search and filters (Phase 5 step 5): one search box over name, code, ward
+ * The Facility list's search and filters: one search box over name, code, ward
  * and LGA (the server searches with pg_trgm), then LGA, ward (of the chosen LGA), level,
  * ownership and status, each a compact field. Typing waits 300 ms; a select applies at once. The
  * page keeps them in the URL.

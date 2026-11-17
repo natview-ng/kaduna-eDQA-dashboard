@@ -33,7 +33,7 @@ function runSeedersAs(string $environment, string ...$seeders): void
     }
 }
 
-// ---- LGAs (CLAUDE.md hard rule 9: exactly 23)
+// ---- LGAs (hard rule 9: exactly 23)
 
 it('seeds exactly the 23 LGAs, even when run twice', function (): void {
     $this->seed(LgaSeeder::class);
@@ -141,7 +141,7 @@ it('seeds a demo dataset whose item responses approximate the published means', 
         expect($means[$key])->toBeGreaterThan($target - 2.5, $key)->toBeLessThan($target + 2.5, $key);
     }
 
-    // ---- The scored picture (Phase 3 step 7): what the dashboard will show for the open round.
+    // ---- The scored picture: what the dashboard will show for the open round.
     $v1 = (int) DB::table('scoring_rule_versions')->where('version', 1)->value('id');
     expect(DB::table('rounds')->where('status', 'closed')->pluck('rule_version_id')->unique()->all())->toBe([$v1])
         ->and(DB::table('assessment_scores')->where('rule_version_id', '<>', $v1)->exists())->toBeFalse()

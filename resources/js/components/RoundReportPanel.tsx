@@ -18,7 +18,7 @@ function defaultRound(rounds: RoundRow[]): RoundRow | undefined {
 }
 
 /**
- * The PDF round report (Phase 6 step 5, D-101) on the Rounds page: choose a round (the latest
+ * The PDF round report (D-101) on the Rounds page: choose a round (the latest
  * closed one first), then the export plumbing queues it, follows it and offers the download. An
  * open round's report is a draft, watermarked DRAFT on every page; the panel says so before it is
  * asked for.

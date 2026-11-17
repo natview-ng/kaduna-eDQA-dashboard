@@ -47,7 +47,7 @@ zone (UTC), and a geopoint is the XForms text "lat lng alt accuracy". The parity
 
 The Kobo-only cases have no ODK row and are compared with their parsed fixture exactly.
 
-The outcomes are the Phase 2A ones. 2A built its cases in code (`tests/Support/BrokenSubmissions.php`,
+The outcomes are the same as the cases built in code (`tests/Support/BrokenSubmissions.php`,
 against factory data); these files are the same cases, fixed to one world.
 
 ## The world

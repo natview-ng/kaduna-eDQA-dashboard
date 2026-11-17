@@ -6,8 +6,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Phase 2C step 7 (ARCHITECTURE.md §4, §9.2.4): an assessment records its source, so Reporting
- * can count assessments by source without reading submissions (CLAUDE.md hard rule 6).
+ * ARCHITECTURE.md §4, §9.2.4: An assessment records its source, so Reporting
+ * can count assessments by source without reading submissions (hard rule 6).
  *
  * - assessments.source_id, backfilled from each assessment's submission, then NOT NULL;
  * - a BEFORE INSERT / UPDATE OF submission_id trigger copies it from the submission, so no writer

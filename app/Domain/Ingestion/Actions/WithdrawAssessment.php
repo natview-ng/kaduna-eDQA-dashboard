@@ -19,8 +19,8 @@ use App\Support\Audit\AuditLog;
 use Illuminate\Support\Facades\DB;
 
 /**
- * "Withdraw assessment" and "Restore" on the Data issues page's Deleted at source tab (D-62,
- * Phase 5 step 2). Withdrawing an assessment whose submission its source no longer returns sets
+ * "Withdraw assessment" and "Restore" on the Data issues page's Deleted at source tab (D-62).
+ * Withdrawing an assessment whose submission its source no longer returns sets
  * its status to withdrawn: it counts in no aggregator or round_aggregates, and the facility may be
  * assessed again in the round. The deletion is marked reviewed with it. Restoring puts back what
  * it was: flagged while it carries a soft rule's flag, else accepted.

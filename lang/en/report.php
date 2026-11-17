@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * The PDF round report (Phase 6 step 5, D-101): resources/views/reports/round.blade.php, its
+ * The PDF round report (D-101): resources/views/reports/round.blade.php, its
  * charts, running header and footer, and edqa:pdf-smoke.
  */
 

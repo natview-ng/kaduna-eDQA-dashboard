@@ -12,7 +12,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\ReportingFixture;
 use Tests\Support\Rows;
 
-// LGA view (ARCHITECTURE.md §9.2.3; CLAUDE.md hard rule 9: never more than 23 LGAs).
+// LGA view (ARCHITECTURE.md §9.2.3; hard rule 9: never more than 23 LGAs).
 
 beforeEach(function (): void {
     $this->seed(LgaSeeder::class);

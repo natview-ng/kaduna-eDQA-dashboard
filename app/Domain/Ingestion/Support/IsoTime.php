@@ -10,7 +10,7 @@ use Throwable;
 /**
  * Strict ISO 8601 date-times, as every source writes them: a date, a time and an offset (or Z).
  * Anything else ("FEBRUARY", a date alone, a time with no zone) is not read, so validation sees
- * it as unreadable instead of a guess (CLAUDE.md hard rule 12).
+ * it as unreadable instead of a guess (hard rule 12).
  */
 final class IsoTime
 {

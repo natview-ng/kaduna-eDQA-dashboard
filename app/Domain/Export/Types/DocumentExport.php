@@ -8,7 +8,7 @@ use App\Domain\Export\Enums\ExportFormat;
 use Closure;
 
 /**
- * An export that is a finished document, not a table of rows (Phase 6 step 5, D-101: the PDF round
+ * An export that is a finished document, not a table of rows (D-101: the PDF round
  * report). It comes in one format, is written by its own job (GenerateRoundReport on the exports
  * queue) through the same plumbing (queued, progress, signed download, audited), and names its own
  * file. columns() and chunks() are empty: there are no rows to stream.

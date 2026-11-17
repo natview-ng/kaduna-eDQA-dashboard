@@ -31,7 +31,7 @@ it('answers every dashboard page and API endpoint within the p95 budget on five 
 
     $admin = User::factory()->create();
     $this->actingAs($admin);
-    // Hundreds of timed requests from one address: the public rate limit (120 a minute, Phase P)
+    // Hundreds of timed requests from one address: the public rate limit (120 a minute)
     // would answer 429 part way. This measures server time, not the limiter (PublicHardeningTest).
     config(['edqa.public.per_minute' => 100_000]);
 
@@ -53,10 +53,16 @@ it('answers every dashboard page and API endpoint within the p95 budget on five 
     $facilityExtras = ['', '&metric=availability', '&sort=lga&dir=desc', '&page=3', '&metric=validity&sort=m2', '&sort=facility', '&metric=consistency&page=2', '&sort=assessed&dir=desc', '&sort=owner', '&metric=overall&sort=m3&dir=desc'];
 
     $timings = [];
-    $time = function (string $name, string $url, array $headers = []) use (&$timings): TestResponse {
+    // The slowest request of each endpoint, so an over-budget p95 names its URL.
+    $slowest = [];
+    $time = function (string $name, string $url, array $headers = []) use (&$timings, &$slowest): TestResponse {
         $started = hrtime(true);
         $response = $this->get($url, $headers);
-        $timings[$name][] = (hrtime(true) - $started) / 1e9;
+        $seconds = (hrtime(true) - $started) / 1e9;
+        $timings[$name][] = $seconds;
+        if ($seconds > ($slowest[$name][1] ?? 0.0)) {
+            $slowest[$name] = [$url, $seconds];
+        }
 
         return $response;
     };
@@ -103,6 +109,10 @@ it('answers every dashboard page and API endpoint within the p95 budget on five 
     }
 
     $report = serverTimingReport($timings, $seeder->created, count($seeder->rounds), $seedSeconds);
+    $report .= "\nSlowest request per endpoint:\n\n";
+    foreach ($slowest as $name => [$url, $seconds]) {
+        $report .= sprintf("- %s: %s (%d ms)\n", $name, $url, (int) round($seconds * 1000));
+    }
     @mkdir(storage_path('app/perf'), 0775, true);
     file_put_contents(storage_path('app/perf/server-timing.md'), $report);
     fwrite(STDERR, "\n".$report);

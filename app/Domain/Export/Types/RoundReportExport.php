@@ -18,7 +18,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /**
- * "Round report" (Phase 6 step 5, D-101): one round as a PDF to print and circulate. Cover, state
+ * "Round report" (D-101): one round as a PDF to print and circulate. Cover, state
  * headline and the three dimensions, public vs private, quality by quarter, month by month, the
  * LGA table, weakest LGAs, the implementation plan summary, the data quality note (counts only)
  * and the method. The figures are RoundReportBuilder's, read from the dashboard's aggregators.

@@ -8,7 +8,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Is the facility media file out of date (Phase 5 step 5)? The form's cascading lists come from
+ * Is the facility media file out of date? The form's cascading lists come from
  * that file, attached by hand on ODK Central and KoboToolbox, so a master-list change that reaches
  * them (an audit entry marked `cascade`: a facility's code, name, ward, LGA or active flag; a ward
  * added or renamed) makes it stale until the next export (`cascade_exported`). Read from the audit

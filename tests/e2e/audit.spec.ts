@@ -4,7 +4,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import { AUTH_STATE } from '../../playwright.config';
 import { E2E_PASSWORD } from './support/credentials';
 
-// The Phase 4 accessibility audit (docs/accessibility-audit-phase4.md): axe on every page and the
+// The accessibility audit: axe on every page and the
 // drawer at 360 and 1280 (any WCAG 2.2 A/AA violation fails, whatever its impact), forced-colours
 // and 200% zoom screenshots, reduced motion, and keyboard-only journeys. Results land in
 // storage/e2e/a11y and storage/e2e/screenshots. `make e2e c="audit"`.
