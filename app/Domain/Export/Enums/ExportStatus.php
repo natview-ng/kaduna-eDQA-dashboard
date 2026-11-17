@@ -7,7 +7,7 @@ namespace App\Domain\Export\Enums;
 use App\Support\Enums\HasLabel;
 
 /**
- * An export's life (Phase 6 step 0): queued when asked for, running on the exports queue, then
+ * An export's life: queued when asked for, running on the exports queue, then
  * done (the file is on the private disk) or failed; a done export becomes expired when the daily
  * retention job deletes its file after edqa.exports.retention_days.
  */

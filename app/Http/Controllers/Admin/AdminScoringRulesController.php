@@ -11,7 +11,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * The Scoring rules page (ARCHITECTURE.md §7, §9.3, Phase 5 step 6): the current version and the
+ * The Scoring rules page (ARCHITECTURE.md §7, §9.3): the current version and the
  * draft, the item catalog, the rounds a publish would and would not touch (D-32), the rescores a
  * publish started, and the two settings the page shows read-only (they are config, not a rule
  * version: weighting and display rounding, Q-09). The page acts through /api/scoring-rules.

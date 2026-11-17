@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * The facility master list (Phase 5 step 5). errors.* are the refusals the API returns as
+ * The facility master list. errors.* are the refusals the API returns as
  * 409 { code, message }; import.* is what edqa:facilities:import-master-list prints.
  */
 

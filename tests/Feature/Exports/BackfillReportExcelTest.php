@@ -12,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Tests\Support\ExportRunner;
 use Tests\Support\Rows;
 
-// Phase 6 step 2: the backfill report as Excel (edqa:backfill-report --format=xlsx, and the Data
+// The backfill report as Excel (edqa:backfill-report --format=xlsx, and the Data
 // sources page's download through the export plumbing). Every sheet reconciles with counts of the
 // tables themselves, and nothing personal is in it, though the payloads and assessments carry an
 // assessor, a device and GPS.

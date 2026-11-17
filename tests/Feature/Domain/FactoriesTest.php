@@ -54,7 +54,7 @@ it('places an assessment inside its round window', function (): void {
         ->and($assessment->ended_at->greaterThanOrEqualTo($assessment->started_at))->toBeTrue();
 });
 
-// CLAUDE.md hard rule 2: scores are derived from item responses, never typed.
+// hard rule 2: scores are derived from item responses, never typed.
 it('derives every score from the item pass counts', function (): void {
     $assessment = Assessment::factory()
         ->withScores(['availability' => 90, 'consistency' => [80, 87.5, null], 'validity' => 100])

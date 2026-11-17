@@ -31,7 +31,7 @@ return [
         'lga_phc_coordinator' => 'LGA PHC coordinator',
     ],
 
-    // The admin plan page's server messages (Phase 6 step 3).
+    // The admin plan page's server messages.
     'admin' => [
         'errors' => [
             'past_date' => 'Choose a review date on or after today.',

@@ -33,14 +33,14 @@ type Pending = {
 type WindowErrors = Partial<Record<'window_start' | 'window_end', string>>;
 
 /**
- * The Rounds page (ARCHITECTURE.md §3, §9.3; Phase 5 step 4). Every round with its window,
+ * The Rounds page (ARCHITECTURE.md §3, §9.3). Every round with its window,
  * status in words, accepted assessments per source, open issues, rule version, who closed it and
  * why it was last reopened. Closing publishes a round to the public dashboard (D-07, D-77), so it
  * goes through a close panel (what is still open, "Reconcile all sources now") and a reasoned
  * dialog with the public-impact note; reopening takes it back, also reasoned. An open round's
  * window can be edited and the round rescored, each with a reason. Create a round below the list.
  * Every action reloads only `rounds` (and the shell) and says what happened. The PDF round report
- * (Phase 6 step 5) is asked for from its own panel.
+ * is asked for from its own panel.
  */
 export default function AdminRounds({ rounds, sources, graceDays }: AdminRoundsProps) {
     const t = useTranslate();

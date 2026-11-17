@@ -23,7 +23,7 @@ use Illuminate\Container\Attributes\Config;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The implementation plan (ARCHITECTURE.md §9.2.6), read-only until Phase 6. For each LGA in view
+ * The implementation plan (ARCHITECTURE.md §9.2.6), read-only on the public site, edited in the admin area. For each LGA in view
  * (LgaTableAggregator's rows, so the same figures as the LGA view):
  *
  * - a stored plan_actions row for the plan's round (the latest round in view) is shown as stored;

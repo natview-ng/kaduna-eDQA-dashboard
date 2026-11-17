@@ -6,7 +6,7 @@ export type ScoreTagProps = {
 
 // CONVENTION.md §6 band colours (D-89): Strong → ok (green), Acceptable → fine (slate), Review →
 // warn, Needs action → bad. The label is always shown too: colour never carries the meaning alone
-// (CLAUDE.md hard rule 11).
+// (hard rule 11).
 const TONE: Record<Band, string> = {
     strong: 'bg-ok-bg text-ok',
     acceptable: 'bg-fine-bg text-fine',

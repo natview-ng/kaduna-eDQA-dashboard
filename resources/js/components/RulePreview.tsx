@@ -13,7 +13,7 @@ export type RulePreviewProps = {
 };
 
 /**
- * The publish preview (Phase 5 step 6), every number the server's: for each open round, which
+ * The publish preview, every number the server's: for each open round, which
  * facilities and LGAs change band (now → under the draft) and the state overall before and after;
  * then the closed rounds, listed as unaffected (D-32), and the note that the public dashboard only
  * changes when an open round is closed.

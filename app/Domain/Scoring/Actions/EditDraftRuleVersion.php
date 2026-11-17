@@ -12,7 +12,7 @@ use App\Support\Audit\AuditLog;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Saving and discarding the one draft (Phase 5 step 6). Save replaces the top-level config keys
+ * Saving and discarding the one draft. Save replaces the top-level config keys
  * given (bands, item_weights, na_policy, choice_map), each whole, as CreateDraftRuleVersion does;
  * the result must be a config the calculator can apply (InvalidRuleConfig, 409, otherwise).
  * Discard removes the draft: nothing was ever scored under it (a preview scores in memory only,

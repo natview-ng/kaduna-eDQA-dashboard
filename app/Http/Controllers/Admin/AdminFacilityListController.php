@@ -13,7 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * The Facility list page (ARCHITECTURE.md §9.3, Phase 5 step 5): the master list searched,
+ * The Facility list page (ARCHITECTURE.md §9.3): the master list searched,
  * filtered and paged on the server, the 23 LGAs with their wards (for the filters, the editor and
  * ward management; the 23 themselves are fixed), and whether the facility media file is out of
  * date. The page changes the list through /api/facilities and /api/wards and reloads only what

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * One export asked for from the admin area (Phase 6 step 0, D-96). Not Audited: the job updates
+ * One export asked for from the admin area (D-96). Not Audited: the job updates
  * its progress many times; the meaningful moments (requested, done or failed, downloaded,
  * expired) are recorded explicitly by the actions, with the privacy option.
  *

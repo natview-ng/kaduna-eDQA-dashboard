@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /*
- * The pull job (Phase 2B step 4, D-51):
+ * The pull job (D-51):
  *   odk_pull_runs.flagged       accepted with soft flags, counted apart from accepted
  *   odk_pull_runs.outcome       succeeded | failed | skipped_not_configured (null while running)
  *   odk_form_syncs.last_edit_at the edits cursor: the newest __system/updatedAt pulled (Q-32)

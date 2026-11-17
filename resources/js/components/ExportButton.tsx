@@ -36,7 +36,7 @@ export type ExportButtonProps = {
 };
 
 /**
- * Export (Phase 6, D-96, D-97): admin pages and the admin preview bar only, never the public site
+ * Export (D-96, D-97): admin pages and the admin preview bar only, never the public site
  * (D-80). Choose what to export where there is a choice, CSV or Excel and, where it applies,
  * whether to include assessor and source details; the export is queued, its progress followed
  * (ProgressPanel), and a download link offered when it is ready. The link works 30 minutes; the

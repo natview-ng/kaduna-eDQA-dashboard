@@ -64,7 +64,7 @@ final class QuarantineQuery
     public const OPEN_ISSUES_KEY = 'edqa:admin:open-issues';
 
     /**
-     * What waits for an administrator (the Data issues badge, Phase 5): open quarantine records
+     * What waits for an administrator (the Data issues badge): open quarantine records
      * plus deletions at source not yet reviewed (D-62). An operational count, never a score.
      */
     public function openIssueCount(): int
@@ -281,7 +281,7 @@ final class QuarantineQuery
     }
 
     /**
-     * The round report's data quality note (Phase 6 step 5, D-101): records of a round kept out of
+     * The round report's data quality note (D-101): records of a round kept out of
      * its figures (still open, or rejected), by hard-failure code and by source. Counts only:
      * never a facility, an assessor or an ID. A record failing two rules counts under both rules
      * and once in the total and by source.
@@ -316,7 +316,7 @@ final class QuarantineQuery
     }
 
     /**
-     * How many records the data issues export holds (Phase 6 step 1): the page's filters, plus
+     * How many records the data issues export holds: the page's filters, plus
      * any of a set of rounds (`rounds`, the export's year and quarter).
      *
      * @param  array{status?: ?string, state?: ?string, rule?: ?string, round?: int|string|null, rounds?: list<int>, lga?: ?string, source_id?: ?int}  $filters

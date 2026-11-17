@@ -47,7 +47,7 @@ final class PullHistoryQuery
     }
 
     /**
-     * Every matching run, newest first, a chunk at a time: the pull history export (Phase 6 step 1),
+     * Every matching run, newest first, a chunk at a time: the pull history export,
      * the same rows as the page.
      *
      * @param  array{source?: ?string, trigger?: ?string, outcome?: ?string, from?: ?string, to?: ?string}  $filters

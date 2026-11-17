@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Asks for an export (Phase 6 steps 0–1, D-96, D-97): checks the type, its filter (the page's own:
+ * Asks for an export (D-96, D-97): checks the type, its filter (the page's own:
  * the dashboard filter for the report types) and its options, records the request (and whether
  * assessor and source details were asked for) in the audit log, and queues the work on the exports
  * queue once the row is committed. Nothing is written in the request.

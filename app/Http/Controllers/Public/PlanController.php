@@ -13,8 +13,8 @@ use Inertia\Response;
 
 /**
  * Implementation plan (ARCHITECTURE.md §9.2.6), read-only: the plan from
- * ImplementationPlanAggregator, deferred. Editing owners, dates and statuses, and the Excel
- * workplan, arrive in Phase 6.
+ * ImplementationPlanAggregator, deferred. Owners, dates and statuses are edited in the admin
+ * plan (AdminPlanController), and the Excel workplan is exported there.
  */
 final class PlanController extends Controller
 {

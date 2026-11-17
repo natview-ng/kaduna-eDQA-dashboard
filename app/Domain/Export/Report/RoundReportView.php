@@ -11,7 +11,7 @@ use App\Domain\Reporting\DTOs\TrendPoint;
 use App\Domain\Scoring\DTOs\ScoreValue;
 
 /**
- * The round report as print HTML (Phase 6 step 5, D-101): resources/views/reports/round.blade.php
+ * The round report as print HTML (D-101): resources/views/reports/round.blade.php
  * with its charts drawn here (SvgChart) from the report's figures. The HTML is complete and
  * self-contained (tokens, fonts, charts inline), so Chromium needs nothing else and loads no URL.
  * The running header and footer are Chromium's page templates (page numbers, the round, DRAFT).

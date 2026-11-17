@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Phase 6 step 0: queued exports (ARCHITECTURE.md §8, SECURITY.md §7). One row per export asked
+ * Queued exports (ARCHITECTURE.md §8, SECURITY.md §7). One row per export asked
  * for: its type, the dashboard filter and the options (format, whether assessor and source details
  * are included) as asked, who asked, and where it stands. The file lives on the private exports
  * disk; `path` is relative to it, and is cleared when the retention job deletes the file.

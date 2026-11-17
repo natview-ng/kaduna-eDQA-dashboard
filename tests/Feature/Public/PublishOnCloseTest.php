@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\ReportingFixture;
 
-// Phase 5 step 4: closing a round publishes it (D-07, D-77), reopening takes it back. An anonymous
+// Closing a round publishes it (D-07, D-77), reopening takes it back. An anonymous
 // visitor sees a round only while it is closed, and the public cache is flushed both ways (the
 // cache store is a real one here, so a stale answer would show).
 

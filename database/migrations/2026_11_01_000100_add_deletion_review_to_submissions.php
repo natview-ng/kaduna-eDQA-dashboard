@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 /**
- * D-62 / Phase 5 step 0: a deletion at source (a submission Reconcile no longer finds at its
+ * D-62: a deletion at source (a submission Reconcile no longer finds at its
  * source) stays in the portal and is reviewed by an administrator, with a reason. Who and when are
  * kept on the submission; a review exists only for a deletion, and always names both.
  * Unreviewed deletions count towards the Data issues badge.

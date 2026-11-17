@@ -18,7 +18,7 @@ export type AccountProps = {
 };
 
 /**
- * My account (Phase 5 step 7): change the password (SECURITY.md §2: the policy and the last five
+ * My account: change the password (SECURITY.md §2: the policy and the last five
  * apply; saving ends your other sessions and is audited), your recent sign-ins (time WAT, browser,
  * the address only as a range, whether it was a new device), and where unlocking an account is
  * done: the console, never this page. The title comes from AdminLayout.

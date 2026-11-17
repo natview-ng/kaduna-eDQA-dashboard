@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Which sources a facility's counted assessments came from in the given rounds (the facility scores
- * export's source column, Phase 6 step 1). Reads assessments.source_id only, as the Monitor's
+ * export's source column). Reads assessments.source_id only, as the Monitor's
  * assessments-by-source does: never submissions. The caller names the sources.
  */
 final class FacilitySourcesQuery

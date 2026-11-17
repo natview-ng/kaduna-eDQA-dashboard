@@ -54,7 +54,7 @@ export default function BackfillPanel({ backfill }: BackfillPanelProps) {
                                 })}
                             </dd>
                         </dl>
-                        {/* The report as it stands now for this source, as Excel (Phase 6 step 2). */}
+                        {/* The report as it stands now for this source, as Excel. */}
                         <div className="mt-2">
                             <ExportButton types={[{ key: 'backfill_report', offersPrivate: false, formats: ['xlsx'] }]} filter={{ source: key }} />
                         </div>

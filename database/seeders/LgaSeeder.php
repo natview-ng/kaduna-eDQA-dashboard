@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * The 23 LGAs of Kaduna State (ARCHITECTURE.md §3). The only way rows reach `lgas`: the app
- * role cannot insert (CLAUDE.md hard rule 9, post-migrate-grants.sql). Runs in every
+ * role cannot insert (hard rule 9, post-migrate-grants.sql). Runs in every
  * environment, as the migrator. Idempotent: upsert by name.
  */
 final class LgaSeeder extends Seeder

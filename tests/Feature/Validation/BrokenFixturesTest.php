@@ -10,7 +10,7 @@ use App\Domain\Validation\Models\QuarantinedRecord;
 use Tests\Support\BrokenSubmissions;
 use Tests\Support\ParsedSubmissionBuilder;
 
-// CLAUDE.md §6 step 6 acceptance: each fixture quarantines with the right code, end to end
+// Build step 6 acceptance: each fixture quarantines with the right code, end to end
 // through ProcessParsedBatch, and with exactly that code: no extra failure, no missing one.
 
 beforeEach(function (): void {

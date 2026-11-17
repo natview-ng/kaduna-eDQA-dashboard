@@ -16,7 +16,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\MissingAttributeException;
 use Illuminate\Support\Facades\DB;
 
-// ---- Raw ODK payloads are never mutated (CLAUDE.md hard rule 8, SECURITY.md §5)
+// ---- Raw ODK payloads are never mutated (hard rule 8, SECURITY.md §5)
 
 it('refuses to change a submission payload after creation', function (): void {
     $submission = Submission::factory()->create();

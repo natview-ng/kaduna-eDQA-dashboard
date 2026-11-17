@@ -32,7 +32,7 @@ export const fieldsOf = (row: FacilityListRow): FacilityFields => ({
 });
 
 /**
- * The master list (Phase 5 step 5), one server page at a time: code, name, ward, LGA, level,
+ * The master list, one server page at a time: code, name, ward, LGA, level,
  * ownership, status in words with a shape, visits and the latest score (the server's). Edit opens
  * the facility's fields in a row under it, with the public-impact note; Deactivate and Reactivate
  * ask for a reason. Never a delete.

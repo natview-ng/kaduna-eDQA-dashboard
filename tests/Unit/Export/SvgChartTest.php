@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Domain\Export\Report\SvgChart;
 
-// Phase 6 step 5 (D-101): the round report's server-drawn charts. Scores on a fixed 0–100 axis,
+// D-101: The round report's server-drawn charts. Scores on a fixed 0–100 axis,
 // colour by class (never hex), the displayed value as text, no data as a gap, every label escaped.
 
 function chartDom(string $svg): DOMXPath

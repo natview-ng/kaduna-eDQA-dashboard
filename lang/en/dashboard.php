@@ -328,6 +328,6 @@ return [
 
     'placeholder' => [
         'title' => 'This page is being built.',
-        'description' => 'The shell, filters and data are in place; the page itself arrives in the next Phase 4 steps.',
+        'description' => 'The shell, filters and data are in place.',
     ],
 ];

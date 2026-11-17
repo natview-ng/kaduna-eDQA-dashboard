@@ -14,7 +14,7 @@ return [
         'back' => 'Back to admin',
     ],
 
-    // The admin implementation plan (Phase 6 step 3).
+    // The admin implementation plan.
     'plan' => [
         'round' => 'Round',
         'round_status' => [
@@ -64,7 +64,7 @@ return [
         ],
     ],
 
-    // The ExportButton (Phase 6 step 0, D-96): admin pages and the preview bar only.
+    // The ExportButton (D-96): admin pages and the preview bar only.
     'exports' => [
         'button' => 'Export…',
         'what' => 'What to export',
@@ -80,7 +80,7 @@ return [
             'workplan' => 'Implementation workplan (Excel)',
             'round_report' => 'Round report (PDF)',
         ],
-        // The workplan's own privacy option (Phase 6 step 4).
+        // The workplan's own privacy option.
         'private_plan' => 'Include private plan fields',
         'private_plan_help' => 'Adds each row\'s contact and notes, which are never public. Keep the file inside the team. Your choice is recorded in the audit log and in the file.',
         'format' => 'Format',
@@ -160,7 +160,7 @@ return [
 
     'placeholder' => [
         'title' => 'This page is being built',
-        'description' => 'It arrives in a later Phase 5 step. Its data is already served by the portal.',
+        'description' => 'Its data is already served by the portal.',
     ],
 
     // The Data sources page (ARCHITECTURE.md §9.3): one panel per source, Pull all, the combined
@@ -732,9 +732,9 @@ return [
         'none' => 'No data source is set up, so no submissions are being pulled. The dashboard shows the data already loaded.',
     ],
 
-    // The Rounds page (Phase 5 step 4). Closing a round publishes it (D-07, D-77).
+    // The Rounds page. Closing a round publishes it (D-07, D-77).
     'rounds' => [
-        // Phase 6 step 5 (D-101): the PDF round report.
+        // D-101: The PDF round report.
         'report' => [
             'title' => 'Round report (PDF)',
             'description' => 'A printable report of one round: headline, dimensions, trends, every LGA, the plan, data quality and method. Closed rounds are the published ones.',
@@ -844,7 +844,7 @@ return [
         ],
     ],
 
-    // The Facility list page (Phase 5 step 5): the master list, the validation authority.
+    // The Facility list page: the master list, the validation authority.
     'facilities' => [
         'fixed_lgas' => 'Kaduna State has exactly 23 LGAs. They are fixed: no LGA can be added, renamed or removed here. Wards can be added and renamed within an LGA.',
         'filters' => [
@@ -936,7 +936,7 @@ return [
         ],
     ],
 
-    // The Scoring rules page (Phase 5 step 6). Closed rounds keep their pinned version (D-32).
+    // The Scoring rules page. Closed rounds keep their pinned version (D-32).
     'scoring' => [
         'current' => [
             'title' => 'Current rule version: v:version',
@@ -1056,7 +1056,7 @@ return [
         ],
     ],
 
-    // The Audit log page (Phase 5 step 7, D-93): read only; views are not audited, exports are.
+    // The Audit log page (D-93): read only; views are not audited, exports are.
     'audit' => [
         'read_only' => 'The audit log is read only: nothing here can be changed or removed. Viewing it is not recorded; exporting it is.',
         'filters' => [
@@ -1164,7 +1164,7 @@ return [
         ],
     ],
 
-    // My account (Phase 5 step 7).
+    // My account.
     'account' => [
         'logins' => [
             'title' => 'Your recent sign-ins',

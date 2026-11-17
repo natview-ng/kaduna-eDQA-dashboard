@@ -11,7 +11,7 @@ use App\Domain\Scoring\Enums\Dimension;
 use App\Domain\Scoring\Exceptions\IncompleteAssessmentException;
 
 /**
- * Derives every score from item responses (ARCHITECTURE.md §7; CLAUDE.md hard rule 2):
+ * Derives every score from item responses (ARCHITECTURE.md §7; hard rule 2):
  *
  *   slot      = Σ(weight × pass) / Σ(weight × applicable) × 100, N/A excluded from both;
  *               null when no item is applicable
@@ -76,7 +76,7 @@ final class ScoreCalculator
             }
         }
 
-        // Divide first, then × 100 (CLAUDE.md §5): passed ≤ applicable even after float
+        // Divide first, then × 100 (the scoring formula): passed ≤ applicable even after float
         // rounding, so the ratio is ≤ 1 and the score can never exceed 100. (× 100 first can give
         // 100.00000000000001 for weighted all-pass slots.)
         return $applicable > 0 ? $passed / $applicable * 100 : null;

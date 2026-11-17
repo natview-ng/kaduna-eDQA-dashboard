@@ -14,7 +14,7 @@ use App\Domain\Round\Models\Round;
 use App\Http\Resources\Public\ScoreValueResource;
 
 /**
- * The admin plan page's data for one round (Phase 6 step 3): ImplementationPlanAggregator's rows for
+ * The admin plan page's data for one round: ImplementationPlanAggregator's rows for
  * the admin audience (the round may be open), each stored row with what only administrators see laid
  * over it (PlanActionsQuery: id, role key, other role, contact, notes), and the summary by type and
  * status. A generated row has no id: "Generate plan for this round" stores it.

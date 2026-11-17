@@ -8,7 +8,7 @@ use App\Domain\Validation\DTOs\RuleFailure;
 
 /**
  * Builds a rule's failure from its wording in lang/en/validation_rules.php, so every detail a
- * user reads comes from the language file (CLAUDE.md hard rule 10).
+ * user reads comes from the language file (hard rule 10).
  */
 trait BuildsFailures
 {

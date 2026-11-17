@@ -20,7 +20,7 @@ use App\Domain\Validation\ValidationContext;
  *   dimension and overall. Skipped when the items are incomplete (ITEMS_INCOMPLETE reports
  *   that) or no version is published, so nothing throws out of the rule.
  * - Typed: every rawNumericScores value from a legacy numeric-entry form. These are checked,
- *   never used as scores (CLAUDE.md hard rule 2).
+ *   never used as scores (hard rule 2).
  */
 final class ScoreRangeRule implements ValidationRule
 {

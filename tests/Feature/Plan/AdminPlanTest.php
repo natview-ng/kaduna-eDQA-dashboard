@@ -10,7 +10,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\ReportingFixture;
 use Tests\Support\Rows;
 
-// Phase 6 step 3: the implementation plan, editable in the admin area and read-only publicly.
+// The implementation plan, editable in the admin area and read-only publicly.
 // ReportingFixture: Q2 2026 open (Alpha 78.9 → consistency, Bravo 76.0 → availability, Charlie 81.0
 // above Acceptable), Q1 2026 closed (Alpha only, 10 → its weakest).
 

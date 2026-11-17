@@ -21,12 +21,12 @@ use App\Support\Audit\AuditLog;
 use Illuminate\Support\Facades\DB;
 
 /**
- * "Use this one instead" on a cross-source duplicate (ARCHITECTURE.md §5.8, Phase 5 step 2). The
+ * "Use this one instead" on a cross-source duplicate (ARCHITECTURE.md §5.8). The
  * quarantined submission, held only as DUPLICATE_ASSESSMENT, replaces the facility's accepted
  * assessment in the round: it is reprocessed as an edit of the accepted instance, so the pipeline
  * keeps the same assessment row (its plan actions and links), replaces its items and scores from
  * this submission, and marks the old submission superseded. Nothing is scored here: the pipeline
- * scores it, as every submission (CLAUDE.md hard rule 2).
+ * scores it, as every submission (hard rule 2).
  *
  * Refused for a record already resolved, for anything but a duplicate, and in a closed round
  * (D-18). If the submission would now fail another rule, nothing changes. One transaction, the

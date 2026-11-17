@@ -24,7 +24,7 @@ export type PullHistoryPanelProps = {
 const TRIGGERS = ['scheduled', 'manual', 'webhook', 'reconcile', 'backfill'] as const;
 const OUTCOMES: PullOutcomeValue[] = ['succeeded', 'failed', 'skipped_not_configured', 'running'];
 
-// An outcome in words, with a shape as well as a colour (CLAUDE.md hard rule 11).
+// An outcome in words, with a shape as well as a colour (hard rule 11).
 const OUTCOME_STYLE: Record<PullOutcomeValue, { tone: string; mark: string }> = {
     succeeded: { tone: 'bg-ok-bg text-ok', mark: '●' },
     failed: { tone: 'bg-bad-bg text-bad', mark: '■' },

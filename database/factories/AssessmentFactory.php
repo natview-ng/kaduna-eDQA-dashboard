@@ -19,7 +19,7 @@ use InvalidArgumentException;
  * An accepted assessment, visited inside its round's window.
  *
  * withScores() creates item responses that produce the requested scores; the scores
- * themselves are then derived from those items, never typed (CLAUDE.md hard rule 2).
+ * themselves are then derived from those items, never typed (hard rule 2).
  *
  * @extends Factory<Assessment>
  */

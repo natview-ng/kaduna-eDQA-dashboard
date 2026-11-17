@@ -14,7 +14,7 @@ import type { Plan, PlanProps } from '@/types/dashboard';
  * Implementation plan (ARCHITECTURE.md §9.2.6), read-only: an action for every local government
  * below the threshold, those needing none, the actions by type and what each means. Every figure,
  * count and text comes from ImplementationPlanAggregator. Each action's status is the one
- * administrators keep in the admin plan (Phase 6 step 3); its contact and notes never come here.
+ * administrators keep in the admin plan; its contact and notes never come here.
  */
 export default function PlanPage({ plan }: PlanProps) {
     return (

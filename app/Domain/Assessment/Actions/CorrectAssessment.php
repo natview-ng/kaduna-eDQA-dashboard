@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\DB;
  * "Correct this assessment" (SECURITY.md §4 item 5, ARCHITECTURE.md §7, D-58). An administrator
  * changes item results (pass, fail, N/A; for a question answered as several checks, how many of
  * them passed, D-67) and the visit's start and end, with a typed reason.
- * Scores are never edited (CLAUDE.md rule 2): the corrected assessment is scored again at once,
+ * Scores are never edited (hard rule 2): the corrected assessment is scored again at once,
  * through ScoreCalculator, by the same code a round rescore uses (RescoreAssessments::score), so
  * the facility drawer shows the new scores straight away; the round's rescore is then queued
  * (AssessmentCorrected) for everything that depends on it.

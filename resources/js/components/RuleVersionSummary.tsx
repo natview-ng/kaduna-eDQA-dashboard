@@ -10,7 +10,7 @@ export type RuleVersionSummaryProps = {
 };
 
 /**
- * The current published version (Phase 5 step 6): who published it, when and why; its bands,
+ * The current published version: who published it, when and why; its bands,
  * N/A policy and choice map; and the two settings that are configuration, not a rule version,
  * shown read-only: weighting and display rounding (with what Q-09 decided rounding means).
  */

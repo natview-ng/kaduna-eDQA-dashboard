@@ -11,7 +11,7 @@
 -- Method: facility score first, then unweighted means of facility scores upward
 -- (D-04; edqa.aggregation.weighting = 'unweighted').
 --
--- ASSUMPTIONS to confirm against a real client round in Phase 3:
+-- ASSUMPTIONS to confirm against a real client round:
 --   A1  Every row in `assessments` counts as accepted. Assessments are only created from
 --       submissions that passed every hard rule (soft-flagged ones included, per §6), and an ODK
 --       edit updates the row in place, so there is nothing to filter. assessments.status has no

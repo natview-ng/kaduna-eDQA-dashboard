@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /*
- * /dev/components, the local-only component gallery (Phase 4 step 0). Sample data on that page
+ * /dev/components, the local-only component gallery. Sample data on that page
  * (LGA names, figures) is illustration, not UI text.
  */
 

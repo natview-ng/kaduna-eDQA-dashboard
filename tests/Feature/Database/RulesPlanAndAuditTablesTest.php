@@ -50,7 +50,7 @@ it('rejects an owner role that is not a role', function (): void {
     expectCheckViolation(fn () => Rows::planAction(['owner_role' => 'Dr A. Bello']), 'plan_actions_owner_role_valid');
 });
 
-it('takes "other" with its role or unit written out, and only then (Phase 6 step 3)', function (): void {
+it('takes "other" with its role or unit written out, and only then', function (): void {
     expect(Rows::planAction(['owner_role' => 'other', 'owner_role_other' => 'Zonal M&E unit']))->toBeInt();
 
     expectCheckViolation(fn () => Rows::planAction(['lga_id' => Rows::lga(), 'owner_role' => 'other']), 'plan_actions_owner_role_other');

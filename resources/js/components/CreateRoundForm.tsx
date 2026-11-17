@@ -19,7 +19,7 @@ type Field = 'year' | 'quarter' | 'window_start' | 'window_end';
 const ID: Record<Field, string> = { year: 'create-round-year', quarter: 'create-round-quarter', window_start: 'create-round-start', window_end: 'create-round-end' };
 
 /**
- * "Create a round" (Phase 5 step 4): year, quarter and a window that starts as the quarter's own
+ * "Create a round": year, quarter and a window that starts as the quarter's own
  * dates and follows the quarter until the administrator edits it. The server checks the window;
  * its refusals (the round exists, the window overlaps another round or passes the late-visit
  * grace) come back as field errors, summarised at the top and repeated beside each field.

@@ -33,7 +33,7 @@ export type AdminPlanProps = {
 };
 
 /**
- * The admin implementation plan (Phase 6 step 3, ARCHITECTURE.md §9.2.6): for one round, open or
+ * The admin implementation plan (ARCHITECTURE.md §9.2.6): for one round, open or
  * closed, every LGA below the threshold with its recommended action and its follow-up (owner,
  * contact, review date, status, notes), saved row by row; "Generate plan for this round" stores the
  * proposed rows, leaving saved ones as they are. "Actions by type" counts by status. The public plan
@@ -76,7 +76,7 @@ export default function AdminPlan({ rounds, round, plan, roles, today }: AdminPl
                     </select>
                 </div>
                 <p className="text-sm text-ink-2">{t(`admin.plan.round_status.${round.status}`)}</p>
-                {/* The round's workplan as Excel (Phase 6 step 4): to share and print. */}
+                {/* The round's workplan as Excel: to share and print. */}
                 <div className="w-full sm:ml-auto sm:w-auto">
                     <ExportButton
                         types={[{ key: 'workplan', offersPrivate: true, formats: ['xlsx'], privateLabel: 'admin.exports.private_plan', privateHelp: 'admin.exports.private_plan_help' }]}

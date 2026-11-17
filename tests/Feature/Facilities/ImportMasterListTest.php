@@ -8,8 +8,8 @@ use Database\Seeders\LgaSeeder;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\XlsxFixture;
 
-// Phase 5 step 5: edqa:facilities:import-master-list (CLAUDE.md hard rule 1: reference data, not
-// assessment data, console only). The workbook is facility_reconcile.py's (Phase 0), signed off.
+// Edqa:facilities:import-master-list (hard rule 1: reference data, not
+// assessment data, console only). The workbook is facility_reconcile.py's, signed off.
 
 const MATCHED_HEADER = ['Ref', 'LGA', 'Submitted code', 'Submitted name(s)', 'Submitted ward(s)', 'Submissions', 'Registry code', 'Registry name', 'Registry ward', 'Level', 'Ownership', 'Method', 'Score', 'Ward agrees', 'Other refs mapped here', 'Note'];
 

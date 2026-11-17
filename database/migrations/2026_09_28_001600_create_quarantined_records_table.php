@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 // Submissions that failed a hard rule, with every failure: [{code, severity, detail}].
-// Reporting never reads this table (CLAUDE.md hard rule 6). status and resolution mirror
+// Reporting never reads this table (hard rule 6). status and resolution mirror
 // App\Domain\Validation\Enums\{QuarantineStatus,QuarantineResolution}.
 return new class extends Migration
 {

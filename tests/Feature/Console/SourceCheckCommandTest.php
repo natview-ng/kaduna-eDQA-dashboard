@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Sleep;
 
-// edqa:source:check (Phase 2C): per source, configured, signed in, and its form versions. No network.
+// edqa:source:check: per source, configured, signed in, and its form versions. No network.
 
 const SC_KOBO = 'https://kf.kobotoolbox.org';
 const SC_TOKEN = 'kobo-check-token-77aa';
@@ -102,7 +102,7 @@ it('refuses an unknown source and lists the configured ones', function (): void 
 });
 
 // Retired after 0.7.0: the ODK-only commands (both sources share one now, D-87) and the one-off
-// Phase 2C attachment move, with its old odk disk.
+// The attachment move from the old odk disk.
 it('no longer has the ODK-only commands or the one-off attachment move', function (): void {
     expect(config('filesystems.disks'))->not->toHaveKey('odk');
     expect(Artisan::all())->not->toHaveKey('edqa:odk:check')->not->toHaveKey('edqa:odk-mock:generate')->not->toHaveKey('edqa:attachments:relocate')

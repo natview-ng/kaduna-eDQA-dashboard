@@ -19,7 +19,7 @@ use Carbon\CarbonImmutable;
  *
  * It never throws on bad data: anything it cannot read is passed through raw (rawStart and rawEnd
  * keep the original text, references stay text) so validation can quarantine it, and nothing is
- * guessed (CLAUDE.md hard rule 12):
+ * guessed (hard rule 12):
  *
  * - a (source, version) with no map gives formVersionKnown = false and the minimal fields only
  *   (identity, version, submission time, device), never a read through another version's map;

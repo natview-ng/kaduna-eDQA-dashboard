@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
  * between the sources the client must decide on when both hold the same quarters (Q-15).
  *
  * Operational counts of raw submissions and quarantine, never a score: like QuarantineQuery it
- * counts in SQL outside Reporting, because Reporting may not read either table (CLAUDE.md hard
+ * counts in SQL outside Reporting, because Reporting may not read either table (hard
  * rule 6); the architecture test allows these two files by name.
  *
  * - Per source and round, a total per source, then a grand total (from SQL, GROUPING SETS):
@@ -30,7 +30,7 @@ use Illuminate\Support\Facades\DB;
  *   (D-60: never stored, so only pull_runs knows them).
  * - Examples: the most frequent failure details of each rule, at most three: hard rules only, so
  *   never an assessor (ASSESSOR_VOLUME is soft).
- * - Per source and round too (Phase 6 step 2): its open DUPLICATE_ASSESSMENT records and those
+ * - Per source and round too: its open DUPLICATE_ASSESSMENT records and those
  *   clashing with the other source, for the Excel report's Summary.
  * - Unmatched facilities: open FACILITY_UNKNOWN records grouped by the facility as sent (and its
  *   LGA as sent), with the rounds they fall in and one detail.

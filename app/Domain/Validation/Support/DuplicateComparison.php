@@ -14,10 +14,10 @@ use Illuminate\Support\Facades\DB;
 use Throwable;
 
 /**
- * The overall each side of a duplicate would score (ARCHITECTURE.md §5.8, Phase 5 step 2): the
+ * The overall each side of a duplicate would score (ARCHITECTURE.md §5.8): the
  * accepted assessment from its stored item responses, the quarantined submission from its parsed
  * items, both through ScoreCalculator under the current rule version, so the two compare like for
- * like. Shown to the administrator choosing between them; never stored (CLAUDE.md hard rule 2:
+ * like. Shown to the administrator choosing between them; never stored (hard rule 2:
  * scores come only from the pipeline).
  */
 final class DuplicateComparison

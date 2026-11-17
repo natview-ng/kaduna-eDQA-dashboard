@@ -27,7 +27,7 @@
          variables (Compose env_file), which Laravel reads from $_SERVER first; force="true"
          alone doesn't reach $_SERVER, so tests/bootstrap.php copies these values there and
          refuses to run unless DB_DATABASE is edqa_test. RefreshDatabase must never touch the
-         development database. Postgres only, never SQLite (CLAUDE.md hard rule 4). -->
+         development database. Postgres only, never SQLite (hard rule 4). -->
     <php>
         <env name="APP_ENV" value="testing" force="true"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file" force="true"/>

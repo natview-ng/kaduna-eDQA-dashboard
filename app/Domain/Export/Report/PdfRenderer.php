@@ -10,8 +10,7 @@ use Spatie\LaravelPdf\Enums\Format;
 use Spatie\LaravelPdf\Facades\Pdf;
 
 /**
- * HTML to PDF with Chromium, through spatie/laravel-pdf's Browsershot driver (Phase 6 step 5,
- * D-101; DEPLOY.md §12). Only on worker-exports, whose image has Chromium. Takes rendered HTML,
+ * HTML to PDF with Chromium, through spatie/laravel-pdf's Browsershot driver (D-101; DEPLOY.md §12). Only on worker-exports, whose image has Chromium. Takes rendered HTML,
  * never a URL: Chromium runs with --no-sandbox, acceptable only because it renders the app's own
  * views of validated data. JavaScript is off (the report has none) and the Chromium and Node paths
  * come from config (the image's env). The PDF is tagged (structure for screen readers, /Lang from

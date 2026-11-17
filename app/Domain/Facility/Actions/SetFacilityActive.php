@@ -13,7 +13,7 @@ use App\Support\Audit\AuditLog;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Deactivate (never delete) and reactivate a facility, each with a reason (Phase 5 step 5).
+ * Deactivate (never delete) and reactivate a facility, each with a reason.
  *
  * A deactivated facility leaves the form's lists (the media file goes out of date) and any new
  * submission for it, from either source, quarantines under FACILITY_UNKNOWN; what it already has

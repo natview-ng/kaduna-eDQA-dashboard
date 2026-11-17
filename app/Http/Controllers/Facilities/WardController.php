@@ -13,8 +13,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * /api/wards (Phase 5 step 5): add a ward to one of the 23 LGAs, or rename one, audited. There
- * is no LGA route: the 23 are fixed (CLAUDE.md hard rule 9).
+ * /api/wards: add a ward to one of the 23 LGAs, or rename one, audited. There
+ * is no LGA route: the 23 are fixed (hard rule 9).
  */
 final class WardController extends Controller
 {

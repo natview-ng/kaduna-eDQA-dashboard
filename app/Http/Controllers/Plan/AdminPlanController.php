@@ -12,7 +12,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * The admin implementation plan (/admin/plan?round=, Phase 6 step 3, ARCHITECTURE.md §9.2.6): the
+ * The admin implementation plan (/admin/plan?round=, ARCHITECTURE.md §9.2.6): the
  * plan for one round, the latest by default, open or closed. Every LGA below the threshold with its
  * stored row (owner, contact, review date, status, notes: each saved inline and audited), or the row
  * the plan proposes until "Generate plan for this round" stores it.

@@ -229,7 +229,7 @@ export type Resolution = {
     rescore_round: RoundRef | null;
 };
 
-/** One round on the Rounds page (Phase 5 step 4): every count is the server's. */
+/** One round on the Rounds page: every count is the server's. */
 export type RoundRow = {
     id: number;
     year: number;
@@ -263,7 +263,7 @@ export type RescoreRunData = {
     changed_scores: number;
 };
 
-/** Whether the facility media file is out of date (Phase 5 step 5, CascadeStatusQuery). */
+/** Whether the facility media file is out of date (CascadeStatusQuery). */
 export type CascadeStatus = { out_of_date: boolean; changed_at: string | null; exported_at: string | null };
 
 /** One facility of the master list on the Facility list page (step 5): every count is the server's. */
@@ -299,7 +299,7 @@ export type RuleConfigData = {
     choice_map: Record<string, string>;
 };
 
-/** One rule version on the Scoring rules page (Phase 5 step 6). */
+/** One rule version on the Scoring rules page. */
 export type RuleVersionRow = {
     id: number;
     version: number;

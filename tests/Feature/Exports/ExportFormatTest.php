@@ -17,7 +17,7 @@ use Tests\Support\ExportRunner;
 use Tests\Support\ReportingFixture;
 use Tests\Support\Rows;
 
-// Phase 6 step 1 (D-97): the files themselves. CSV: UTF-8 with a byte-order mark, RFC 4180 quoting
+// D-97: The files themselves. CSV: UTF-8 with a byte-order mark, RFC 4180 quoting
 // and CRLF, formula injection neutralised. Excel: a bold frozen header row with an autofilter,
 // number formats and widths, and "About this file". Personal columns only when asked for; open-round
 // rows marked provisional.

@@ -6,7 +6,7 @@ export type SourceTagProps = {
 };
 
 /**
- * Which field-collection tool a record came from, in words (CLAUDE.md hard rule 11: never by colour
+ * Which field-collection tool a record came from, in words (hard rule 11: never by colour
  * alone). Every source looks the same: the name is what tells them apart, so nothing is lost to a
  * screen reader, in forced colours or to a colour-blind reader.
  */

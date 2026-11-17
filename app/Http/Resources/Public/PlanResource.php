@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 /**
  * The implementation plan, read-only (ARCHITECTURE.md §9.2.6). Owners are shown as roles, never a
  * personal name (D-79): a stored owner that is not one of the roles (lang/en/plan.php owners) is
- * shown as the dimension's default role. Never the contact or the notes (Phase 6 step 3: admin-only).
+ * shown as the dimension's default role. Never the contact or the notes (admin-only).
  *
  * @property Plan $resource
  */
@@ -33,7 +33,7 @@ final class PlanResource extends PublicResource
                 'dimension' => $row->dimension->value,
                 'score' => self::score($row->score),
                 'action' => $row->action,
-                // A role or unit written under "Other role…" is shown as written (Phase 6 step 3).
+                // A role or unit written under "Other role…" is shown as written.
                 'owner' => $row->ownerOther ? $row->owner : self::role($row->owner, $row->dimension),
                 'reviewDate' => $row->reviewDate,
                 'reviewRound' => $row->reviewRound,

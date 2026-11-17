@@ -10,8 +10,8 @@ Do this whenever facilities are added, renamed, moved or deactivated, and before
 
 ## 1. Generate the files
 
-As an administrator, call `POST /api/facility-list/export-cascade`. The Facility list page will
-have a button for this once it is built (Phase 5). The answer gives the number of LGAs, wards
+On the Facility list page, press **Regenerate facility media file** (it calls
+`POST /admin/api/facility-list/export-cascade`). The answer gives the number of LGAs, wards
 and facilities, and a download link valid for 30 minutes. The download is a zip,
 `odk-cascade-YYYYMMDD-HHMMSS.zip`, holding:
 

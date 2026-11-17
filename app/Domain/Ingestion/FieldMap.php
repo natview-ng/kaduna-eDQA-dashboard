@@ -13,7 +13,7 @@ use App\Domain\Scoring\Enums\Dimension;
  * on two platforms shares one map though each labels the version its own way (D-63).
  *
  * for() returns null for a (source, version) pair with no entry, and never falls back to another
- * version's map (CLAUDE.md hard rule 12). A map may extend another: it lists only what differs,
+ * version's map (hard rule 12). A map may extend another: it lists only what differs,
  * plus 'renames' for scored questions it names differently ([name in this form => name in the
  * base]). Paths are dot paths through nested groups.
  *

@@ -8,7 +8,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 
-// Phase 5 step 7: My account (/admin/account). Change password (SECURITY.md §2) and see your own
+// My account (/admin/account). Change password (SECURITY.md §2) and see your own
 // recent sign-ins; unlocking an account stays a console command.
 
 beforeEach(function (): void {

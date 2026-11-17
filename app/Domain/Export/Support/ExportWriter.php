@@ -82,7 +82,7 @@ final class ExportWriter
     }
 
     /**
-     * A multi-sheet Excel workbook (Phase 6 step 2: the backfill report), each sheet formatted like
+     * A multi-sheet Excel workbook (the backfill report), each sheet formatted like
      * any export's data sheet, then "About this file". Used by the export plumbing and by
      * edqa:backfill-report --format=xlsx alike.
      *

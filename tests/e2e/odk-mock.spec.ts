@@ -1,8 +1,8 @@
 import { expect, test, type Page } from '@playwright/test';
 
-// Phase 2B close-out: after a pull from the mock ODK Central, the dashboard shows the new visits.
+// After a pull from the mock ODK Central, the dashboard shows the new visits.
 // The expected figures are read from the database after the pull and passed in, so this runs only
-// when they are given (docs/phase-2b-closeout.md):
+// when they are given:
 //   E2E_ODK_VISITED       facilities visited in Q2 2026 (accepted and flagged assessments)
 //   E2E_ODK_LGA           an LGA with new visits, and
 //   E2E_ODK_LGA_COUNT     its facilities visited in Q2 2026
@@ -22,7 +22,7 @@ async function ready(page: Page, heading: string): Promise<void> {
 }
 
 test.describe('Data pulled from the mock ODK Central', () => {
-    test.skip(visited === undefined || lga === undefined || lgaCount === undefined, 'Run by the Phase 2B close-out with the expected figures');
+    test.skip(visited === undefined || lga === undefined || lgaCount === undefined, 'Run with the expected figures (ODK mock journey)');
 
     test('Home counts the pulled visits', async ({ page }) => {
         await page.goto('/?year=2026&quarter=2');

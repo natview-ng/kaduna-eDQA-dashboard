@@ -22,7 +22,7 @@ use Tests\Support\ExportRunner;
 use Tests\Support\ReportingFixture;
 use Tests\Support\Rows;
 
-// Phase 6 step 4 (D-100): the implementation workplan as Excel. ReportingFixture's Q2 2026: Bravo
+// D-100: The implementation workplan as Excel. ReportingFixture's Q2 2026: Bravo
 // (availability) and Alpha (consistency) get actions; Alpha's is saved, with a contact and notes.
 
 beforeEach(function (): void {

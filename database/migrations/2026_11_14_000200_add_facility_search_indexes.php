@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Phase 5 step 5: the Facility list searches name, code, ward and LGA with ILIKE '%…%', which a
+ * The Facility list searches name, code, ward and LGA with ILIKE '%…%', which a
  * btree cannot serve: trigram GIN indexes (pg_trgm) can. pg_trgm is a trusted extension (the
  * migrate role creates it as the database owner); docker/postgres/init-dev.sql and DEPLOY.md
  * §8.2 already provision it. down() drops the indexes only: the extension may serve others.

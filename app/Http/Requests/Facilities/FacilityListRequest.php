@@ -9,7 +9,7 @@ use App\Domain\Facility\Enums\Ownership;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-/** GET /admin/facilities: the Facility list's search, filters and page (Phase 5 step 5). */
+/** GET /admin/facilities: the Facility list's search, filters and page. */
 final class FacilityListRequest extends FormRequest
 {
     public function authorize(): bool

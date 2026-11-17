@@ -1,7 +1,7 @@
 import type { RuleConfigData } from '@/types/admin';
 
 /**
- * Helpers for the Scoring rules page (Phase 5 step 6). They compare and check what an
+ * Helpers for the Scoring rules page. They compare and check what an
  * administrator types; they compute no score (lib/architecture.test.ts). The server checks the
  * same rules again (RuleConfig) and refuses what it cannot apply.
  */

@@ -24,7 +24,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Reads the audit trail for the Audit log page and its export (Phase 5 step 7, D-93). Read only:
+ * Reads the audit trail for the Audit log page and its export (D-93). Read only:
  * activity_log is append-only (SECURITY.md §4), and nothing here or anywhere writes to it except
  * AuditLog/AuthAudit appending.
  *
@@ -47,7 +47,7 @@ final class AuditLogQuery
     /**
      * Subject type => the models it covers. Quarantine records and raw submissions are named by
      * their morph class only (QUARANTINE, SUBMISSION): the log compares the stored subject type and
-     * never reads those tables (CLAUDE.md hard rule 6; the architecture test keeps the classes in
+     * never reads those tables (hard rule 6; the architecture test keeps the classes in
      * ingestion, validation and Data issues).
      *
      * @return array<string, list<string>>

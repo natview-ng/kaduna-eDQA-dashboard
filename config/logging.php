@@ -105,7 +105,7 @@ return [
         ],
 
         // CONVENTION.md §2.9: ingestion and validation. Structured context only, never payloads
-        // or credentials. Containers log to stderr (CLAUDE.md hard rule 13).
+        // or credentials. Containers log to stderr (hard rule 13).
         'edqa' => [
             'driver' => 'stack',
             'channels' => ['stderr'],

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Export\Enums;
 
 /**
- * What a column holds (Phase 6 step 1), which sets its Excel number format and width: a score at
+ * What a column holds, which sets its Excel number format and width: a score at
  * full precision beside the same score as displayed (1 dp), counts, dates, and text.
  */
 enum ColumnKind: string

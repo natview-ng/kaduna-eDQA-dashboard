@@ -10,7 +10,7 @@ use Tests\Support\Rows;
 // database trait, so parallel testing gives them no database of their own). They live in this one
 // file so they run one after another in one worker, never two migrations at once.
 
-// CLAUDE.md hard rule 4: every migration is reversible. Rolls back one migration at a time so
+// hard rule 4: every migration is reversible. Rolls back one migration at a time so
 // a broken down() is pinned to the migration that owns it, then proves nothing was left behind
 // and that the schema migrates up again.
 it('rolls back every migration one step at a time, then migrates again', function (): void {
@@ -44,7 +44,7 @@ it('rolls back every migration one step at a time, then migrates again', functio
     expect(DB::table('migrations')->count())->toBe($total);
 });
 
-// Phase 2C step 1 (ARCHITECTURE.md §4, §5.0): the ODK-only ingestion tables become source-aware.
+// ARCHITECTURE.md §4, §5.0: The ODK-only ingestion tables become source-aware.
 // Data already stored is kept: every existing row belongs to the 'odk' source, external_id
 // comes from the stored payload's __id, and the migration goes down and up again with the data.
 
@@ -193,7 +193,7 @@ it('refuses to merge two ODK cursor rows rather than guess which one is current'
         ->and(Schema::hasTable('submission_sources'))->toBeFalse();
 });
 
-// Phase P step 4 (D-79): plan_actions.assigned_to becomes owner_role, a role key the public plan
+// D-79: Plan_actions.assigned_to becomes owner_role, a role key the public plan
 // shows as its label. A stored role (by label or key) maps to its key; anything else is a person,
 // kept in the admin-only owner_contact, and the row gets the dimension's default role.
 

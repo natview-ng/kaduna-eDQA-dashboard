@@ -16,7 +16,7 @@ export type RoundsTableProps = {
 };
 
 /**
- * Every round, newest first (Phase 5 step 4): the window, the status in words ("Open — not
+ * Every round, newest first: the window, the status in words ("Open — not
  * public", "Closed — public") with a shape, accepted assessments with each source's share, what is
  * still open (with a link to those records), the rule version, who closed it and when, and the
  * last reopen reason. An open round can be closed, its window edited, or rescored; a closed one

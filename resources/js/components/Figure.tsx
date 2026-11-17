@@ -6,7 +6,7 @@ export type FigureProps = {
     description?: string;
     /** The chart, with its own role="img" and aria-label. */
     chart: ReactNode;
-    /** The same numbers as an accessible table (CLAUDE.md hard rule 11). */
+    /** The same numbers as an accessible table (hard rule 11). */
     table: ReactNode;
 };
 

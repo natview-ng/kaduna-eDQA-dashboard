@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * cross_source_duplicates counts submissions another source already holds (ARCHITECTURE.md
  * §5.3). Manual pulls are audited by the action that starts them (SECURITY.md §4), not here.
  *
- * Columns are listed here because the Phase 2C rename is raw SQL, which Larastan cannot read.
+ * Columns are listed here because the source-column rename migration is raw SQL, which Larastan cannot read.
  *
  * @property int $id
  * @property int $source_id

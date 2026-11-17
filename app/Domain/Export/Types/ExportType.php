@@ -8,7 +8,7 @@ use App\Domain\Export\Support\Column;
 use Illuminate\Validation\ValidationException;
 
 /**
- * One kind of export (Phase 6 steps 0–1, D-96, D-97). Each mirrors a page and reads its numbers
+ * One kind of export (D-96, D-97). Each mirrors a page and reads its numbers
  * from that page's own aggregator or query, never from SQL of its own. The filter is the page's:
  * the dashboard's (year, quarter, month, LGA, level, owner, for the admin audience) for the report
  * types, the page's own for data issues, pull history and the audit log.

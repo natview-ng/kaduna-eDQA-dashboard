@@ -65,7 +65,7 @@ final class SourceSync extends Model
 
     /**
      * The source's cursor for this form, created when missing. A cursor that followed another form
-     * starts again (as the per-form cursor rows did before Phase 2C).
+     * starts again (as the old per-form cursor rows did).
      */
     public static function forForm(int $sourceId, string $formRef): self
     {

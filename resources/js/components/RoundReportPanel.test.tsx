@@ -5,7 +5,7 @@ import RoundReportPanel from '@/components/RoundReportPanel';
 import { axeCheck, renderUi, testTranslations } from '@/test/render';
 import type { RoundRow } from '@/types/admin';
 
-// Phase 6 step 5 (D-101): the PDF round report from the Rounds page. The latest closed round
+// D-101: The PDF round report from the Rounds page. The latest closed round
 // first, a draft warning for an open one, then the export plumbing asked for a PDF of that round.
 
 const translations = {

@@ -11,7 +11,7 @@ use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\ReportingFixture;
 use Tests\Support\RescoreFixture;
 
-// Phase 5 step 6: the Scoring rules page (ARCHITECTURE.md §7, §9.3). A draft is edited, previewed
+// The Scoring rules page (ARCHITECTURE.md §7, §9.3). A draft is edited, previewed
 // (reading only), then published with a reason; open rounds are rescored, closed rounds keep their
 // pinned version (D-32), so the public dashboard does not move until an open round is closed.
 

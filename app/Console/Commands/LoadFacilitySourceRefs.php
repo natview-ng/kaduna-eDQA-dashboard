@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Loads a source's facility references (D-72): the KoboToolbox form's own slugs, each matched to a
  * master-list facility code, from a client-signed CSV with the header `ref,facility_code`.
- * Reference data, not assessment data (CLAUDE.md hard rule 1, as D-19).
+ * Reference data, not assessment data (hard rule 1, as D-19).
  *
  * All or nothing: any row that is wrong (an unknown code, a ref twice, a blank) refuses the whole
  * file and changes nothing. A good file replaces every ref the source had, in one transaction,

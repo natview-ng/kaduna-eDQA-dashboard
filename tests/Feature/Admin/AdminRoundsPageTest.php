@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Rows;
 
-// Phase 5 step 4: the Rounds page (ARCHITECTURE.md §9.3). Every count on it is the server's.
+// The Rounds page (ARCHITECTURE.md §9.3). Every count on it is the server's.
 
 beforeEach(function (): void {
     $this->seed(ScoringRuleVersionSeeder::class);

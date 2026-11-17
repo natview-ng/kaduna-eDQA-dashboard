@@ -1,4 +1,4 @@
-# Everyday commands (CLAUDE.md §8, CONVENTION.md §12.4). Everything runs inside the containers.
+# Everyday commands. Everything runs inside the containers.
 COMPOSE := docker compose -f compose.dev.yml
 EXEC    := $(COMPOSE) exec -T app
 # The Kobo mock always serves its own asset (SourceMockGenerator::KOBO_ASSET, as compose.e2e-sources.yml
@@ -112,7 +112,7 @@ e2e-sources: ## Playwright against both mocks: Pull all end to end, the duplicat
 		$(COMPOSE) -f compose.e2e-sources.yml exec -T app php tests/e2e/support/kobo-mock-delete.php restore; \
 		$(COMPOSE) up -d --wait app worker; [ $$status -ne 0 ] && exit $$status; [ $$auth -ne 0 ] && exit $$auth; exit $$deleted
 
-e2e-round: ## The Phase 5 full-round journey (tests/e2e/admin-full-round.spec.ts) on its own database, edqa_e2e, against both mocks; the stack is put back after
+e2e-round: ## The full-round journey (tests/e2e/admin-full-round.spec.ts) on its own database, edqa_e2e, against both mocks; the stack is put back after
 	$(COMPOSE) --profile sources up -d odk-mock kobo-mock
 	$(COMPOSE) exec -T postgres psql -q -U postgres -v ON_ERROR_STOP=1 < tests/e2e/support/full-round-db.sql
 	$(E2E_ROUND) up -d --wait app worker

@@ -29,7 +29,7 @@ return [
     | Database Connection
     |--------------------------------------------------------------------------
     |
-    | PostgreSQL is the only supported database (CLAUDE.md hard rule 4): CHECK
+    | PostgreSQL is the only supported database (hard rule 4): CHECK
     | constraints, jsonb and the materialised view must behave the same in
     | development, tests and production. There is deliberately no sqlite or
     | mysql connection to fall back to.

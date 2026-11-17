@@ -6,7 +6,7 @@ use App\Domain\Scoring\Enums\Dimension;
 use Illuminate\Support\Facades\DB;
 use Tests\Support\Rows;
 
-// Phase 1 acceptance (CLAUDE.md §6, step 2): the live report's 347.66 can never be stored.
+// Build step 2 acceptance: the live report's 347.66 can never be stored.
 it('rejects a 347.66 score at the database level', function (): void {
     expectCheckViolation(fn () => Rows::score(['score' => 347.66]), 'score_in_range');
 });

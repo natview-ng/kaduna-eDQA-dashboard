@@ -38,7 +38,7 @@ foreach ($sources->configured() as $source) {
         ->when($enabled);
 }
 
-// Export retention (Phase 6 step 0, D-96): every night, files older than edqa.exports.retention_days
+// Export retention (D-96): every night, files older than edqa.exports.retention_days
 // (7) are deleted from the private exports disk and their rows marked expired. Queued on `low`.
 Schedule::job(new ExpireExportsJob)
     ->name('edqa:exports:expire')

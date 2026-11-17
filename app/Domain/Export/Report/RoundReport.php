@@ -14,7 +14,7 @@ use App\Domain\Reporting\DTOs\StateSummary;
 use App\Domain\Reporting\DTOs\TrendPoint;
 
 /**
- * Everything the PDF round report shows (Phase 6 step 5, D-101), each section straight from the
+ * Everything the PDF round report shows (D-101), each section straight from the
  * dashboard's own aggregator for the round, so the report and the dashboard cannot disagree. A
  * closed round is read as the public reads it; an open one (a draft) as the admin preview does.
  * Nothing personal: no assessor, facility name, source ID or contact.

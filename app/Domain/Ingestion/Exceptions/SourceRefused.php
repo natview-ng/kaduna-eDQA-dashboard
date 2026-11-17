@@ -34,7 +34,7 @@ final class SourceRefused extends RuntimeException
         return new self('not_registered', ['key' => $key]);
     }
 
-    /** A source type whose adapter is not built yet (KoboToolbox until Phase 2C step 4). */
+    /** A source type whose adapter is not built yet (none today: ODK Central and KoboToolbox both have one). */
     public static function noAdapter(string $key, string $type): self
     {
         return new self('no_adapter', ['key' => $key, 'type' => $type]);

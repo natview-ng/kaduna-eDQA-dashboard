@@ -7,7 +7,7 @@ namespace App\Domain\Export\Types;
 use App\Domain\Export\Support\Sheet;
 
 /**
- * An export made of several sheets (Phase 6 step 2: the backfill report). Excel only: a CSV has
+ * An export made of several sheets (the backfill report). Excel only: a CSV has
  * one table. columns() and chunks() describe its first sheet; the writer uses sheets().
  */
 interface MultiSheetExport extends ExportType

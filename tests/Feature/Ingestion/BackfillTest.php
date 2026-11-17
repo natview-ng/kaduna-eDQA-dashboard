@@ -388,7 +388,7 @@ it('writes a backfill report whose numbers reconcile with the tables', function 
 })->with(['md', 'csv']);
 
 it('refuses a report format it cannot write', function (): void {
-    // xlsx is written since Phase 6 step 2 (D-98).
+    // xlsx is a format too (D-98).
     $this->artisan('edqa:backfill-report', ['--format' => 'pdf'])->expectsOutputToContain('Give --format as one of: md, csv, xlsx.')->assertFailed();
     expect(Storage::disk('exports')->files())->toBe([]);
 });

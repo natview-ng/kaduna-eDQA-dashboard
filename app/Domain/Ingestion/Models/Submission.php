@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * One record from a field-collection source (source_id), stored verbatim. external_id is the
- * source's logical ID (ODK Central's __id), shared by every version of an edited submission. The payload can never change after creation (CLAUDE.md
+ * source's logical ID (ODK Central's __id), shared by every version of an edited submission. The payload can never change after creation (
  * hard rule 8); status and timestamps move through the lifecycle. Not audited: raw input.
  *
  * @property int $source_id

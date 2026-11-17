@@ -11,7 +11,7 @@ use Illuminate\Console\Command;
 use Throwable;
 
 /**
- * The PDF smoke test (DEPLOY.md §12, run after each deploy in worker-exports; Phase 6 step 5):
+ * The PDF smoke test (DEPLOY.md §12, run after each deploy in worker-exports):
  * renders a one-page PDF to /tmp with the round report's own renderer (Chromium through
  * Browsershot, the same tokens and font), reads its text back with pdftotext and checks it.
  * Touches no data. Exit 0 when the PDF renders and reads back; 1 otherwise, with the reason.

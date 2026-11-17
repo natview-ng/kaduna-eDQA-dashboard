@@ -16,7 +16,7 @@ use RuntimeException;
 /**
  * The facility master list from the client's signed-off reconciliation workbook (D-91,
  * facility_reconcile.py's output): reference data, not assessment data, so it does not conflict
- * with source-only ingestion (CLAUDE.md hard rule 1). Console only.
+ * with source-only ingestion (hard rule 1). Console only.
  *
  * Rows read: every Matched row (a registry match, so MAP, unless a Decision column says REJECT),
  * and Review rows decided MAP (to one of the row's candidates) or ADD (a real facility the
@@ -251,7 +251,7 @@ final class MasterListImport
     /**
      * Level and ownership are taken as written (any case), never guessed from a near word: they
      * decide the public/private split and the level filter, so anything else is a row for the
-     * client to correct in the workbook (CLAUDE.md: do not guess what changes a number).
+     * client to correct in the workbook (project rule: never guess what changes a number).
      */
     private static function level(string $value): ?string
     {

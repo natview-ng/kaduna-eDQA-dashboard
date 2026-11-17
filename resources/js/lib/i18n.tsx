@@ -2,7 +2,7 @@ import { createContext, useContext, type ReactNode } from 'react';
 
 /**
  * UI strings come from lang/en/*.php, shared by HandleInertiaRequests as `translations`
- * (CONVENTION.md §7, CLAUDE.md hard rule 10). Keys are "group.path", e.g. "auth.login.title".
+ * (CONVENTION.md §7, hard rule 10). Keys are "group.path", e.g. "auth.login.title".
  *
  * The layouts put the page's translations in an I18nProvider; components read them with
  * useTranslate(), so they render the same in a page and in a test.

@@ -7,7 +7,7 @@ export type StateMarkProps = {
 };
 
 /**
- * A state's shape, drawn (CLAUDE.md hard rule 11: status is never colour alone). Decorative: the
+ * A state's shape, drawn (hard rule 11: status is never colour alone). Decorative: the
  * words beside it say the same thing. Shapes rather than font glyphs, so they sit on the text's
  * centre line at every size and render the same on every device.
  */

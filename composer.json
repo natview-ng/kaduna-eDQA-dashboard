@@ -51,7 +51,7 @@
         ],
         "test": [
             "Composer\\Config::disableProcessTimeout",
-            "pest --parallel --exclude-group=slow,pdf"
+            "pest --parallel --exclude-group=slow"
         ],
         "check": [
             "@lint",

@@ -7,7 +7,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-// One ODK record, stored verbatim; the payload is never mutated (CLAUDE.md hard rule 8).
+// One ODK record, stored verbatim; the payload is never mutated (hard rule 8).
 // instance_id (meta/instanceID) is the idempotency key for the pull (ARCHITECTURE.md §5.3).
 // status mirrors App\Domain\Ingestion\Enums\SubmissionStatus.
 return new class extends Migration

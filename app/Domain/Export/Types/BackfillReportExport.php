@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 /**
- * "Backfill report" (ARCHITECTURE.md §5.6, Phase 6 step 2) as Excel, for one source or all, as it
+ * "Backfill report" (ARCHITECTURE.md §5.6) as Excel, for one source or all, as it
  * stands now: the Data sources page's download, through the export plumbing. The same sheets as
  * edqa:backfill-report --format=xlsx (BackfillReportSheets over BackfillReportQuery).
  */

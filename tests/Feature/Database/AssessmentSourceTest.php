@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\DB;
 use Tests\Support\Rows;
 
-// assessments.source_id (Phase 2C step 7): taken from the assessment's submission by the
+// assessments.source_id: taken from the assessment's submission by the
 // database, never by a writer, so Reporting can count by source without reading submissions.
 
 it('takes the source from the submission on insert, whatever the writer says', function (): void {

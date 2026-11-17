@@ -17,7 +17,7 @@ use Illuminate\Testing\TestResponse;
 use Spatie\Activitylog\Models\Activity;
 use Tests\Support\ParsedSubmissionBuilder;
 
-// "Use this one instead" on a cross-source duplicate (§5.8, Phase 5 step 2): the quarantined
+// "Use this one instead" on a cross-source duplicate (§5.8): the quarantined
 // submission replaces the accepted assessment's items and scores (the same assessment row), the
 // old submission is superseded, the record resolves, the round is rescored. Reasoned, audited
 // with both instance IDs; refused in a closed round (D-18) and for anything but a duplicate.

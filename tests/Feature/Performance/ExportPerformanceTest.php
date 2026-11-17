@@ -13,7 +13,7 @@ use Tests\Support\ReportingFixture;
 use Tests\Support\Rows;
 
 // ARCHITECTURE.md §10: a 10,000-row CSV export in under 30 s, queued with progress: the facility
-// scores export, every page of the Facility view (Phase 6 step 1).
+// scores export, every page of the Facility view.
 // Run with `make test-slow`; the default suite leaves the slow group out.
 
 const EXPORT_PERF_ROWS = 10_000;

@@ -40,7 +40,7 @@ export function auditChanges(old: Record<string, unknown>, next: Record<string, 
 }
 
 /**
- * The audit log's rows (Phase 5 step 7): when (WAT), who (or Console / System), what (sign-in
+ * The audit log's rows: when (WAT), who (or Console / System), what (sign-in
  * events marked as such), the subject with a link where the admin area has a page for it, the
  * reason, and the before/after values in a row that opens under the entry. Read only.
  */

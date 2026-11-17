@@ -95,7 +95,7 @@ beforeEach(function (): void {
     $admin = User::factory()->create(['name' => 'MARKER-ADMIN-Amina', 'email' => 'marker-admin@edqa.test']);
     $this->adminEmail = $admin->email;
     AuditLog::record(Assessment::query()->findOrFail($openAssessment), $admin, 'corrected', ['times' => 'a'], ['times' => 'b'], 'MARKER-REASON supervisor re-checked');
-    // The plan's contact and notes are admin-only (Phase 6 step 3); its role and status are public.
+    // The plan's contact and notes are admin-only; its role and status are public.
     Rows::planAction(['round_id' => $this->closed, 'lga_id' => array_values($lgas)[1], 'owner_role' => 'state_me_team', 'owner_contact' => 'MARKER-CONTACT 0803 000 0000', 'notes' => 'MARKER-NOTES visited on 3 March, the M&E officer was away', 'status' => 'in_progress']);
     Rows::planAction(['round_id' => $this->closed, 'lga_id' => array_values($lgas)[2], 'dimension' => 'validity', 'owner_role' => 'other', 'owner_role_other' => 'Zonal M&E unit', 'owner_contact' => 'MARKER-CONTACT zonal', 'notes' => 'MARKER-NOTES second row']);
     auth()->logout();
@@ -264,7 +264,7 @@ it('does show the published figures, so the checks above are not vacuous', funct
     $adminView = (string) $this->actingAs($admin)->get("/admin/facilities/{$this->facilities[0]}?round={$this->closed}")->getContent();
     expect($adminView)->toContain('MARKER-ASSESSOR')->toContain('MARKER-ATTACH');
 
-    // The plan (Phase 6 step 3): its contact and notes are on the admin plan page, and its stored role
+    // The plan: its contact and notes are on the admin plan page, and its stored role
     // and status on the public one.
     $adminPlan = (string) $this->actingAs($admin)->get("/admin/plan?round={$this->closed}")->getContent();
     expect($adminPlan)->toContain('MARKER-CONTACT')->toContain('MARKER-NOTES');
@@ -277,7 +277,7 @@ it('does show the published figures, so the checks above are not vacuous', funct
 });
 
 it('reaches no export anonymously: no public export route, nothing on a public page, every export endpoint refusing a guest', function (): void {
-    // Exports are admin-only (D-80, Phase 6 step 0): exports leave the system, so no public route,
+    // Exports are admin-only (D-80): exports leave the system, so no public route,
     // page or prop leads to one.
     $exportRoutes = collect(Route::getRoutes()->getRoutes())->filter(fn (RoutingRoute $route): bool => str_contains($route->uri(), 'export'));
     expect($exportRoutes->filter(fn (RoutingRoute $route): bool => ! str_starts_with($route->uri(), 'admin/'))->map(fn (RoutingRoute $route): string => $route->uri())->values()->all())->toBe([]);

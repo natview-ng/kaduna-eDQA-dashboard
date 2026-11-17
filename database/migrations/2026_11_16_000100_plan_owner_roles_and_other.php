@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Phase 6 step 3: the plan's owner is still a role or unit, never a person (D-79), but an
+ * The plan's owner is still a role or unit, never a person (D-79), but an
  * administrator may now name one the list lacks: owner_role 'other' with the role written out in
  * owner_role_other (a CHECK ties the two). Two more roles join the list: State HMIS team and LGA PHC
  * coordinator. down() puts every row back on a role the old list holds (the dimension's default).

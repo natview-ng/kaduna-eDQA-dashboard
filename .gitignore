@@ -49,3 +49,18 @@ Thumbs.db
 /.phpactor.json
 npm-debug.log
 /storage/e2e
+
+# Internal project notes: not needed to build, run or test the app, so not published.
+# The two docs the admin area links to stay in the repository.
+/CLAUDE.md
+/ARCHITECTURE.md
+/CONVENTION.md
+/SECURITY.md
+/DEPLOY.md
+/ACCESSIBILITY.md
+/CHANGELOG.md
+/.claude/
+/discovery/
+/docs/*
+!/docs/runbooks/
+!/docs/odk-cascade-media.md

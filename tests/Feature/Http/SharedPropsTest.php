@@ -105,7 +105,7 @@ it('says when the public figures last changed: the latest close, or a later resc
 });
 
 it('gives a visitor no export: no export strings or endpoints in any public page, and none for an administrator outside the preview', function (string $path): void {
-    // Phase 6 step 0 (D-80): the ExportButton lives in the admin area and the preview bar only; its
+    // D-80: The ExportButton lives in the admin area and the preview bar only; its
     // strings come with the admin translations, which a visitor never gets.
     $html = (string) $this->get($path)->assertOk()->getContent();
     expect($html)->not->toContain('admin/api/exports')->not->toContain('"exports":')->not->toContain('Include assessor and source details');

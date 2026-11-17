@@ -23,7 +23,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /**
- * "Workplan" (Phase 6 step 4, D-100): a round's implementation plan as an Excel workbook to share
+ * "Workplan" (D-100): a round's implementation plan as an Excel workbook to share
  * and print. Plan (LGA, overall, weakest dimension and its score, the recommended action, owner
  * role, review date, status; the contact and notes only with "Include private plan fields"),
  * Summary (actions by type × status), Reference (what each action means), About this file. The rows

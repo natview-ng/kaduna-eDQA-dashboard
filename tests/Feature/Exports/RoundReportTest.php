@@ -31,7 +31,7 @@ use Spatie\LaravelPdf\Facades\Pdf;
 use Tests\Support\ReportingFixture;
 use Tests\Support\Rows;
 
-// Phase 6 step 5 (D-101): the PDF round report. Its HTML (what Chromium is given) is checked here
+// D-101: The PDF round report. Its HTML (what Chromium is given) is checked here
 // against the aggregators, for personal fields and for the draft watermark; Chromium itself is
 // faked (Pdf::fake()). The real render, read back with pdftotext, is the pdf group
 // (RoundReportPdfTest, `make pdf`). ReportingFixture: Q1 2026 closed (F1 only), Q2 2026 open.

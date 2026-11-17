@@ -22,7 +22,7 @@ export type CloseRoundPanelProps = {
 const COUNTERS = ['fetched', 'parsed', 'accepted', 'flagged', 'quarantined', 'deletions_detected'] as const;
 
 /**
- * The step before closing a round (Phase 5 step 4): what is still open in it (quarantine,
+ * The step before closing a round: what is still open in it (quarantine,
  * deletions at source, duplicates across sources, with a link to them), then "Reconcile all
  * sources now" so late edits at the source are caught, each source followed in its own
  * ProgressPanel, then the close itself, which asks for a reason. Open issues do not block the

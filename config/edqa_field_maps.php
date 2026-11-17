@@ -12,7 +12,7 @@ declare(strict_types=1);
  * 'sources' says, for each source, which map each of its form versions uses: ODK Central labels a
  * version with __system/formVersion, KoboToolbox with its deployment __version__. The same
  * XLSForm deployed on both platforms points at one map. A (source, version) pair with no entry
- * quarantines under UNKNOWN_FORM_VERSION: never fall back to another version's map (CLAUDE.md
+ * quarantines under UNKNOWN_FORM_VERSION: never fall back to another version's map (
  * hard rule 12).
  *
  * Paths are dot paths into a submission's answers after its source's normaliser
@@ -24,7 +24,7 @@ declare(strict_types=1);
  * scored_prefix_pattern is one, wherever its group. Answers are mapped to pass / fail / na with
  * the scoring rule version's choice_map (Q-25 in the build-era numbering), not here.
  *
- * The real maps come from the form XML of every deployed version on each source (Phase 0 task,
+ * The real maps come from the form XML of every deployed version on each source (discovery task,
  * ARCHITECTURE.md §5.5), which waits for credentials.
  *
  * Version keys contain dots, so read config('edqa_field_maps.sources')[$source][$version]; never
