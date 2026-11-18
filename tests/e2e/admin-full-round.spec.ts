@@ -574,8 +574,10 @@ test.describe('Full round, part 2: Data issues to the published round', () => {
         await heading(page, /Audit log/);
         await expect(page.getByRole('row').filter({ hasText: 'Login' }).filter({ hasText: 'E2E Administrator' }).first()).toBeVisible();
         await page.goto('/admin/account');
+        // Either the password confirmation or the page itself, however long the server takes.
+        await expect(page.getByRole('heading', { level: 1, name: /^(Confirm your password|My account)$/ })).toBeVisible({ timeout: 90_000 });
         const confirm = page.getByLabel('Password', { exact: true });
-        if (await confirm.isVisible({ timeout: 10_000 }).catch(() => false)) {
+        if (await confirm.isVisible()) {
             await tabFromTop(page, confirm);
             await page.keyboard.type(E2E_PASSWORD);
             await page.keyboard.press('Enter');
@@ -651,11 +653,12 @@ test.describe('Full round, part 2: Data issues to the published round', () => {
         writeFileSync('storage/e2e/export-timings.json', JSON.stringify(done, null, 2));
         process.stdout.write(`Export timings (request to download link): ${done.map((e) => `${e.label} ${e.seconds.toFixed(1)} s`).join('; ')}\n`);
 
-        // Each export is in the audit log: asked for, completed, downloaded.
-        for (const event of ['export_requested', 'export_completed', 'export_downloaded']) {
+        // Each export is in the audit log: asked for and downloaded by the administrator, completed
+        // by the queue worker (the "Console" actor).
+        for (const [event, actor] of [['export_requested', 'E2E Administrator'], ['export_completed', 'Console'], ['export_downloaded', 'E2E Administrator']]) {
             await page.goto(`/admin/audit?event=${event}`);
             await heading(page, /Audit log/);
-            await expect(page.getByRole('row').filter({ hasText: 'E2E Administrator' }), event).toHaveCount(4, { timeout: 30_000 });
+            await expect(page.getByRole('row').filter({ hasText: actor }), event).toHaveCount(4, { timeout: 30_000 });
         }
     });
 

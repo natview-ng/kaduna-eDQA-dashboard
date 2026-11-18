@@ -12,9 +12,10 @@ type Issues = { round_id: number; null_lga: Held; wrong_quarter: Held[] };
 
 const issues: Issues | null = process.env.E2E_ISSUES ? (JSON.parse(process.env.E2E_ISSUES) as Issues) : null;
 
-async function ready(page: Page): Promise<void> {
+/** The page has loaded, with the rule summary of the tab in view: "Hard rules" or "Soft rules". */
+async function ready(page: Page, rules: 'Hard rules' | 'Soft rules' = 'Hard rules'): Promise<void> {
     await expect(page.getByRole('heading', { level: 1, name: 'Data issues' })).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole('region', { name: 'Hard rules', exact: true })).toBeVisible();
+    await expect(page.getByRole('region', { name: rules, exact: true })).toBeVisible();
 }
 
 /** Press Tab from where focus is now until the target has it: no mouse. */
@@ -81,10 +82,10 @@ test.describe('Data issues page', () => {
         await expect(page).toHaveURL(/[?&]state=rejected/);
 
         await page.goto('/admin/data-issues?tab=soft');
-        await ready(page);
+        await ready(page, 'Soft rules');
         await expect(page.getByRole('button', { name: 'Flagged (soft rules)' })).toHaveAttribute('aria-pressed', 'true');
         await expect(page.getByLabel('Status', { exact: true })).toHaveCount(0);
-        await expect(page.getByRole('region', { name: 'Soft rules', exact: true }).getByRole('button')).toHaveCount(4);
+        await expect(page.getByRole('region', { name: 'Soft rules', exact: true }).getByRole('button')).toHaveCount(5); // score jump, all perfect, short visit, assessor volume, source edit over a correction
         expect(errors).toEqual([]);
     });
 
@@ -148,8 +149,12 @@ test.describe('Data issues, resolving the demo records with the keyboard', () =>
             throw new Error('The demo round is not in /api/rounds.');
         }
         await page.goto(`/facilities?year=${round.year}&quarter=${round.quarter}&facility=${held.facility_id}`);
+        // Its scores for the round are there; the assessor's name never is on a public page, even
+        // in the admin preview (it is in the admin facility view).
         const drawer = page.getByRole('dialog');
-        await expect(drawer.getByText(/by Demo assessor 1/)).toBeVisible({ timeout: 60_000 });
+        await expect(drawer.getByRole('heading', { level: 3, name: `Scores, Q${round.quarter} ${round.year}` })).toBeVisible({ timeout: 60_000 });
+        await expect(drawer.getByRole('heading', { level: 3, name: 'Item responses' })).toBeVisible();
+        await expect(drawer.getByText(/Demo assessor/)).toHaveCount(0);
     });
 
     test('reject with a short reason is refused: the button stays disabled until it is long enough', async ({ page }) => {

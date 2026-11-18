@@ -8,7 +8,7 @@ test.describe('Implementation plan', () => {
         await expect(page.locator('[aria-busy="true"]')).toHaveCount(0, { timeout: 60_000 }); // deferred plan
 
         const table = page.getByRole('table', { name: 'Implementation plan' });
-        await expect(table.getByRole('columnheader')).toHaveText(['LGA', 'Overall', 'Weakest dimension', 'Score', 'Recommended action', 'Owner', 'Review']);
+        await expect(table.getByRole('columnheader')).toHaveText(['LGA', 'Overall', 'Weakest dimension', 'Score', 'Recommended action', 'Owner', 'Review', 'Status']);
         const rows = table.getByRole('rowheader');
         expect(await rows.count()).toBeLessThanOrEqual(23);
         if ((await rows.count()) > 0) {
