@@ -1,0 +1,198 @@
+name: Deploy
+
+# push to staging -> the staging stack on the eDQA VM
+# push to prod    -> the production stack
+#
+# This workflow never connects to the VM. It builds the three images (app, worker, web), then
+# moves the environment's tag (:staging or :prod) to them. The VM checks that tag every two
+# minutes and deploys what it points to: migrate, start, health check, and roll back if the
+# check fails (natview-ng/ansible roles/app_compose).
+#
+# A manual run (workflow_dispatch), started from the environment's own branch, moves the tag to
+# any sha-<commit> already in the registry, which is also how you roll back.
+#
+# Infrastructure (the VM, Key Vault, registry) is managed in natview-ng/infra-live, and what
+# runs on the VM in natview-ng/ansible, not here.
+
+on:
+  push:
+    branches: [staging, prod]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Existing tag in the registry, sha-<commit>
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+# Two runs for the same environment never overlap; the next one waits.
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ${{ vars.ACR_NAME }}.azurecr.io
+  # The VM reads edqa-app's revision label to know which sha- tag to run: it moves last.
+  IMAGES: edqa-web edqa-worker edqa-app
+
+jobs:
+  # Every image is tagged with the commit SHA and the Git tree hash. The tree hash depends only
+  # on file contents, so merging staging into prod (with no prod-only changes) produces the same
+  # tree, and production reuses the images built and tested in staging instead of rebuilding.
+  image:
+    name: Find or build images
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Compute the tree hash
+        id: tree
+        run: echo "tree=$(git rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
+
+      - name: Look for images built from this tree
+        id: existing
+        env:
+          TREE: ${{ steps.tree.outputs.tree }}
+        run: |
+          found=true
+          for image in $IMAGES; do
+            az acr repository show --name "${{ vars.ACR_NAME }}" --image "$image:tree-$TREE" --output none 2>/dev/null \
+              || found=false
+          done
+          echo "found=$found" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to the registry
+        run: az acr login --name "${{ vars.ACR_NAME }}"
+
+      # Reuse: add this commit's sha tag to the existing images (same digests).
+      - name: Tag the existing images
+        if: steps.existing.outputs.found == 'true'
+        env:
+          TREE: ${{ steps.tree.outputs.tree }}
+        run: |
+          for image in $IMAGES; do
+            docker buildx imagetools create --tag "$REGISTRY/$image:sha-$GITHUB_SHA" "$REGISTRY/$image:tree-$TREE"
+          done
+          echo "Reused the images of tree $TREE" >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: docker/setup-buildx-action@v4
+        if: steps.existing.outputs.found == 'false'
+
+      # Single-platform images without attestations, so the registry holds plain linux/amd64
+      # manifests. worker and web build on app's stages, so they reuse its cache.
+      - name: Build and push app
+        if: steps.existing.outputs.found == 'false'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: app
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          sbom: false
+          labels: org.opencontainers.image.revision=${{ github.sha }}
+          tags: |
+            ${{ env.REGISTRY }}/edqa-app:sha-${{ github.sha }}
+            ${{ env.REGISTRY }}/edqa-app:tree-${{ steps.tree.outputs.tree }}
+          cache-from: type=gha,scope=edqa-app
+          cache-to: type=gha,scope=edqa-app,mode=max
+
+      - name: Build and push worker
+        if: steps.existing.outputs.found == 'false'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: worker
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          sbom: false
+          labels: org.opencontainers.image.revision=${{ github.sha }}
+          tags: |
+            ${{ env.REGISTRY }}/edqa-worker:sha-${{ github.sha }}
+            ${{ env.REGISTRY }}/edqa-worker:tree-${{ steps.tree.outputs.tree }}
+          cache-from: |
+            type=gha,scope=edqa-app
+            type=gha,scope=edqa-worker
+          cache-to: type=gha,scope=edqa-worker,mode=max
+
+      - name: Build and push web
+        if: steps.existing.outputs.found == 'false'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          target: web
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          sbom: false
+          labels: org.opencontainers.image.revision=${{ github.sha }}
+          tags: |
+            ${{ env.REGISTRY }}/edqa-web:sha-${{ github.sha }}
+            ${{ env.REGISTRY }}/edqa-web:tree-${{ steps.tree.outputs.tree }}
+          cache-from: type=gha,scope=edqa-app
+
+      - name: Summary
+        if: steps.existing.outputs.found == 'false'
+        run: echo "Built sha-$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+
+  release:
+    name: Release to ${{ github.ref_name }}
+    needs: image
+    if: >-
+      always()
+      && (needs.image.result == 'success' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      # The tag is named after the branch, the only refs the Azure deploy identity trusts.
+      - name: Check the branch
+        run: |
+          case "$GITHUB_REF_NAME" in
+            staging | prod) ;;
+            *) echo "::error::Start the run from the staging or prod branch."; exit 1 ;;
+          esac
+
+      - uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Resolve the tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.image_tag }}
+        run: |
+          tag="${INPUT_TAG:-sha-$GITHUB_SHA}"
+          for image in $IMAGES; do
+            az acr repository show --name "${{ vars.ACR_NAME }}" --image "$image:$tag" --output none \
+              || { echo "::error::$image:$tag does not exist in ${{ vars.ACR_NAME }}"; exit 1; }
+          done
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to the registry
+        run: az acr login --name "${{ vars.ACR_NAME }}"
+
+      - name: Move the ${{ github.ref_name }} tag
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          for image in $IMAGES; do
+            docker buildx imagetools create --tag "$REGISTRY/$image:$GITHUB_REF_NAME" "$REGISTRY/$image:$TAG"
+          done
+          echo "$GITHUB_REF_NAME now points to $TAG; the VM deploys it within a few minutes." >> "$GITHUB_STEP_SUMMARY"

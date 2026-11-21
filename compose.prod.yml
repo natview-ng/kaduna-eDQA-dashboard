@@ -1,0 +1,149 @@
+# Staging and production on a VM: one stack per environment, set up by natview-ng/ansible
+# (roles/app_compose), which writes the two env files and deploys new images.
+# Same images and service names as compose.dev.yml. Nothing publishes a port: only `web` joins
+# the host's `proxy` network, where a front Caddy terminates TLS for every stack on the VM.
+#
+# .env (Compose's own settings, read when this file is loaded):
+#   COMPOSE_PROJECT_NAME       the stack, e.g. edqa-prod; also web's name on the proxy network
+#   EDQA_REGISTRY, EDQA_TAG    which images to run, e.g. natviewacr.azurecr.io and sha-<commit>
+#   POSTGRES_PASSWORD          the postgres superuser's password (first boot only)
+#   DB_MIGRATOR_PASSWORD       edqa_migrator's: only the migrate service gets it
+#   DB_APP_PASSWORD            edqa_app's: what the app, workers and scheduler connect as
+# app.env: the app's settings (.env.example), without DB_* or REDIS_HOST, which are set here.
+#
+# New code goes live with: docker compose run --rm migrate, then docker compose up -d.
+
+x-app: &app
+  image: ${EDQA_REGISTRY:?}/edqa-app:${EDQA_TAG:?}
+  env_file: [app.env]
+  environment: &app-env
+    DB_CONNECTION: pgsql
+    DB_HOST: postgres
+    DB_PORT: "5432"
+    DB_DATABASE: edqa
+    DB_USERNAME: edqa_app
+    DB_PASSWORD: ${DB_APP_PASSWORD:?}
+    REDIS_HOST: redis
+    REDIS_PORT: "6379"
+  volumes:
+    # Every persistent file (attachments, exports, ODK media) lives under storage/app,
+    # shared by the app, the workers and the scheduler.
+    - storage:/var/www/html/storage/app
+  restart: unless-stopped
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_healthy }
+
+# Queue workers finish their current job on SIGTERM; give them time before Docker kills them.
+# A job killed anyway is handed to a worker again after retry_after (config/queue.php).
+x-worker-stop: &worker-stop
+  stop_grace_period: 120s
+
+services:
+  web:
+    image: ${EDQA_REGISTRY:?}/edqa-web:${EDQA_TAG:?}
+    environment:
+      DOMAIN: ":80"
+      # The Caddyfile needs one, but behind the proxy this Caddy never asks for a certificate.
+      ACME_EMAIL: unused@example.invalid
+    networks:
+      default: {}
+      proxy:
+        aliases: ["${COMPOSE_PROJECT_NAME:?}-web"]
+    restart: unless-stopped
+    mem_limit: 128m
+    depends_on:
+      app: { condition: service_healthy }
+
+  app:
+    <<: *app
+    command: ["app"]
+    mem_limit: 1g                    # docker/php/fpm-pool.conf sizes FPM for 1 GB
+    healthcheck:
+      test: ["CMD-SHELL", "SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping REQUEST_METHOD=GET cgi-fcgi -bind -connect 127.0.0.1:9000 | grep -q pong"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 20s
+
+  # Pulls, reconciles, rescoring and clean-up.
+  queue:
+    <<: [*app, *worker-stop]
+    command: ["worker"]
+    environment:
+      <<: *app-env
+      WORKER_QUEUES: default,rescore,low
+    mem_limit: 512m
+
+  # CSV, Excel and PDF exports: the worker image adds Chromium.
+  exports:
+    <<: [*app, *worker-stop]
+    image: ${EDQA_REGISTRY:?}/edqa-worker:${EDQA_TAG:?}
+    command: ["worker"]
+    environment:
+      <<: *app-env
+      WORKER_QUEUES: exports
+    shm_size: 256m                   # Chromium crashes with the 64 MB default
+    mem_limit: 1g
+
+  scheduler:
+    <<: *app
+    command: ["scheduler"]
+    mem_limit: 256m
+
+  # Migrations and grants, run once per deploy before the new code starts. Only it connects as
+  # edqa_migrator, the owner of the schema.
+  migrate:
+    <<: *app
+    command: ["migrate"]
+    profiles: [migrate]
+    environment:
+      <<: *app-env
+      DB_USERNAME: edqa_migrator
+      DB_PASSWORD: ${DB_MIGRATOR_PASSWORD:?}
+    restart: "no"
+
+  postgres:
+    image: postgres:16-bookworm@sha256:efedf3595f1d6f415c08568ba171029bf54052e754cc9f030e3f2412b21f3d67
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      EDQA_MIGRATOR_PASSWORD: ${DB_MIGRATOR_PASSWORD:?}
+      EDQA_APP_PASSWORD: ${DB_APP_PASSWORD:?}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init-prod.sh:/docker-entrypoint-initdb.d/01-edqa.sh:ro
+    shm_size: 256m
+    mem_limit: 1g
+    restart: unless-stopped
+    # Time for a clean shutdown; Docker's 10 s default can force crash recovery on the next start.
+    stop_grace_period: 60s
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d edqa"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Queues and cache. appendonly keeps queued jobs across restarts. When full, only keys with an
+  # expiry (the cache) are evicted, never a queued job.
+  redis:
+    image: redis:7-bookworm@sha256:c6eabf748fc7a61dbb5a705c78bcf3d6377b1127a97d0ce965c11c44ba46896f
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "volatile-lru"]
+    volumes:
+      - redis:/data
+    mem_limit: 320m
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+networks:
+  # Created by the front proxy (natview-ng/ansible roles/proxy).
+  proxy:
+    external: true
+
+volumes:
+  storage: {}
+  pgdata: {}
+  redis: {}
