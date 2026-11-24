@@ -2,9 +2,14 @@
     email {$ACME_EMAIL}
     servers {
         protocols h1 h2 h3
+        # Behind a proxy on the host or Docker network (compose.prod.yml), take the client's
+        # address and https from its X-Forwarded-* headers. Internet clients are never trusted.
+        trusted_proxies static private_ranges
     }
 }
 
+# DOMAIN is the site's name (Caddy gets its certificate and redirects http to https), or :80
+# for plain http behind a proxy that terminates TLS (compose.prod.yml).
 {$DOMAIN} {
     root * /srv/public
     encode zstd gzip
@@ -40,8 +45,4 @@
         output stdout
         format json
     }
-}
-
-http://{$DOMAIN} {
-    redir https://{host}{uri} permanent
 }

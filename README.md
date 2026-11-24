@@ -215,6 +215,14 @@ Containers are stateless: persistent files live under `storage/app`, logs go to 
 migrations run only in the `migrate` role. After a deploy, check PDF rendering with
 `php artisan edqa:pdf-smoke` in the exports worker.
 
+On natview's VM, staging and production each run [`compose.prod.yml`](compose.prod.yml) as their own
+stack, behind one front Caddy that terminates TLS. A push to the `staging` or `prod` branch builds
+the images and moves that environment's tag in the registry
+([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)); the VM notices within a few
+minutes, runs the migrations, starts the release, checks `/up` and rolls back if it fails. A manual
+run of the workflow with an older `sha-<commit>` tag rolls back. The VM itself is set up by
+natview-ng/ansible (`roles/app_compose`).
+
 ---
 
 ## Project layout
